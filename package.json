@@ -2,9 +2,9 @@
   "name": "vkfix",
   "version": "1.0.0",
   "description": "VKFix Userscript for fixing VK social network",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack"
   },
   "keywords": [],
   "author": {
