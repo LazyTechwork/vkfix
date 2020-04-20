@@ -1,9 +1,11 @@
 const path = require('path');
-import webpack from "webpack";
-import TerserPlugin from 'terser-webpack-plugin';
+const fs = require('fs');
+const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     entry: './src/index.ts',
+    mode: "development",
     optimization: {
         minimizer: [
             new TerserPlugin({
