@@ -1,0 +1,23 @@
+{
+  "name": "vkfix",
+  "version": "1.0.0",
+  "description": "VKFix Userscript for fixing VK social network",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Ivan Petrov",
+    "email": "lazytechwork@gmail.com"
+  },
+  "contributors": [
+    "xeleoss"
+  ],
+  "repository": "github:lazytechwork/vkfix",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  }
+}
