@@ -17,6 +17,7 @@
   "repository": "github:lazytechwork/vkfix",
   "license": "MIT",
   "devDependencies": {
+    "terser-webpack-plugin": "^2.3.5",
     "ts-loader": "^7.0.1",
     "typescript": "^3.8.3",
     "webpack": "^4.42.1",
