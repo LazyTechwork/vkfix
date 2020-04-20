@@ -7,6 +7,8 @@
 // @include https://vk.com/*
 // ==/UserScript==
 
+import hover_kick from "./hover_kick";
+
 (function (window, undefined) {  // [2] нормализуем window
     let w = window;
 
@@ -25,5 +27,6 @@
     // [4] дополнительная проверка наряду с @include
     if (/https:\/\/vk.com/.test(w.location.href)) {
         console.log("VK Fix запущен")
+        hover_kick()
     }
 })(window);
