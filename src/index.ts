@@ -21,6 +21,8 @@ import GM_config from "./libs/GM_config.js";
         return;
     }
 
+    // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
+
     // Инициализируем новый конфиг
     let cfg = new GM_config({
         'id': 'vkfix',
