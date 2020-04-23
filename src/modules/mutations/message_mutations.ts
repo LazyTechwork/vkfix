@@ -1,8 +1,10 @@
 import amadeus_actions from "../amadeus_actions";
 import message_actions from "../message_actions";
+import VKLocation from "../../classes/VKLocation";
 
 export default function (mutation: MutationRecord) {
     if (mutation.target.nodeType !== 1) return; // Если мутация текст - переходим дальше
+    if (!VKLocation.isConversation()) return;
 
     let target: HTMLElement = mutation.target as HTMLElement // Получаем цель мутации
     let classes: DOMTokenList = target.classList // Получаем список классов
