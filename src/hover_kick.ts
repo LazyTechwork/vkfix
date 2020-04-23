@@ -20,13 +20,13 @@ export default function () {
     observer.observe(document.body, {childList: true, subtree: true});
 }
 
-function addButtons(node: Node) {
-    node.appendChild(addButton('И', 'Исключить', 'кик'));
-    node.appendChild(addButton('+', 'Плюсануть', '+'));
-    node.appendChild(addButton('С', 'Статистика', 'стата'));
+function addButtons(node: Element) {
+    addButton('И', 'Исключить', 'кик', node);
+    addButton('+', 'Плюсануть', '+', node);
+    addButton('С', 'Статистика', 'стата', node);
 }
 
-function addButton(icon: string, text: string, command: string) {
+function addButton(icon: string, text: string, command: string, node: Element) {
     const child = document.createElement('span');
     child.innerHTML = icon;
     child.className = 'vkfix-action';
@@ -35,7 +35,7 @@ function addButton(icon: string, text: string, command: string) {
     child.addEventListener('click', (ev: any) => {
         const id = getIdAuthorMessageClick(ev);
         const peerId = getPeerIdMessageClick(ev);
-        sendMessageCurrentDialog(`Амадеус ${command} @id${id}`, peerId);
+        sendMessageCurrentDialog(`Амадеус ${command}`, peerId, node.getElementsByClassName('im-mess--reply')[0] as HTMLElement);
     });
     child.onmouseover = function () {
         // @ts-ignore
@@ -46,9 +46,8 @@ function addButton(icon: string, text: string, command: string) {
             black: 1,
             content: '<div class="tt_text wrapped">' + text + '</div>'
         });
-
     }
-    return child;
+    return node.appendChild(child);
 }
 
 function getIdAuthorMessageClick(ev: any) {
@@ -72,9 +71,15 @@ function getPeerIdMessageClick(ev: any) {
         .getNamedItem('data-peer').value;
 }
 
-function sendMessageCurrentDialog(text: string, peerId: number) {
-    const messageBlock: any = document.getElementById(`im_editable${peerId}`)
-    messageBlock.setValue(text);
-    const sendButtonEl: HTMLElement = messageBlock.parentNode.getElementsByClassName('im-send-btn')[0];
-    sendButtonEl.click();
+function sendMessageCurrentDialog(text: string, peerId: number, replyNode: HTMLElement = null) {
+    console.log({replyNode})
+    if (replyNode !== null) {
+        replyNode.addEventListener('click', (ev) => {
+            const messageBlock: any = document.getElementById(`im_editable${peerId}`)
+            messageBlock.setValue(text);
+            const sendButtonEl: HTMLElement = messageBlock.parentNode.getElementsByClassName('im-send-btn')[0];
+            sendButtonEl.click();
+        })
+        replyNode.click()
+    }
 }
