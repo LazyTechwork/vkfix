@@ -21,15 +21,15 @@ export default function () {
 }
 
 function addButtons(node: Node) {
-    node.appendChild(addButton(' И ', 'Исключить', 'кик'));
-    node.appendChild(addButton(' + ', 'Плюсануть', '+'));
-    node.appendChild(addButton(' С ', 'Статистика', 'стата'));
+    node.appendChild(addButton('И', 'Исключить', 'кик'));
+    node.appendChild(addButton('+', 'Плюсануть', '+'));
+    node.appendChild(addButton('С', 'Статистика', 'стата'));
 }
 
 function addButton(icon: string, text: string, command: string) {
     const child = document.createElement('span');
     child.innerHTML = icon;
-    child.className = 'im-mess--kicked _im_mess_kicked';
+    child.className = 'vkfix-action';
     child.setAttribute('role', 'link');
     child.setAttribute('aria-label', text);
     child.addEventListener('click', (ev: any) => {
