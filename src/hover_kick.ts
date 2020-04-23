@@ -1,6 +1,6 @@
 export default function () {
     console.log("Hover kick");
-    for(const message of document.getElementsByClassName('im-mess--actions')) {
+    for (const message of document.getElementsByClassName('im-mess--actions')) {
         message.appendChild(addButton('И', 'Исключить', 'кик'));
         message.appendChild(addButton('+', 'Плюсануть', '+'));
         message.appendChild(addButton('С', 'Статистика', 'стата'));
@@ -22,7 +22,7 @@ function addButton(icon: string, text: string, command: string) {
 }
 
 function getIdAuthorMessageClick(ev: any) {
- return  ev
+    return ev
         .target
         .offsetParent
         .offsetParent
@@ -31,7 +31,7 @@ function getIdAuthorMessageClick(ev: any) {
 }
 
 function getPeerIdMessageClick(ev: any) {
-    return  ev
+    return ev
         .target
         .offsetParent
         .offsetParent
