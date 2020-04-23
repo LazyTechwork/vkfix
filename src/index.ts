@@ -8,7 +8,6 @@
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
-// @grant GM_registerMenuCommand
 // ==/UserScript==
 
 import hover_kick from "./hover_kick";
@@ -43,15 +42,22 @@ import GM_config from "./libs/GM_config.js";
             }
         }
     });
-    GM_registerMenuCommand('Настройка', () => {
-        cfg.open()
-    })
 
     // [4] дополнительная проверка наряду с @include
     if (/https:\/\/vk.com/.test(w.location.href)) {
         console.log("VK Fix запущен")
 
-
+        const settings_link = document.getElementById('top_settings_link')
+        const vkfixconflink = document.createElement('a')
+        vkfixconflink.innerHTML = "VK Fix"
+        vkfixconflink.id = "top_vkfix_settings_link"
+        vkfixconflink.className = "top_profile_mrow"
+        vkfixconflink.setAttribute("href", "#")
+        settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling)
+        vkfixconflink.addEventListener('click', (ev) => {
+            ev.preventDefault()
+            cfg.open()
+        })
 
         styles()
 
