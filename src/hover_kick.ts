@@ -1,30 +1,29 @@
 export default function () {
     console.log("Hover kick");
     let observer = new MutationObserver(function (mutations) {
-        // im-mess--actions
         mutations.forEach(function (mutation) {
+
             if (mutation.target.nodeType !== 1) return;
             let target: HTMLElement = mutation.target as HTMLElement
             let classes: DOMTokenList = target.classList
             if (!classes) return;
-            console.log("Произошла мутация (im-mess--actions)!", mutation, classes)
+            // console.log("Произошла мутация (im-mess--actions)!", mutation, classes)
+
             if (classes.contains('im-mess'))
                 for (let n of target.children) {
                     if (!n.classList) return
                     if (n.classList.contains('im-mess--actions'))
                         addButtons(n)
                 }
-
-
         });
     });
     observer.observe(document.body, {childList: true, subtree: true});
 }
 
 function addButtons(node: Node) {
-    node.appendChild(addButton('И', 'Исключить', 'кик'));
-    node.appendChild(addButton('+', 'Плюсануть', '+'));
-    node.appendChild(addButton('С', 'Статистика', 'стата'));
+    node.appendChild(addButton(' И ', 'Исключить', 'кик'));
+    node.appendChild(addButton(' + ', 'Плюсануть', '+'));
+    node.appendChild(addButton(' С ', 'Статистика', 'стата'));
 }
 
 function addButton(icon: string, text: string, command: string) {
@@ -67,6 +66,6 @@ function sendMessageCurrentDialog(text: string, peerId: number) {
     // console.log({messageBlock});
     messageBlock.innerText = text;
     const sendButtonEl = messageBlock.parentNode.getElementsByClassName('im-send-btn')[0];
-    sendButtonEl.click();
+    sendButtonEl.trigger('click');
     // console.log({sendButtonEl});
 }
