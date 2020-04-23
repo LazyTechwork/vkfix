@@ -1,5 +1,6 @@
 export default class APIInteractor {
     static req(method, url, data) {
+        console.log({method, url, data})
         const xhr = new XMLHttpRequest();
         return new Promise(function build(resolve, reject) {
             xhr.open(method, url, true);
@@ -17,7 +18,8 @@ export default class APIInteractor {
     }
 
     static callApiRaw(data, endpoint) {
-        return APIInteractor.req('GET', endpoint + '/execute', {}).then(function parseHash(res: string) {
+        console.log('Call API Raw', data, endpoint)
+        return this.req('GET', 'https://' + location.host + '/dev/execute', {}).then(function parseHash(res: string) {
             const hash = res.match(/Dev\.methodRun\('([a-z0-9:]+)/im);
 
             if (!hash)
@@ -27,16 +29,20 @@ export default class APIInteractor {
                 });
 
             return hash[1];
-        }).then(function sendRequest(hash) {
+        }).then(hash => {
+            console.log('Got hash!', hash, data)
             const _data = new FormData();
             _data.append('hash', hash);
-            for (const [key, value] of data.keys())
-                _data.append(key, value)
-            return APIInteractor.req('POST', endpoint, _data);
-        }).then(this.parseApiRaw);
+            for (const key in data)
+                if (data.hasOwnProperty(key)) _data.append(key, data[key])
+
+            console.log('Sending request to API', {endpoint, _data})
+            return this.req('POST', endpoint, _data);
+        }).then(res => this.parseApiRaw(res));
     }
 
     static parseApiRaw(res: any) {
+        console.log('Got response!', res)
         try {
             res = JSON.parse(res.replace(/^.+?{/, '{'));
             if (res && res.payload && res.payload[1] && res.payload[1][0])
