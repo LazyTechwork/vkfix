@@ -32,16 +32,15 @@ import GM_config from "./libs/GM_config.js";
     }
 
     let cfg = new GM_config({
-        'id': 'vkfix', // The id used for this instance of GM_config
-        'fields': // Fields object
-            {
-                'hover_kick': // This is the id of the field
-                    {
-                        'label': 'Дополнительные действия в сообщениях', // Appears next to field
-                        'type': 'checkbox', // Makes this setting a text field
-                        'default': true // Default value if user doesn't change it
-                    }
+        'id': 'vkfix',
+        'title': 'Настройка VK Fix',
+        'fields': {
+            'hover_kick': {
+                'label': 'Дополнительные действия в сообщениях', // Appears next to field
+                'type': 'checkbox', // Makes this setting a text field
+                'default': true // Default value if user doesn't change it
             }
+        }
     });
     GM_registerMenuCommand('Настройка', () => {
         cfg.open()
@@ -50,8 +49,8 @@ import GM_config from "./libs/GM_config.js";
     // [4] дополнительная проверка наряду с @include
     if (/https:\/\/vk.com/.test(w.location.href)) {
         console.log("VK Fix запущен")
-        console.log(cfg.get('hover_kick'))
         styles()
-        hover_kick()
+        if (cfg.get('hover_kick'))
+            hover_kick()
     }
 })(window);
