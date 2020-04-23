@@ -23,12 +23,12 @@ export default class MessageButton {
         actionGroup.appendChild(child);
     }
 
-    static addButtons(buttons: MessageButton[], actionGroup: any) {
-        if (actionGroup.renderVkFixButtons) return // уже рендерили
-
+    static addButtons(buttons: MessageButton[], actionGroup: any, groupId: string) {
+        if (actionGroup.vkfix && actionGroup.vkfix[groupId]) return
         for (const button of buttons)
             MessageButton.createButton(button, actionGroup)
-
-        actionGroup.renderVkFixButtons = true // ставим флаг на рендер
+        if (!actionGroup.vkfix)
+            actionGroup.vkfix = {}
+        actionGroup.vkfix[groupId] = true
     }
 }
