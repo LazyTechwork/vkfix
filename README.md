@@ -15,6 +15,7 @@
 // @require https://raw.github.com/odyniec/MonkeyConfig/master/monkeyconfig.js
 // @grant GM_getValue
 // @grant GM_setValue
+// @grant GM_addStyle
 // @grant GM_registerMenuCommand
 // ==/UserScript==
 ```
