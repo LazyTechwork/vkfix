@@ -12,8 +12,12 @@ export default function (mutation: MutationRecord) {
         for (let n of target.children) { // Получаем всех детей элемента
             if (!n.classList) continue // Если у ребенка нет классов переходим дальше
             if (n.classList.contains('im-mess--actions')) { // Если это группа действий и в ней нет наших кнопок - добавляем их
-                amadeus_actions(n)
-                message_actions(n)
+                mutation_act(n)
             }
         }
+}
+
+export function mutation_act(n: any) {
+    amadeus_actions(n)
+    message_actions(n)
 }
