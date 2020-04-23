@@ -10,9 +10,9 @@
 // @grant GM_addStyle
 // ==/UserScript==
 
-import amadeus_actions from "./modules/amadeus_actions";
 import styles from "./modules/styles";
 import GM_config from "./libs/GM_config.js";
+import mutation_handler from "./modules/mutations/mutation_handler";
 
 (function (window, undefined) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -54,10 +54,7 @@ import GM_config from "./libs/GM_config.js";
             cfg.open()
         })
 
-        // Инъекция стилей
-        styles()
-
-        if (cfg.get('amadeus'))
-            amadeus_actions()
+        styles() // Инъекция стилей
+        mutation_handler() // Регистрируем модуль слежения за мутациями
     }
 })(window);
