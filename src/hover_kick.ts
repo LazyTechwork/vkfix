@@ -79,7 +79,7 @@ function sendMessageCurrentDialog(text: string, peerId: number, replyNode: HTMLE
             messageBlock.setValue(text);
             const sendButtonEl: HTMLElement = messageBlock.parentNode.getElementsByClassName('im-send-btn')[0];
             sendButtonEl.click();
-        })
+        }, {once: true})
         replyNode.click()
     }
 }
