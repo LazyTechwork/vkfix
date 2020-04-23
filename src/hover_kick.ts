@@ -1,7 +1,9 @@
 import Config from "./classes/Config";
 import Button from "./classes/Button";
 
-const config: Config = {
+Config.Global = {
+    prevCommandText: 'Амадеус ',
+    replyMessage: true,
     buttons: [{
         icon: 'И',
         text: "Исключить",
@@ -31,7 +33,7 @@ export default function () {
                 for (let n of target.children) {
                     if (!n.classList) return
                     if (n.classList.contains('im-mess--actions') && n.getElementsByClassName('vkfix-action').length == 0)
-                        Button.addButtons(config.buttons, n);
+                        Button.addButtons(Config.Global, n);
                 }
         });
     });

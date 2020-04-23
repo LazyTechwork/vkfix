@@ -1,14 +1,12 @@
 import Message from "./Message";
+import Config from "./Config";
 
 export default class Button {
     public icon: string;
     public text: string;
     public command: string;
 
-    static createButton(button: Button, node: any) {
-        if(node.renderVkFixButtons) return; //если уже рендерили - не рендерим
-
-        node.renderVkFixButtons = true; //ставим флаг на рендер
+    static createButton(button: Button, node: any, config: Config) {
         const child = document.createElement('span');
         child.innerHTML = button.icon;
         child.className = 'vkfix-action';
@@ -16,12 +14,15 @@ export default class Button {
         child.setAttribute('aria-label', button.text);
         child.addEventListener('click', (ev: any) => {
             // const id = Message.getIdAuthorClick(ev);
-            const n  = Message.getParentClick(ev);
+            const n = Message.getParentClick(ev);
             const peerId = Message.getPeerIdClick(ev);
             const message = new Message();
-            message.text = `Амадеус ${button.command}`;
+            message.text = `${config.prevCommandText}${button.command}`;
             message.peerId = peerId;
-            message.replyNode = n.getElementsByClassName('im-mess--reply')[0] as HTMLElement;
+            if(config.replyMessage) {
+                message.replyNode = n.getElementsByClassName('im-mess--reply')[0] as HTMLElement;
+            }
+
             message.sendCurrentDialog();
         });
         child.onmouseover = function () {
@@ -37,9 +38,13 @@ export default class Button {
         node.appendChild(child);
     }
 
-    static addButtons(buttons: Button[], node: Element) {
-        for(const button of buttons) {
-            Button.createButton(button, node);
+    static addButtons(config: Config, node: any) {
+        if (node.renderVkFixButtons) return; // уже рендерили
+
+        for (const button of config.buttons) {
+            Button.createButton(button, node, config);
         }
+
+        node.renderVkFixButtons = true; //ставим флаг на рендер
     }
 }

@@ -1,5 +1,8 @@
 import Button from "./Button";
 
 export default class Config {
-    buttons: Button[]
+    static Global: Config;
+    buttons: Button[];
+    prevCommandText = '';
+    replyMessage = false;
 }
