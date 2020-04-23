@@ -1,9 +1,9 @@
 export default function () {
     console.log("Hover kick");
-    const pw = document.querySelector('#content');
     let observer = new MutationObserver(function (mutations) {
         // im-mess--actions
         mutations.forEach(function (mutation) {
+            if (mutation.target.nodeType !== 1) return;
             console.log("Произошла мутация!", mutation)
             if (!mutation.target || typeof mutation.target != 'object')
                 return
@@ -17,7 +17,7 @@ export default function () {
             }*/
         });
     });
-    observer.observe(pw, {attributes: false, childList: true, characterData: false, subtree: true});
+    observer.observe(document.body, {childList: true, subtree: true});
 }
 
 function addButtons(node: Node) {
