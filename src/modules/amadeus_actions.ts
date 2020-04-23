@@ -1,5 +1,6 @@
 import AmadeusConfig from "../classes/AmadeusConfig";
 import AmadeusButton from "../classes/AmadeusButton";
+import GlobalConfig from "../GlobalConfig";
 
 AmadeusConfig.Global = {
     prevCommandText: 'Амадеус ',
@@ -19,8 +20,9 @@ AmadeusConfig.Global = {
     }]
 };
 
-console.log("Подключён модуль управления конференцией при помощи Амадеуса");
+const isModuleEnabled = GlobalConfig.Config.get('amadeus');
 
 export default function (n: any) {
-    AmadeusButton.addButtons(AmadeusConfig.Global, n);
+    if (isModuleEnabled)
+        AmadeusButton.addButtons(AmadeusConfig.Global, n);
 }

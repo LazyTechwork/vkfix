@@ -11,8 +11,8 @@
 // ==/UserScript==
 
 import styles from "./modules/styles";
-import GM_config from "./libs/GM_config.js";
 import mutation_handler from "./modules/mutations/mutation_handler";
+import GlobalConfig from "./GlobalConfig";
 
 (function (window, undefined) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -24,18 +24,6 @@ import mutation_handler from "./modules/mutations/mutation_handler";
     // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
 
     // Инициализируем новый конфиг
-    let cfg = new GM_config({
-        'id': 'vkfix',
-        'title': 'Настройка VK Fix',
-        'fields': {
-            'amadeus': {
-                'label': 'Управление конференциями при помощи Амадеуса',
-                'type': 'checkbox',
-                'default': true,
-                'section': ['Настройки модулей', 'Не забудьте перезагрузить страницу']
-            }
-        }
-    });
 
     // [4] дополнительная проверка наряду с @include
     if (/https:\/\/vk.com/.test(w.location.href)) {
@@ -51,7 +39,7 @@ import mutation_handler from "./modules/mutations/mutation_handler";
         settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling) // Вставляем после ссылки на настройки
         vkfixconflink.addEventListener('click', (ev) => {
             ev.preventDefault()
-            cfg.open()
+            GlobalConfig.Config.open()
         })
 
         styles() // Инъекция стилей
