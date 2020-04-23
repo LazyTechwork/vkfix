@@ -1,7 +1,7 @@
-import Config from "./classes/Config";
-import Button from "./classes/Button";
+import AmadeusConfig from "./classes/AmadeusConfig";
+import AmadeusButton from "./classes/AmadeusButton";
 
-Config.Global = {
+AmadeusConfig.Global = {
     prevCommandText: 'Амадеус ',
     replyMessage: true,
     buttons: [{
@@ -24,7 +24,7 @@ export default function () {
 
     // При инциализации скрипта пробегаемся по всем сообщениям и добавляем кнопки
     for (const n of document.getElementsByClassName('im-mess--actions'))
-        Button.addButtons(Config.Global, n);
+        AmadeusButton.addButtons(AmadeusConfig.Global, n);
 
     // Настраиваем слежение мутаций в DOM
     let observer = new MutationObserver(function (mutations) {
@@ -39,7 +39,7 @@ export default function () {
                 for (let n of target.children) { // Получаем всех детей элемента
                     if (!n.classList) continue // Если у ребенка нет классов переходим дальше
                     if (n.classList.contains('im-mess--actions'))
-                        Button.addButtons(Config.Global, n); // Если это группа действий и в ней нет наших кнопок - добавляем их
+                        AmadeusButton.addButtons(AmadeusConfig.Global, n); // Если это группа действий и в ней нет наших кнопок - добавляем их
                 }
         });
     });

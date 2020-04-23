@@ -1,12 +1,12 @@
 import Message from "./Message";
-import Config from "./Config";
+import AmadeusConfig from "./AmadeusConfig";
 
-export default class Button {
+export default class AmadeusButton {
     public icon: string;
     public text: string;
     public command: string;
 
-    static createButton(button: Button, node: any, config: Config) {
+    static createButton(button: AmadeusButton, node: any, config: AmadeusConfig) {
         const child = document.createElement('span');
         child.innerHTML = button.icon;
         child.className = 'vkfix-action';
@@ -19,7 +19,7 @@ export default class Button {
             const message = new Message();
             message.text = `${config.prevCommandText}${button.command}`;
             message.peerId = peerId;
-            if(config.replyMessage) {
+            if (config.replyMessage) {
                 message.replyNode = n.getElementsByClassName('im-mess--reply')[0] as HTMLElement;
             }
 
@@ -38,11 +38,11 @@ export default class Button {
         node.appendChild(child);
     }
 
-    static addButtons(config: Config, node: any) {
+    static addButtons(config: AmadeusConfig, node: any) {
         if (node.renderVkFixButtons) return; // уже рендерили
 
         for (const button of config.buttons) {
-            Button.createButton(button, node, config);
+            AmadeusButton.createButton(button, node, config);
         }
 
         node.renderVkFixButtons = true; //ставим флаг на рендер
