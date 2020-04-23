@@ -4,17 +4,16 @@ export default function () {
         // im-mess--actions
         mutations.forEach(function (mutation) {
             if (mutation.target.nodeType !== 1) return;
-            console.log("Произошла мутация!", mutation)
-            if (!mutation.target || typeof mutation.target != 'object')
-                return
-            let classes: DOMTokenList = mutation.target['classList']
-            // if (classes.contains('im-mess-stack') || classes.contains('_im_peer_history')) {
-            // }
-
-            /*for (const node of mutation.addedNodes) {
-                if (!node || typeof node != 'object')
-                    return
-            }*/
+            let classes: DOMTokenList = mutation.target.classList;
+            if (!classes) return;
+            console.log("Произошла мутация (im-mess--actions)!", mutation, classes)
+            if (classes.contains('im-mess')) {
+                mutation.target.childNodes.forEach((n: Node) => {
+                    if (!n.classList) return
+                    if (n.classList.contains('im-mess--actions'))
+                        addButtons(n)
+                })
+            }
         });
     });
     observer.observe(document.body, {childList: true, subtree: true});
