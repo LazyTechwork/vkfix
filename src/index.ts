@@ -36,9 +36,10 @@ import GM_config from "./libs/GM_config.js";
         'title': 'Настройка VK Fix',
         'fields': {
             'hover_kick': {
-                'label': 'Дополнительные действия в сообщениях', // Appears next to field
-                'type': 'checkbox', // Makes this setting a text field
-                'default': true // Default value if user doesn't change it
+                'label': 'Дополнительные действия в сообщениях',
+                'type': 'checkbox',
+                'default': true,
+                'section': ['Настройки модулей', 'Не забудьте перезагрузить страницу']
             }
         }
     });
@@ -49,7 +50,11 @@ import GM_config from "./libs/GM_config.js";
     // [4] дополнительная проверка наряду с @include
     if (/https:\/\/vk.com/.test(w.location.href)) {
         console.log("VK Fix запущен")
+
+
+
         styles()
+
         if (cfg.get('hover_kick'))
             hover_kick()
     }
