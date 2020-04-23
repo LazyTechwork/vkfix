@@ -63,9 +63,10 @@ function getPeerIdMessageClick(ev: any) {
 
 function sendMessageCurrentDialog(text: string, peerId: number) {
     const messageBlock: any = document.getElementById(`im_editable${peerId}`)
-    // console.log({messageBlock});
-    messageBlock.innerText = text;
-    const sendButtonEl = messageBlock.parentNode.getElementsByClassName('im-send-btn')[0];
-    sendButtonEl.trigger('click');
-    // console.log({sendButtonEl});
+    console.log({messageBlock});
+    console.log(peerId, text);
+    messageBlock.setValue(text);
+    // messageBlock.innerText = text;
+    const sendButtonEl: HTMLElement = messageBlock.parentNode.getElementsByClassName('im-send-btn')[0];
+    // sendButtonEl.click();
 }
