@@ -4,16 +4,18 @@ export default function () {
         // im-mess--actions
         mutations.forEach(function (mutation) {
             if (mutation.target.nodeType !== 1) return;
-            let classes: DOMTokenList = mutation.target.classList;
+            let target: HTMLElement = mutation.target as HTMLElement
+            let classes: DOMTokenList = target.classList
             if (!classes) return;
             console.log("Произошла мутация (im-mess--actions)!", mutation, classes)
-            if (classes.contains('im-mess')) {
-                mutation.target.childNodes.forEach((n: Node) => {
+            if (classes.contains('im-mess'))
+                for (let n of target.children) {
                     if (!n.classList) return
                     if (n.classList.contains('im-mess--actions'))
                         addButtons(n)
-                })
-            }
+                }
+
+
         });
     });
     observer.observe(document.body, {childList: true, subtree: true});
