@@ -5,6 +5,10 @@
 // @license MIT
 // @version 1.0.0
 // @include https://vk.com/*
+// @require https://raw.github.com/odyniec/MonkeyConfig/master/monkeyconfig.js
+// @grant GM_getValue
+// @grant GM_setValue
+// @grant GM_registerMenuCommand
 // ==/UserScript==
 
 import hover_kick from "./hover_kick";
@@ -28,6 +32,17 @@ import styles from "./styles";
     // [4] дополнительная проверка наряду с @include
     if (/https:\/\/vk.com/.test(w.location.href)) {
         console.log("VK Fix запущен")
+        let cfg = new MonkeyConfig({
+            title: 'VK Fix Configuration',
+            menuCommand: true,
+            params: {
+                hover_kick: {
+                    type: 'checkbox',
+                    default: true
+                }
+            }
+        });
+        console.log(cfg.get('hover_kick'))
         styles()
         hover_kick()
     }
