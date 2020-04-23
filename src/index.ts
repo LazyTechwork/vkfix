@@ -5,7 +5,6 @@
 // @license MIT
 // @version 1.0.0
 // @include https://vk.com/*
-// @require https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle

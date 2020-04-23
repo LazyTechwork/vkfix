@@ -12,7 +12,6 @@
 // @version 1.0.0
 // @include https://vk.com/*
 // @require file://C:/Work/Development/vkfix/dist/vkfix.user.js
-// @require https://raw.github.com/odyniec/MonkeyConfig/master/monkeyconfig.js
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
