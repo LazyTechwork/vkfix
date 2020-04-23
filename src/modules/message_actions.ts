@@ -2,7 +2,7 @@ import MessageButton from "../classes/MessageButton";
 
 const buttons: MessageButton[] = [{
     icon: 'K',
-    action: () => {
+    action: (ev: any) => {
     /*    https://vk.com/al_im.php
           act: a_kick_user
 al: 1
