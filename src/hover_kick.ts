@@ -1,10 +1,42 @@
 export default function () {
     console.log("Hover kick");
-    for (const message of document.getElementsByClassName('im-mess--actions')) {
-        message.appendChild(addButton('И', 'Исключить', 'кик'));
-        message.appendChild(addButton('+', 'Плюсануть', '+'));
-        message.appendChild(addButton('С', 'Статистика', 'стата'));
-    }
+    const pw = document.querySelector('#content');
+    let observer = new MutationObserver(function (mutations) {
+        // im-mess--actions
+        mutations.forEach(function (mutation) {
+            console.log(mutation)
+            let classes: DOMTokenList = mutation.target['classList']
+            if (classes.contains('im-mess-stack') || classes.contains('_im_peer_history')) {
+                // for (const message of document.getElementsByClassName('im-mess--actions'))
+                //     addButtons(message)
+            }
+
+            for (const node of mutation.addedNodes) {
+                if (!node || typeof node != 'object')
+                    return
+                let classes = node['classList']
+                // console.log(node);
+                if (classes.contains('im-mess--actions'))
+                    addButtons(node)
+                else if (classes.contains('im-mess'))
+                    for (const child of node.childNodes) {
+                        if (child['classList'].contains('im-mess--actions'))
+                            addButtons(child)
+                    }
+                else if (classes.contains('im-mess-stack') || classes.contains('_im_peer_history')) {
+                    for (const message of document.getElementsByClassName('im-mess--actions'))
+                        addButtons(message)
+                }
+            }
+        });
+    });
+    observer.observe(pw, {attributes: false, childList: true, characterData: false, subtree: true});
+}
+
+function addButtons(node: Node) {
+    node.appendChild(addButton('И', 'Исключить', 'кик'));
+    node.appendChild(addButton('+', 'Плюсануть', '+'));
+    node.appendChild(addButton('С', 'Статистика', 'стата'));
 }
 
 function addButton(icon: string, text: string, command: string) {
