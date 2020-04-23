@@ -10,7 +10,7 @@
 // @grant GM_addStyle
 // ==/UserScript==
 
-import hover_kick from "./hover_kick";
+import amadeus_actions from "./amadeus_actions";
 import styles from "./styles";
 import GM_config from "./libs/GM_config.js";
 
@@ -28,8 +28,8 @@ import GM_config from "./libs/GM_config.js";
         'id': 'vkfix',
         'title': 'Настройка VK Fix',
         'fields': {
-            'hover_kick': {
-                'label': 'Дополнительные действия в сообщениях',
+            'amadeus': {
+                'label': 'Управление конференциями при помощи Амадеуса',
                 'type': 'checkbox',
                 'default': true,
                 'section': ['Настройки модулей', 'Не забудьте перезагрузить страницу']
@@ -57,7 +57,7 @@ import GM_config from "./libs/GM_config.js";
         // Инъекция стилей
         styles()
 
-        if (cfg.get('hover_kick'))
-            hover_kick()
+        if (cfg.get('amadeus'))
+            amadeus_actions()
     }
 })(window);
