@@ -4,7 +4,8 @@
   "description": "VKFix Userscript for fixing VK social network",
   "private": true,
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "start": "webpack && nodemon dist/vkfix.user.js --exec babel-node --presets=es2015,stage-2"
   },
   "keywords": [],
   "author": {
@@ -22,5 +23,8 @@
     "typescript": "^3.8.3",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "@types/jquery": "^3.3.35"
   }
 }
