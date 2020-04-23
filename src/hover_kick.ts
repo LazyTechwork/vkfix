@@ -12,7 +12,7 @@ export default function () {
             if (classes.contains('im-mess'))
                 for (let n of target.children) {
                     if (!n.classList) return
-                    if (n.classList.contains('im-mess--actions'))
+                    if (n.classList.contains('im-mess--actions') && n.getElementsByClassName('vkfix-action').length == 0)
                         addButtons(n)
                 }
         });
@@ -37,6 +37,17 @@ function addButton(icon: string, text: string, command: string) {
         const peerId = getPeerIdMessageClick(ev);
         sendMessageCurrentDialog(`Амадеус ${command} @id${id}`, peerId);
     });
+    child.onmouseover = function () {
+        // @ts-ignore
+        if (!showTooltip) return
+        // @ts-ignore
+        showTooltip(child, {
+            force: 1,
+            black: 1,
+            content: '<div class="tt_text wrapped">' + text + '</div>'
+        });
+
+    }
     return child;
 }
 
