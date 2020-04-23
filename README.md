@@ -12,7 +12,13 @@
 // @version 1.0.0
 // @include https://vk.com/*
 // @require file://C:/Work/Development/vkfix/dist/vkfix.user.js
+// @require https://raw.github.com/odyniec/MonkeyConfig/master/monkeyconfig.js
+// @grant GM_getValue
+// @grant GM_setValue
+// @grant GM_registerMenuCommand
 // ==/UserScript==
 ```
 
-Вместо `C:/Work/Development/vkfix` вставляем свой путь до этого проекта. Далее запускаем `npm run build` и всё готово, при новом билде скрипт будет автоматически браться из файла
+Вместо `C:/Work/Development/vkfix` вставляем свой путь до этого проекта. Далее запускаем `npm run build` и всё готово, при новом билде скрипт будет автоматически браться из файла. 
+
+Не забудьте дать TamperMonkey разрешение на работу с локальными файлами, это делается в настройках расширений Chrome.
