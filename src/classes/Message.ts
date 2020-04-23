@@ -6,7 +6,7 @@ export default class Message {
     sendCurrentDialog() {
         if (this.replyNode !== null) {
             this.replyNode.addEventListener('click', (ev) => {
-                const messageBlock: any = document.getElementById(`im_editable${this.peerId}`)
+                const messageBlock: any = document.getElementsByClassName('im_editable')[0]
                 messageBlock.setValue(this.text);
                 const sendButtonEl: HTMLElement = messageBlock.parentNode.getElementsByClassName('im-send-btn')[0];
                 sendButtonEl.click();
