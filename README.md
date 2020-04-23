@@ -3,7 +3,8 @@
 
 В TamperMonkey создаём новый скрипт, пихаем туда следующий код.
 
-```// ==UserScript==
+```
+// ==UserScript==
 // @name VK Fix
 // @description Скрипт для улучшения интерфейса ВКонтакте
 // @author Ivan Petrov (LazyTechwork)
