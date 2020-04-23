@@ -5,7 +5,10 @@ export default class Button {
     public text: string;
     public command: string;
 
-    static createButton(button: Button) {
+    static createButton(button: Button, node: any) {
+        if(node.renderVkFixButtons) return; //если уже рендерили - не рендерим
+
+        node.renderVkFixButtons = true; //ставим флаг на рендер
         const child = document.createElement('span');
         child.innerHTML = button.icon;
         child.className = 'vkfix-action';
@@ -13,13 +16,12 @@ export default class Button {
         child.setAttribute('aria-label', button.text);
         child.addEventListener('click', (ev: any) => {
             // const id = Message.getIdAuthorClick(ev);
-            const node  = Message.getParentClick(ev);
+            const n  = Message.getParentClick(ev);
             const peerId = Message.getPeerIdClick(ev);
             const message = new Message();
             message.text = `Амадеус ${button.command}`;
             message.peerId = peerId;
-            message.replyNode = node.getElementsByClassName('im-mess--reply')[0] as HTMLElement;
-            console.log({message});
+            message.replyNode = n.getElementsByClassName('im-mess--reply')[0] as HTMLElement;
             message.sendCurrentDialog();
         });
         child.onmouseover = function () {
@@ -32,15 +34,12 @@ export default class Button {
                 content: '<div class="tt_text wrapped">' + button.text + '</div>'
             });
         }
-        return child;
+        node.appendChild(child);
     }
 
-    static addButtons(buttonsElements: HTMLSpanElement[], node: Element) {
-        for(const buttonEl of buttonsElements) {
-            console.log({buttonEl});
-            node.appendChild(buttonEl);
+    static addButtons(buttons: Button[], node: Element) {
+        for(const button of buttons) {
+            Button.createButton(button, node);
         }
-        console.log('addButtons',{node});
-
     }
 }

@@ -17,18 +17,10 @@ const config: Config = {
     }]
 };
 
-const elementsButtons = Config.elementsButtons;
-
-for (const button of config.buttons) {
-    elementsButtons.push(Button.createButton(button));
-}
-
-
 export default function () {
     console.log("Hover kick");
     let observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
-
             if (mutation.target.nodeType !== 1) return;
             let target: HTMLElement = mutation.target as HTMLElement
             let classes: DOMTokenList = target.classList
@@ -39,7 +31,7 @@ export default function () {
                 for (let n of target.children) {
                     if (!n.classList) return
                     if (n.classList.contains('im-mess--actions') && n.getElementsByClassName('vkfix-action').length == 0)
-                        Button.addButtons(elementsButtons, n);
+                        Button.addButtons(config.buttons, n);
                 }
         });
     });
