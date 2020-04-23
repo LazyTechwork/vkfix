@@ -10,8 +10,8 @@
 // @grant GM_addStyle
 // ==/UserScript==
 
-import amadeus_actions from "./amadeus_actions";
-import styles from "./styles";
+import amadeus_actions from "./modules/amadeus_actions";
+import styles from "./modules/styles";
 import GM_config from "./libs/GM_config.js";
 
 (function (window, undefined) { // Используем замыкание для запуска нашего скрипта

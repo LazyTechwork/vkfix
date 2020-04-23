@@ -1,5 +1,5 @@
-import AmadeusConfig from "./classes/AmadeusConfig";
-import AmadeusButton from "./classes/AmadeusButton";
+import AmadeusConfig from "../classes/AmadeusConfig";
+import AmadeusButton from "../classes/AmadeusButton";
 
 AmadeusConfig.Global = {
     prevCommandText: 'Амадеус ',
