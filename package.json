@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "webpack",
-    "start": "webpack && nodemon dist/vkfix.user.js --exec babel-node --presets=es2015,stage-2"
+    "start": "webpack --watch --progress"
   },
   "keywords": [],
   "author": {
