@@ -9,27 +9,11 @@ const buttons: MessageButton[] = [{
         const peerId = Message.getPeerIdClick(ev);
         const memberId = Message.getIdAuthorClick(ev);
         const rawData = {
-            act: 'a_kick_user',
-            al: 1,
-            chat: peerId,
-            gid: 0,
-            im_v: 3,
-            mid: memberId
+            chat_id: (peerId - 2000000000),
+            member_id: memberId
         };
         console.log(rawData);
-        ApiInteractor.callApiRaw(rawData, endpoint).then(r => {
-            console.log(r)
-        });
-        /*
-            https://vk.com/al_im.php
-            act: a_kick_user
-            al: 1
-            chat: 2000000270
-            gid: 0
-            im_v: 3
-            mid: 171882202
-         */
-
+        ApiInteractor.callApi('messages.removeChatUser', rawData)
     },
     tooltip: 'Исключить'
 }];

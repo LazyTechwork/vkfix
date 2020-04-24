@@ -17,8 +17,18 @@ export default class APIInteractor {
         });
     }
 
-    static callApiRaw(data, endpoint) {
+    static callApiRaw(data: object, endpoint: string, skipHash: boolean = false) {
         console.log('Call API Raw', data, endpoint)
+
+        if (skipHash) {
+            const _data = new FormData();
+            for (const key in data)
+                if (data.hasOwnProperty(key)) _data.append(key, data[key])
+
+            console.log('Sending request to API', {endpoint, _data})
+            return this.req('POST', endpoint, _data).then(res => this.parseApiRaw(res));
+        }
+
         return this.req('GET', 'https://' + location.host + '/dev/execute', {}).then(function parseHash(res: string) {
             const hash = res.match(/Dev\.methodRun\('([a-z0-9:]+)/im);
 
