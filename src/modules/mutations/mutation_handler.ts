@@ -7,7 +7,7 @@ export default function () {
         for (let n of msgNodes.children) { // Получаем всех детей элемента
             if (!n.classList) continue // Если у ребенка нет классов переходим дальше
 
-            if (isActMsg && n.classList.contains("im-mess--text"))
+            if (isActMsg && n.classList.contains("im-mess--text")) // Если это кик или другое действие добавляем кик к ним
                 action_mutation_act(n)
 
             if (n.classList.contains('im-mess--actions'))  // Если это группа действий и в ней нет наших кнопок - добавляем их
