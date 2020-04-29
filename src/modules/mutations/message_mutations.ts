@@ -11,18 +11,16 @@ export default function (mutation: MutationRecord) {
     let classes: DOMTokenList = target.classList // Получаем список классов
 
     if (!classes) return; // Если их нет - переходим дальше
-    if (classes.contains('im-mess')) { // Если цель мутации - сообщение
-        let isActMsg = classes.contains("im-mess_srv")
-        console.log(isActMsg)
-        for (let n of target.children) { // Получаем всех детей элемента
-            if (!n.classList) continue // Если у ребенка нет классов переходим дальше
+    let isMsg = classes.contains('im-mess')
+    for (const n of target.children) {
+        if (!n.classList) continue
 
-            if (isActMsg && n.classList.contains("im-mess--text")) // Если это кик или другое действие добавляем кик к ним
-                action_mutation_act(n)
+        if (isMsg && n.classList.contains('im-mess--actions'))  // Если это группа действий и в ней нет наших кнопок - добавляем их
+            mutation_act(n)
 
-            if (n.classList.contains('im-mess--actions'))  // Если это группа действий и в ней нет наших кнопок - добавляем их
-                mutation_act(n)
-        }
+        if (n.classList.contains("ui_clean_list")) // Если это событие беседы добавляем кик к ним
+            if (n.children[0].classList.contains("im-mess_srv"))
+                action_mutation_act(n.children[0].children[0])
     }
 }
 
