@@ -5,14 +5,13 @@ import ApiInteractor from "../classes/ApiInteractor";
 const buttons: MessageButton[] = [{
     icon: 'K',
     action: (ev: any) => {
-        const endpoint = 'https://' + location.host + '/al_im.php';
-        const peerId = Message.getPeerIdClick(ev);
-        const memberId = Message.getIdAuthorClick(ev);
+        const peerId = Message.getPeerIdClick(ev)
+        const memberId = Message.getIdAuthorClick(ev)
         const rawData = {
             chat_id: (peerId - 2000000000),
             member_id: memberId
-        };
-        console.log(rawData);
+        }
+        console.log(rawData)
         ApiInteractor.callApi('messages.removeChatUser', rawData)
     },
     tooltip: 'Исключить'
