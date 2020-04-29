@@ -3,6 +3,13 @@ export default class VKLocation {
         return new URLSearchParams(window.location.search);
     }
 
+    static getConversation(): number | null {
+        const params: URLSearchParams = this.getQueryParams()
+        const selected = params.get('sel')
+        if (!selected || !selected.startsWith('c')) return null
+        return parseInt(selected.substr(1));
+    }
+
     static isConversation(): boolean {
         const params: URLSearchParams = this.getQueryParams()
         const selected = params.get('sel')
