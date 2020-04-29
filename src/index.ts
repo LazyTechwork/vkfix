@@ -13,6 +13,7 @@
 import styles from "./modules/styles";
 import mutation_handler from "./modules/mutations/mutation_handler";
 import GlobalConfig from "./GlobalConfig";
+import location_mutations from "./modules/mutations/location_mutations";
 
 (function (window, undefined) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -44,5 +45,7 @@ import GlobalConfig from "./GlobalConfig";
 
         styles() // Инъекция стилей
         mutation_handler() // Регистрируем модуль слежения за мутациями
+        window.addEventListener("popstate", location_mutations)
+        window.addEventListener("hashchange", location_mutations)
     }
 })(window);
