@@ -5,7 +5,7 @@ export default function (n: any) {
     link.href = "#kick"
     link.innerHTML = "Исключить"
     link.className = "im_srv_lnk"
-    link.addEventListener("click", kickEvent)
+    link.addEventListener("click", ev=> kickEvent(ev, true))
     n.appendChild(document.createTextNode(". "))
     n.appendChild(link)
 }
