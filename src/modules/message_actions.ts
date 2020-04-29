@@ -3,7 +3,7 @@ import {kickEvent} from "./events";
 
 const buttons: MessageButton[] = [{
     icon: 'K',
-    action: kickEvent,
+    action: ev => kickEvent(ev),
     tooltip: 'Исключить'
 }];
 
