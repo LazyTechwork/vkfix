@@ -6,7 +6,7 @@ export function kickEvent(ev: any, isAction = false) {
     let peerId, memberId
     if (isAction) {
         peerId = VKLocation.getConversation()
-        memberId = ev.targe.parentNode.attributes.getNamedItem("data-from").value
+        memberId = ev.target.parentNode.attributes.getNamedItem("data-from").value
     } else {
         peerId = Message.getPeerIdClick(ev) - 2000000000
         memberId = Message.getIdAuthorClick(ev)
