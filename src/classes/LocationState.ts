@@ -37,6 +37,6 @@ export default class LocationState {
         this.locUpdScanner = setInterval(() => {
             if (location.href !== this.href)
                 location_mutations()
-        }, 1500)
+        }, 875)
     }
 }
