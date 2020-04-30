@@ -16,6 +16,7 @@ import GlobalConfig from "./GlobalConfig";
 import location_mutations from "./modules/mutations/location_mutations";
 import LocationState from "./classes/LocationState";
 import VKLocation from "./classes/VKLocation";
+import page_scanner from "./modules/page_scanner";
 
 (function (window, undefined) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -46,7 +47,10 @@ import VKLocation from "./classes/VKLocation";
         })
 
         styles() // Инъекция стилей
+        page_scanner()
         mutation_handler() // Регистрируем модуль слежения за мутациями
+
+        // Слежение за изменениями в URL
         LocationState.updateQuery()
         window.addEventListener("popstate", location_mutations)
         window.addEventListener("hashchange", location_mutations)
