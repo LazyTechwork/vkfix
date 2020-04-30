@@ -51,8 +51,6 @@ import page_scanner from "./modules/page_scanner";
 
         // Слежение за изменениями в URL
         LocationState.updateState()
-        window.addEventListener("popstate", location_mutations)
-        window.addEventListener("hashchange", location_mutations)
         LocationState.locationScanner() // Инициализируем слежение за изменениями в URL
     }
 })(window);

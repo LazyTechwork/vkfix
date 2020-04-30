@@ -1,7 +1,7 @@
 import LocationState from "../../classes/LocationState";
 import page_scanner from "../page_scanner";
 
-export default function (ev: any) {
+export default function () {
     LocationState.updateState()
     let cq = LocationState.getCurrentQuery()
     let pq = LocationState.getPreviousQuery()
