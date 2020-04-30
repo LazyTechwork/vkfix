@@ -15,7 +15,6 @@ import mutation_handler from "./modules/mutations/mutation_handler";
 import GlobalConfig from "./GlobalConfig";
 import location_mutations from "./modules/mutations/location_mutations";
 import LocationState from "./classes/LocationState";
-import VKLocation from "./classes/VKLocation";
 import page_scanner from "./modules/page_scanner";
 
 (function (window, undefined) { // Используем замыкание для запуска нашего скрипта
@@ -47,12 +46,13 @@ import page_scanner from "./modules/page_scanner";
         })
 
         styles() // Инъекция стилей
-        page_scanner()
+        page_scanner() // Инициализируем сканер страницы
         mutation_handler() // Регистрируем модуль слежения за мутациями
 
         // Слежение за изменениями в URL
-        LocationState.updateQuery()
+        LocationState.updateState()
         window.addEventListener("popstate", location_mutations)
         window.addEventListener("hashchange", location_mutations)
+        LocationState.locationScanner() // Инициализируем слежение за изменениями в URL
     }
 })(window);
