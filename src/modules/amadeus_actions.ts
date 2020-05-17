@@ -16,8 +16,6 @@ AmadeusConfig.Global = {
     buttons: botAction
 };
 
-console.log(botAction);
-
 const isModuleEnabled = GlobalConfig.Config.get('amadeus');
 
 export default function (n: any) {
