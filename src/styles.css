@@ -5,6 +5,7 @@
     height: 24px;
     visibility: hidden;
     outline: 0;
+    user-select: none;
 }
 
 .im-mess:hover .vkfix-action {
