@@ -13,7 +13,6 @@ export default function () {
     }
     .im-mess:hover .vkfix-action{
         visibility: visible;
-        transform: 1.2;
     }`;
     document.head.appendChild(style);
 }
