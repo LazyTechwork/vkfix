@@ -17,5 +17,8 @@ export function kickEvent(ev: any, isAction = false) {
         member_id: memberId
     }
     console.log(rawData);
-    ApiInteractor.callApi('messages.removeChatUser', rawData)
+    ApiInteractor.callApi({
+        method: "messages.removeChatUser",
+        data: rawData
+    })
 }

@@ -66,24 +66,35 @@ export default class APIInteractor {
         return res;
     }
 
-    static callApi(method, data) {
-        const isExecute = method === 'execute';
+    static callApi(cParams: ICallApiParams) {
         const endpoint = 'https://' + location.host + '/dev';
-        data = data || {};
-
+        cParams.data = cParams.data || {};
+        const isExecute = cParams.method == "execute";
         const _data = {
             act: 'a_run_method',
             al: '1',
             method: 'execute',
-            param_code: isExecute ? data.code : 'return API.' + method + '(' + JSON.stringify(data) + ');',
-            param_v: '5.103'
+            param_code: isExecute ? cParams.params.code : 'return API.' + cParams.method + '(' + JSON.stringify(cParams.data) + ');',
+            param_v: '5.120'
         }
-
         if (isExecute)
-            Object.keys(data).forEach(function addData(name) {
-                _data['param_' + name] = data[name];
+            Object.keys(cParams.data).forEach((name) => {
+                _data['param_' + name] = cParams.data[name];
             });
 
         return APIInteractor.callApiRaw(_data, endpoint)
     }
+}
+
+
+export interface ICallApiParams {
+    // если execute - params.code обязателен к заполнению
+    method?: 'execute' | 'messages.removeChatUser' | string;
+    data?: {
+        [U: string]: string;
+    };
+    params?: {
+        code?: string;
+        [U: string]: string;
+    };
 }
