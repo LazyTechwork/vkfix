@@ -30,6 +30,11 @@ export default class GlobalConfig {
         'type': 'checkbox',
         'default': false,
       },
+      'fixImagesZooming': {
+        'label': 'Исправить зуммирование картинок при нестандартном масштабировании в операционной системе windows (может быть и других)',
+        'type': 'checkbox',
+        'default': false,
+      },
       'botName': {
         'label': 'Алиас для обращения к боту',
         'type': 'text',
