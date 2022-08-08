@@ -34,9 +34,10 @@ export default function () {
   const expandBtn = document.createElement('a');
   expandBtn.id = 'pv_expand_photo';
   expandBtn.innerHTML = `Расширить`;
+  expandBtn.title = 'Быстрая клавиша: e или +';
   let stateExpand = false;
 
-  expandBtn.addEventListener('click', () => {
+  const switchExpand = () => {
     const img = pvPhoto.querySelector(`img`) as HTMLImageElement | undefined;
     if (!img) {
       console.info('img not found');
@@ -54,6 +55,15 @@ export default function () {
     }
 
     stateExpand = !stateExpand;
+  }
+
+  expandBtn.addEventListener('click', switchExpand);
+  pvBox.addEventListener('keydown', (e) => {
+    if (e.key === '+' || e.code ==='KeyE') {
+      e.stopPropagation();
+      e.preventDefault();
+      switchExpand();
+    }
   });
 
   pvBottomActions.prepend(expandBtn);
