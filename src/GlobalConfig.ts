@@ -35,6 +35,11 @@ export default class GlobalConfig {
         'type': 'checkbox',
         'default': false,
       },
+      'pvExpand': {
+        'label': 'Кнопка "Расширить" при просмотре фото',
+        'type': 'checkbox',
+        'default': false,
+      },
       'botName': {
         'label': 'Алиас для обращения к боту',
         'type': 'text',

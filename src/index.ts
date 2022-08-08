@@ -10,47 +10,49 @@
 // @grant GM_addStyle
 // ==/UserScript==
 
-import styles from "./modules/styles";
-import mutation_handler from "./modules/mutations/mutation_handler";
-import GlobalConfig from "./GlobalConfig";
-import location_mutations from "./modules/mutations/location_mutations";
-import LocationState from "./classes/LocationState";
-import page_scanner from "./modules/page_scanner";
+import styles from './modules/styles';
+import mutation_handler from './modules/mutations/mutation_handler';
+import GlobalConfig from './GlobalConfig';
+import LocationState from './classes/LocationState';
+import page_scanner from './modules/page_scanner';
+import pv_addons from './modules/pv_addons';
 
 (function (window, undefined) { // Используем замыкание для запуска нашего скрипта
-    let w = window;
+  let w = window;
 
-    if (w.self != w.top) {
-        return;
-    }
+  if (w.self != w.top) {
+    return;
+  }
 
-    // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
+  // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
 
-    // Инициализируем новый конфиг
+  // Инициализируем новый конфиг
 
-    // [4] дополнительная проверка наряду с @include
-    if (/https:\/\/vk.com/.test(w.location.href)) {
-        console.log("VK Fix запущен")
+  // [4] дополнительная проверка наряду с @include
+  if (/https:\/\/vk.com/.test(w.location.href)) {
+    console.log('VK Fix запущен');
 
-        // Добавляем кнопку настроек в верхнее меню
-        const settings_link = document.getElementById('top_settings_link')
-        const vkfixconflink = document.createElement('a')
-        vkfixconflink.innerHTML = "VK Fix"
-        vkfixconflink.id = "top_vkfix_settings_link"
-        vkfixconflink.className = "top_profile_mrow"
-        vkfixconflink.setAttribute("href", "#")
-        settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling) // Вставляем после ссылки на настройки
-        vkfixconflink.addEventListener('click', (ev) => {
-            ev.preventDefault()
-            GlobalConfig.Config.open()
-        })
+    // Добавляем кнопку настроек в верхнее меню
+    const settings_link = document.getElementById('top_settings_link');
+    const vkfixconflink = document.createElement('a');
+    vkfixconflink.innerHTML = 'VK Fix';
+    vkfixconflink.id = 'top_vkfix_settings_link';
+    vkfixconflink.className = 'top_profile_mrow';
+    vkfixconflink.setAttribute('href', '#');
+    settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на
+    // настройки
+    vkfixconflink.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      GlobalConfig.Config.open();
+    });
 
-        styles() // Инъекция стилей
-        page_scanner() // Инициализируем сканер страницы
-        mutation_handler() // Регистрируем модуль слежения за мутациями
+    styles(); // Инъекция стилей
+    page_scanner(); // Инициализируем сканер страницы
+    setTimeout(pv_addons, 1000); // Инициализируем дополнения к просмотрщику фото
+    mutation_handler(); // Регистрируем модуль слежения за мутациями
 
-        // Слежение за изменениями в URL
-        LocationState.updateState()
-        LocationState.locationScanner() // Инициализируем слежение за изменениями в URL
-    }
+    // Слежение за изменениями в URL
+    LocationState.updateState();
+    LocationState.locationScanner(); // Инициализируем слежение за изменениями в URL
+  }
 })(window);
