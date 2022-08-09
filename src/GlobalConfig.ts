@@ -36,7 +36,7 @@ export default class GlobalConfig {
         'default': false,
       },
       'pvExpand': {
-        'label': 'Кнопка "Расширить" при просмотре фото',
+        'label': 'Кнопка "Расширить" при просмотре фото (работает только с исправленным зуммированием)',
         'type': 'checkbox',
         'default': false,
       },
