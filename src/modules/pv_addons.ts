@@ -55,11 +55,12 @@ export default function () {
     }
 
     stateExpand = !stateExpand;
-  }
+  };
 
   expandBtn.addEventListener('click', switchExpand);
+  const keydownTargets = [pvBox, pvPhoto, pvExpand, pvBottomActions, pvBottomInfo];
   pvBox.addEventListener('keydown', (e) => {
-    if (e.key === '+' || e.code ==='KeyE') {
+    if (keydownTargets.some(x => x === e.target) && e.key === '+' || e.code === 'KeyE') {
       e.stopPropagation();
       e.preventDefault();
       switchExpand();

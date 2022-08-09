@@ -1,5 +1,7 @@
 import VKLocation from './VKLocation';
 import location_mutations from '../modules/mutations/location_mutations';
+import {lastOrDefault} from '../common/helpers/lastOrDefault';
+import {isDev} from '../common/consts';
 
 export default class LocationState {
   private static previousQuery: URLSearchParams | null = null;
@@ -7,7 +9,7 @@ export default class LocationState {
   private static query: URLSearchParams | null = null;
   private static href: string | null = null;
 
-  private static locUpdScanner: number | null = null;
+  private static locUpdScanner: NodeJS.Timer | null = null;
 
   public static changeState(href: string, newQuery: URLSearchParams) {
     this.previousQuery = this.query;
@@ -29,10 +31,12 @@ export default class LocationState {
       };
     };
 
-    console.warn('Updated location', {
-      previousQuery: getParamsQuery(this.previousQuery),
-      query: getParamsQuery(this.query),
-    });
+    if (isDev) {
+      console.warn('Updated location', {
+        previousQuery: getParamsQuery(this.previousQuery),
+        query: getParamsQuery(this.query),
+      });
+    }
   }
 
   public static getCurrentQuery() {
@@ -41,6 +45,14 @@ export default class LocationState {
 
   public static getPreviousQuery() {
     return this.previousQuery;
+  }
+
+  public static getCurrentPath() {
+    return '/' + lastOrDefault(this.href.split('/')) ?? '';
+  }
+
+  public static getPreviousPath() {
+    return '/' + lastOrDefault(this.previousHref.split('/')) ?? '';
   }
 
   public static locationScanner() {

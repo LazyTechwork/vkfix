@@ -6,11 +6,13 @@ export default function () {
   LocationState.updateState();
   let cq = LocationState.getCurrentQuery();
   let pq = LocationState.getPreviousQuery();
+  let cp = LocationState.getCurrentPath();
+  let pp = LocationState.getPreviousPath();
   if (cq.get('sel') != pq.get('sel')) {
     page_scanner();
   }
 
-  if (cq.get('z') != pq.get('z')) {
+  if (cq.get('z') != pq.get('z') || cp.startsWith('/photo') && cp !== pp) {
     pv_addons();
   }
 }
