@@ -59,10 +59,11 @@ export default class LocationState {
     if (this.locUpdScanner !== null) {
       clearInterval(this.locUpdScanner);
     }
+
     this.locUpdScanner = setInterval(() => {
       if (location.href !== this.href) {
         location_mutations();
       }
-    }, 875);
+    }, 100);
   }
 }

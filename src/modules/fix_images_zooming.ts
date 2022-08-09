@@ -1,8 +1,9 @@
 export const fixImagesZoomingCss = `
 #pv_photo {
-   display: flex;
+   display: flex !important;
    align-items: center;
 }
+
 #pv_photo img {
   max-width: 100%;
   max-height: 100%;
