@@ -1,28 +1,41 @@
 export const fixImagesZoomingCss = `
-[dir] #pv_photo {
+#pv_photo {
    display: flex;
    align-items: center;
 }
-[dir] #pv_photo img {
+#pv_photo img {
   max-width: 100%;
   max-height: 100%;
+  margin-top: 0 !important;
   width: auto !important;
   height: auto !important;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+.pv_img_progress_wrap {
+  display: flex;
+  align-items: center;
+}
+
+#pv_image_progress {
+  margin-top: 0 !important;
 }
 
 
 @media(resolution: 1.25dppx) { 
-  [dir] #pv_photo img, img.can_zoom {
+  #pv_photo img, img.can_zoom {
       zoom: 0.875;
   }
 }
 @media(resolution: 1.5dppx) { 
-  [dir] #pv_photo img, img.can_zoom {
+ #pv_photo img, img.can_zoom {
       zoom: 0.75;
   }
 }
 @media(resolution: 1.75dppx) { 
-  [dir] #pv_photo img, img.can_zoom {
+  #pv_photo img, img.can_zoom {
       zoom: 0.625;
   }
 }
