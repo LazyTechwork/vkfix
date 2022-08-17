@@ -7,6 +7,7 @@ module.exports = {
     entry: './src/index.ts',
     mode: "development",
     optimization: {
+        minimize: false,
         minimizer: [
             new TerserPlugin({
                 terserOptions: {

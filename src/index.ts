@@ -34,17 +34,19 @@ import pv_addons from './modules/pv_addons';
 
     // Добавляем кнопку настроек в верхнее меню
     const settings_link = document.getElementById('top_settings_link');
-    const vkfixconflink = document.createElement('a');
-    vkfixconflink.innerHTML = 'VK Fix';
-    vkfixconflink.id = 'top_vkfix_settings_link';
-    vkfixconflink.className = 'top_profile_mrow';
-    vkfixconflink.setAttribute('href', '#');
-    settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на
-    // настройки
-    vkfixconflink.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      GlobalConfig.Config.open();
-    });
+    if (settings_link?.parentNode) {
+      const vkfixconflink = document.createElement('a');
+      vkfixconflink.innerHTML = 'VK Fix';
+      vkfixconflink.id = 'top_vkfix_settings_link';
+      vkfixconflink.className = 'top_profile_mrow';
+      vkfixconflink.setAttribute('href', '#');
+      settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на
+      // настройки
+      vkfixconflink.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        GlobalConfig.Config.open();
+      });
+    }
 
     styles(); // Инъекция стилей
     page_scanner(); // Инициализируем сканер страницы
