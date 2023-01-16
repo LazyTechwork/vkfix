@@ -2,10 +2,10 @@ import MessageButton from '../classes/MessageButton';
 import {kickEvent} from './events';
 import GlobalConfig from '../GlobalConfig';
 
-const isModuleEnabled = GlobalConfig.Config.get('conversationKick');
+export const isModuleConversationKickEnabled = GlobalConfig.Config.get('conversationKick');
 
 const buttons: MessageButton[] = [];
-if (isModuleEnabled) {
+if (isModuleConversationKickEnabled) {
   buttons.push({
     icon: 'K',
     action: ev => kickEvent(ev),

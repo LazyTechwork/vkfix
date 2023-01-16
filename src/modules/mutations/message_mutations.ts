@@ -1,5 +1,5 @@
 import amadeus_actions from '../amadeus_actions';
-import message_actions from '../message_actions';
+import message_actions, {isModuleConversationKickEnabled} from '../message_actions';
 import VKLocation from '../../classes/VKLocation';
 import leavekick from '../leavekick';
 
@@ -40,9 +40,11 @@ export default function (mutation: MutationRecord) {
 
 export function mutation_act(n: any) {
   amadeus_actions(n);
-  message_actions(n)
+  message_actions(n);
 }
 
 export function action_mutation_act(n: any) {
-  leavekick(n)
+  if (isModuleConversationKickEnabled) {
+    leavekick(n);
+  }
 }
