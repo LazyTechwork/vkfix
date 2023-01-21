@@ -16,6 +16,7 @@ import GlobalConfig from './GlobalConfig';
 import LocationState from './classes/LocationState';
 import page_scanner from './modules/page_scanner';
 import pv_addons from './modules/pv_addons';
+import {Logger} from "./classes/Logger";
 
 (function (window, undefined) { // Используем замыкание для запуска нашего скрипта
   let w = window;
@@ -30,7 +31,7 @@ import pv_addons from './modules/pv_addons';
 
   // [4] дополнительная проверка наряду с @include
   if (/https:\/\/vk.com/.test(w.location.href)) {
-    console.log('VK Fix запущен');
+    Logger.log('VK Fix запущен');
 
     // Добавляем кнопку настроек в верхнее меню
     const settings_link = document.getElementById('top_settings_link');
