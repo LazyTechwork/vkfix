@@ -68,6 +68,7 @@ export default class APIInteractor {
         return res;
     }
 
+    // FIXME: не работает
     static callApi(cParams: ICallApiParams) {
         const endpoint = 'https://' + location.host + '/dev';
         cParams.data = cParams.data || {};
@@ -77,7 +78,7 @@ export default class APIInteractor {
             al: '1',
             method: 'execute',
             param_code: isExecute ? cParams.params.code : 'return API.' + cParams.method + '(' + JSON.stringify(cParams.data) + ');',
-            param_v: '5.120'
+            param_v: '5.204'
         }
         if (isExecute)
             Object.keys(cParams.data).forEach((name) => {
@@ -91,7 +92,7 @@ export default class APIInteractor {
 
 export interface ICallApiParams {
     // если execute - params.code обязателен к заполнению
-    method?: 'execute' | 'messages.removeChatUser' | string;
+    method?: 'execute' | 'messages.removeChatUser' | 'utils.resolveScreenName' | string;
     data?: {
         [U: string]: string;
     };

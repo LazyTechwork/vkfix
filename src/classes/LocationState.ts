@@ -12,12 +12,18 @@ export default class LocationState {
 
     private static locUpdScanner: NodeJS.Timer | null = null;
 
+    public static init() {
+        this.updateState();
+        LocationState.locationScanner(); // Инициализируем слежение за изменениями в URL
+    }
+
     public static changeState(href: string, newQuery: URLSearchParams) {
         this.previousQuery = this.query;
         this.previousHref = this.href;
         this.query = newQuery;
         this.href = href;
     }
+
 
     public static updateState() {
         this.changeState(location.href, VKLocation.getQueryParams());

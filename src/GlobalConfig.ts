@@ -60,6 +60,11 @@ export default class GlobalConfig {
                 'type': 'textarea',
                 'default': JSON.stringify(defaultBotButtons),
             },
+            "newsBtn": {
+                'label': 'Ссылка на новости в профиле пользователя',
+                'type': 'checkbox',
+                'default': false,
+            }
         }
     });
 }
