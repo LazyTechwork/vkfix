@@ -38,28 +38,33 @@ async function getCurrentProfileId(profile_redesigned: HTMLElement) {
 
 const newsBtnId = "vkfix-newsBtn";
 
-export default async function profile_actions() {
+export default async function profile_actions(deep = 0) {
+    if (deep > 2) {
+        return;
+    }
+
+    const deepProfileActions = () => profile_actions(deep + 1);
     const isNewsBtn = GlobalConfig.Config.get('newsBtn') as boolean;
     if (!isNewsBtn || document.getElementById(newsBtnId)) {
         return;
     }
 
-    await sleep(200);
+    await sleep(300 * ((deep * deep) + 1));
     const profile_redesigned = document.getElementById('profile_redesigned');
     if (!profile_redesigned) {
-        return;
+        return deepProfileActions();
     }
 
     const ProfileHeader__actions = profile_redesigned.querySelector(".ProfileHeader__actions");
     if (!ProfileHeader__actions) {
         Logger.warn('not found ProfileHeader__actions')
-        return profile_actions();
+        return deepProfileActions();
     }
 
     const ProfileHeaderActions__buttons = ProfileHeader__actions.querySelector(".ProfileHeaderActions__buttons");
     if (!ProfileHeaderActions__buttons) {
         Logger.warn('not found ProfileHeaderActions__buttons')
-        return;
+        return deepProfileActions();
     }
 
     const userId = await getCurrentProfileId(profile_redesigned);

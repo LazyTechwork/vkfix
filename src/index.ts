@@ -50,13 +50,17 @@ import profile_actions from "./modules/profile_actions";
             });
         }
 
-        styles(); // Инъекция стилей
-        page_scanner(); // Инициализируем сканер страницы
-        setTimeout(pv_addons, 1000); // Инициализируем дополнения к просмотрщику фото
-        profile_actions(); // Инициализируем дополнения к профилю пользователя
-        mutation_handler(); // Регистрируем модуль слежения за мутациями
+        const onLoadWindow = () => {
+            styles(); // Инъекция стилей
+            page_scanner(); // Инициализируем сканер страницы
+            mutation_handler(); // Регистрируем модуль слежения за мутациями
+            setTimeout(pv_addons, 1000); // Инициализируем дополнения к просмотрщику фото
+            profile_actions(); // Инициализируем дополнения к профилю пользователя
+            window.removeEventListener("load", onLoadWindow);
+            // Слежение за изменениями в URL
+            LocationState.init();
+        };
 
-        // Слежение за изменениями в URL
-        LocationState.init();
+        window.addEventListener("load", onLoadWindow);
     }
 })(window);
