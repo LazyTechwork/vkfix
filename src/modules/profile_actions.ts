@@ -35,9 +35,12 @@ async function getCurrentProfileId(profile_redesigned: HTMLElement) {
     }
 }
 
+
+const newsBtnId = "vkfix-newsBtn";
+
 export default async function profile_actions() {
     const isNewsBtn = GlobalConfig.Config.get('newsBtn') as boolean;
-    if (!isNewsBtn) {
+    if (!isNewsBtn || document.getElementById(newsBtnId)) {
         return;
     }
 
@@ -63,6 +66,7 @@ export default async function profile_actions() {
     const newsBtn = createVkUiButton('Новости', () => {
         window.open(`/feed?section=source&source=${userId}`)
     });
+    newsBtn.id = newsBtnId;
     newsBtn.style.marginLeft = '6px';
     ProfileHeaderActions__buttons.appendChild(newsBtn);
 }
