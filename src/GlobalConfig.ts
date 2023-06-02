@@ -35,6 +35,11 @@ export default class GlobalConfig {
                 'type': 'checkbox',
                 'default': false,
             },
+            'fixLeftMenuOverflow': {
+                'label': 'Исправить высоту левого меню так, чтобы не создавался скролл страницы.',
+                'type': 'checkbox',
+                'default': false,
+            },
             'pvExpand': {
                 'label': 'Кнопка "Расширить" при просмотре фото (работает только с исправленным зумированием)',
                 'type': 'checkbox',
