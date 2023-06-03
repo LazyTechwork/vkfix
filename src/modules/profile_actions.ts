@@ -1,8 +1,8 @@
 import {createVkUiButton} from "../common/helpers/uiHelpers";
-import {sleep} from "../common/helpers/sleep";
 import {Logger} from "../classes/Logger";
 import LocationState from "../classes/LocationState";
 import GlobalConfig from "../GlobalConfig";
+import {querySelectorWithTimeout} from "../common/helpers/querySelectorWithTimeout";
 
 async function getCurrentProfileId(profile_redesigned: HTMLElement) {
     let cp = LocationState.getCurrentPath();
@@ -38,33 +38,35 @@ async function getCurrentProfileId(profile_redesigned: HTMLElement) {
 
 const newsBtnId = "vkfix-newsBtn";
 
-export default async function profile_actions(deep = 0) {
-    if (deep > 2) {
-        return;
-    }
-
-    const deepProfileActions = () => profile_actions(deep + 1);
+export default async function profile_actions() {
     const isNewsBtn = GlobalConfig.Config.get('newsBtn') as boolean;
     if (!isNewsBtn || document.getElementById(newsBtnId)) {
         return;
     }
 
-    await sleep(300 * ((deep * deep) + 1));
-    const profile_redesigned = document.getElementById('profile_redesigned');
+    const profile_redesigned = await querySelectorWithTimeout({
+        selectors: `#profile_redesigned`
+    });
     if (!profile_redesigned) {
-        return deepProfileActions();
+        return;
     }
 
-    const ProfileHeader__actions = profile_redesigned.querySelector(".ProfileHeader__actions");
+    const ProfileHeader__actions = await querySelectorWithTimeout({
+        element: profile_redesigned,
+        selectors: `.ProfileHeader__actions`,
+    });
     if (!ProfileHeader__actions) {
         Logger.warn('not found ProfileHeader__actions')
-        return deepProfileActions();
+        return;
     }
 
-    const ProfileHeaderActions__buttons = ProfileHeader__actions.querySelector(".ProfileHeaderActions__buttons");
+    const ProfileHeaderActions__buttons = await querySelectorWithTimeout({
+        element: ProfileHeader__actions,
+        selectors: ".ProfileHeaderActions__buttons"
+    });
     if (!ProfileHeaderActions__buttons) {
         Logger.warn('not found ProfileHeaderActions__buttons')
-        return deepProfileActions();
+        return;
     }
 
     const userId = await getCurrentProfileId(profile_redesigned);

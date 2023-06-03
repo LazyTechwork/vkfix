@@ -2,8 +2,9 @@
 // @name VK Fix
 // @description Скрипт для улучшения интерфейса ВКонтакте
 // @author Ivan Petrov (LazyTechwork)
+// @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.0.0
+// @version 1.1.0
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -19,7 +20,7 @@ import pv_addons from './modules/pv_addons';
 import {Logger} from "./classes/Logger";
 import profile_actions from "./modules/profile_actions";
 
-(function (window, undefined) { // Используем замыкание для запуска нашего скрипта
+(function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;
 
     if (w.self != w.top) {
@@ -54,7 +55,7 @@ import profile_actions from "./modules/profile_actions";
             styles(); // Инъекция стилей
             page_scanner(); // Инициализируем сканер страницы
             mutation_handler(); // Регистрируем модуль слежения за мутациями
-            setTimeout(pv_addons, 1000); // Инициализируем дополнения к просмотрщику фото
+            pv_addons(); // Инициализируем дополнения к просмотрщику фото
             profile_actions(); // Инициализируем дополнения к профилю пользователя
             window.removeEventListener("load", onLoadWindow);
             // Слежение за изменениями в URL

@@ -45,6 +45,16 @@ export default class GlobalConfig {
                 'type': 'checkbox',
                 'default': false,
             },
+            'pvExpandRightMonitorDefault': {
+                'label': 'Кнопка "Расширить" будет нажиматься автоматически на (основном!) правом мониторе',
+                'type': 'checkbox',
+                'default': false,
+            },
+            'pvExpandLeftMonitorDefault': {
+                'label': 'Кнопка "Расширить" будет нажиматься автоматически на (дополнительном!) левом мониторе',
+                'type': 'checkbox',
+                'default': false,
+            },
             'pvPhotoSwitchWheel': {
                 'label': 'Переключение фото колёсиком мыши',
                 'type': 'checkbox',

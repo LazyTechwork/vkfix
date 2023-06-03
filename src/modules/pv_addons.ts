@@ -1,5 +1,6 @@
 import GlobalConfig from '../GlobalConfig';
 import {Logger} from "../classes/Logger";
+import {querySelectorWithTimeout} from "../common/helpers/querySelectorWithTimeout";
 
 interface PVAddonsContext {
     pvPhoto: HTMLDivElement;
@@ -7,14 +8,14 @@ interface PVAddonsContext {
     pvBottomInfo: HTMLDivElement;
 }
 
-export default function () {
+export default async function pv_addons() {
     const isPvExpand = GlobalConfig.Config.get('pvExpand') as boolean;
     const pvPhotoSwitchWheel = GlobalConfig.Config.get('pvPhotoSwitchWheel') as boolean;
     if (!isPvExpand && !pvPhotoSwitchWheel) {
         return;
     }
 
-    const pvBox = document.getElementById('pv_box');
+    const pvBox = await querySelectorWithTimeout<HTMLDivElement>({selectors: '#pv_box'});
     if (!pvBox) {
         return;
     }
@@ -51,7 +52,12 @@ export default function () {
     }
 }
 
-function pvExpand({pvPhoto, pvBox, pvBottomInfo,}: PVAddonsContext) {
+function pvExpand({pvPhoto, pvBottomInfo,}: PVAddonsContext) {
+    const buttonId = 'pv_expand_photo';
+    if (document.getElementById(buttonId)) {
+        return;
+    }
+
     const pvBottomActions = pvBottomInfo.querySelector('.pv_bottom_actions') as HTMLDivElement | undefined;
     if (!pvBottomActions) {
         Logger.info('pv_bottom_actions not found');
@@ -66,9 +72,11 @@ function pvExpand({pvPhoto, pvBox, pvBottomInfo,}: PVAddonsContext) {
 
     prependDivider();
     const expandBtn = document.createElement('a');
-    expandBtn.id = 'pv_expand_photo';
+    expandBtn.id = buttonId;
     expandBtn.innerHTML = `Расширить`;
     expandBtn.title = 'Быстрая клавиша: e или +';
+    expandBtn.style.setProperty('min-width', '68px');
+    expandBtn.style.setProperty('display', 'inline-block');
     let stateExpand = false;
 
     const switchExpand = () => {
@@ -89,19 +97,14 @@ function pvExpand({pvPhoto, pvBox, pvBottomInfo,}: PVAddonsContext) {
         }
 
         stateExpand = !stateExpand;
+        expandBtn.innerHTML = stateExpand ? `Сузить` : `Расширить`;
     };
 
     expandBtn.addEventListener('click', switchExpand);
-    const keydownTargets = [pvBox, pvPhoto, pvBottomActions, pvBottomInfo];
-    pvBox.addEventListener('keydown', (e) => {
-        if (keydownTargets.some(x => x === e.target) && e.key === '+' || e.code === 'KeyE') {
-            e.stopPropagation();
-            e.preventDefault();
-            switchExpand();
-        }
-    });
-
     pvBottomActions.prepend(expandBtn);
+    if (!stateExpand && GlobalConfig.Config.get(window.screenLeft < 0 ? 'pvExpandLeftMonitorDefault' : 'pvExpandRightMonitorDefault')) {
+        switchExpand();
+    }
 }
 
 function photoSwitchWheel({pvBox}: PVAddonsContext) {
