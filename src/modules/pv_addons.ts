@@ -20,13 +20,19 @@ export default async function pv_addons() {
         return;
     }
 
-    const pvBottomInfo = pvBox.querySelector('.pv_bottom_info') as HTMLDivElement | undefined;
+    const pvBottomInfo = await querySelectorWithTimeout<HTMLDivElement>({
+        element: pvBox,
+        selectors: '.pv_bottom_info'
+    });
     if (!pvBottomInfo) {
         Logger.info('pv_bottom_info not found');
         return;
     }
 
-    const pvPhoto = pvBox.querySelector(`#pv_photo`) as HTMLDivElement | undefined;
+    const pvPhoto = await querySelectorWithTimeout<HTMLDivElement>({
+        element: pvBox,
+        selectors: `#pv_photo`
+    });
     if (!pvPhoto) {
         Logger.info('pv_photo not found');
         return;
@@ -52,6 +58,8 @@ export default async function pv_addons() {
     }
 }
 
+let pvExpandClickValue: boolean = undefined;
+
 function pvExpand({pvPhoto, pvBottomInfo,}: PVAddonsContext) {
     const buttonId = 'pv_expand_photo';
     if (document.getElementById(buttonId)) {
@@ -73,38 +81,68 @@ function pvExpand({pvPhoto, pvBottomInfo,}: PVAddonsContext) {
     prependDivider();
     const expandBtn = document.createElement('a');
     expandBtn.id = buttonId;
-    expandBtn.innerHTML = `Расширить`;
-    expandBtn.title = 'Быстрая клавиша: e или +';
     expandBtn.style.setProperty('min-width', '68px');
     expandBtn.style.setProperty('display', 'inline-block');
+
+    let prevObserver: MutationObserver | undefined = undefined;
     let stateExpand = false;
 
-    const switchExpand = () => {
-        const img = pvPhoto.querySelector(`img`) as HTMLImageElement | undefined;
-        if (!img) {
-            Logger.info('img not found');
-            return;
-        }
+    const switchExpand = async (value = !stateExpand) => {
+        prevObserver?.disconnect();
+        prevObserver = undefined;
+        stateExpand = value;
 
-        if (stateExpand) {
-            img.style.removeProperty('width');
-            img.style.removeProperty('height');
-            img.style.removeProperty('object-fit');
-        } else {
+        const imgExpand = (img: HTMLImageElement) => {
             img.style.setProperty('width', '100%', 'important');
             img.style.setProperty('height', '100%', 'important');
             img.style.setProperty('object-fit', 'contain', 'important');
+            expandBtn.innerHTML = "Сузить";
+            stateExpand = true;
+        };
+
+        const imgRemoveExpand = (img: HTMLImageElement) => {
+            img.style.removeProperty('width');
+            img.style.removeProperty('height');
+            img.style.removeProperty('object-fit');
+            expandBtn.innerHTML = "Расширить";
+            stateExpand = false;
         }
 
-        stateExpand = !stateExpand;
-        expandBtn.innerHTML = stateExpand ? `Сузить` : `Расширить`;
+        const applyChanges = async () => {
+            const img = await querySelectorWithTimeout<HTMLImageElement>({
+                element: pvPhoto,
+                selectors: `img`
+            });
+            if (!img) {
+                Logger.info('img not found');
+                return;
+            }
+
+            value ? imgExpand(img) : imgRemoveExpand(img);
+        };
+
+        await applyChanges();
+        const observer = new MutationObserver(applyChanges);
+        observer.observe(pvPhoto, {childList: true});
+        prevObserver = observer;
     };
 
-    expandBtn.addEventListener('click', switchExpand);
+    expandBtn.addEventListener('click', async () => {
+        await switchExpand();
+        pvExpandClickValue = stateExpand;
+    });
     pvBottomActions.prepend(expandBtn);
-    if (!stateExpand && GlobalConfig.Config.get(window.screenLeft < 0 ? 'pvExpandLeftMonitorDefault' : 'pvExpandRightMonitorDefault')) {
-        switchExpand();
+    if (pvExpandClickValue !== undefined) {
+        switchExpand(pvExpandClickValue);
+        return;
     }
+
+    if (!stateExpand && GlobalConfig.Config.get(window.screenLeft < 0 ? 'pvExpandLeftMonitorDefault' : 'pvExpandRightMonitorDefault')) {
+        switchExpand(true);
+        return
+    }
+
+    switchExpand(false);
 }
 
 function photoSwitchWheel({pvBox}: PVAddonsContext) {

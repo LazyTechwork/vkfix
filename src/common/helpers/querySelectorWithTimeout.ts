@@ -18,7 +18,7 @@ export function querySelectorWithTimeout<T extends Element = HTMLElement, TAll e
 }: GetElementBySelectorWithTimeoutOptions<TAll>): Promise<(typeof all extends true ? NodeListOf<T> : T) | undefined> {
     const getResult = (): any => {
         if (all) {
-            const result = element.querySelectorAll(selectors) as NodeListOf<T>;
+            const result = element.querySelectorAll<T>(selectors);
             if (result.length > 0) {
                 return result;
             }
@@ -28,7 +28,7 @@ export function querySelectorWithTimeout<T extends Element = HTMLElement, TAll e
 
         const result = element.querySelector(selectors);
         if (result) {
-            return result as T;
+            return result;
         }
 
         return undefined;
