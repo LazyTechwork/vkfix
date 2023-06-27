@@ -45,4 +45,44 @@ export const fixImagesZoomingCss = `
       zoom: 0.5;
   }
 }
+@media(resolution: 2.25dppx) { 
+  #pv_photo img, img.can_zoom {
+      zoom: 0.4444;
+  }
+}
+@media(resolution: 2.5dppx) { 
+  #pv_photo img, img.can_zoom {
+      zoom: 0.4;
+  }
+}
+@media(resolution: 2.75dppx) { 
+  #pv_photo img, img.can_zoom {
+      zoom: 0.3636;
+  }
+}
+@media(resolution: 3dppx) { 
+  #pv_photo img, img.can_zoom {
+      zoom: 0.3333;
+  }
+}
+@media(resolution: 3.5dppx) { 
+  #pv_photo img, img.can_zoom {
+      zoom: 0.285714;
+  }
+}
+@media(resolution: 4dppx) { 
+  #pv_photo img, img.can_zoom {
+      zoom: 0.25;
+  }
+}
+@media(resolution: 4.5dppx) { 
+  #pv_photo img, img.can_zoom {
+      zoom: 0.222222;
+  }
+}
+@media(resolution: 5dppx) { 
+  #pv_photo img, img.can_zoom {
+      zoom: 0.2;
+  }
+}
 `;
