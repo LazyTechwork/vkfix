@@ -86,6 +86,10 @@ function pvExpand({pvPhoto, pvBottomInfo,}: PVAddonsContext) {
 
     let prevObserver: MutationObserver | undefined = undefined;
     let stateExpand = false;
+    // В этих переменных храним изначальное значение, которое задаёт сам VK.
+    // После отмены сужения задаём их обратно.
+    let prevWidth: any = undefined;
+    let prevHeight: any = undefined;
 
     const switchExpand = async (value = !stateExpand) => {
         prevObserver?.disconnect();
@@ -101,8 +105,18 @@ function pvExpand({pvPhoto, pvBottomInfo,}: PVAddonsContext) {
         };
 
         const imgRemoveExpand = (img: HTMLImageElement) => {
-            img.style.removeProperty('width');
-            img.style.removeProperty('height');
+            if (img.style.width !== '100%') {
+                prevWidth = img.style.width;
+                prevHeight = img.style.height;
+            } else {
+                img.style.removeProperty('width');
+                img.style.removeProperty('height');
+                if (prevWidth && prevHeight) {
+                    img.style.setProperty('width', prevWidth);
+                    img.style.setProperty('height', prevHeight);
+                }
+            }
+
             img.style.removeProperty('object-fit');
             expandBtn.innerHTML = "Расширить";
             stateExpand = false;
