@@ -176,13 +176,12 @@ function photoSwitchWheel({pvBox}: PVAddonsContext) {
         const isNext = e.deltaY > 0;
         const isPrev = !isNext;
         const win = document.defaultView as any;
-        win.cur.pvClicked = true;
         if (isNext) {
-            win.Photoview.show(false, win.cur.pvIndex + 1, e);
+            win.Photoview.show(false, win.cur.pvIndex + 1);
         }
 
         if (isPrev) {
-            win.Photoview.show(false, win.cur.pvIndex - 1, e);
+            win.Photoview.show(false, win.cur.pvIndex - 1);
         }
     })
 }
