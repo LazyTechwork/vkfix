@@ -7,6 +7,8 @@ interface GetElementBySelectorWithTimeoutOptions<TAll extends boolean> {
     element?: HTMLElement;
     /** @description Получить все элементы? */
     all?: TAll,
+    /** @description Для прерывания ожидания с помощью AbortController. */
+    signal?: AbortSignal
 }
 
 /** @description Получает элемент за указанный timeout с помощью наблюдения за мутациями в указанном элементе. */
@@ -14,7 +16,8 @@ export function querySelectorWithTimeout<T extends Element = HTMLElement, TAll e
     selectors,
     timeout = 2000,
     element = document.documentElement,
-    all = false as TAll
+    all = false as TAll,
+    signal,
 }: GetElementBySelectorWithTimeoutOptions<TAll>): Promise<(typeof all extends true ? NodeListOf<T> : T) | undefined> {
     const getResult = (): any => {
         if (all) {
@@ -34,7 +37,7 @@ export function querySelectorWithTimeout<T extends Element = HTMLElement, TAll e
         return undefined;
     };
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const result = getResult();
         if (result) {
             resolve(result);
@@ -42,6 +45,12 @@ export function querySelectorWithTimeout<T extends Element = HTMLElement, TAll e
         }
 
         const observer = new MutationObserver((_, observer) => {
+            if (signal?.aborted) {
+                observer.disconnect();
+                reject(signal.reason)
+                return
+            }
+
             const result = getResult();
             if (result) {
                 observer.disconnect();
@@ -51,6 +60,12 @@ export function querySelectorWithTimeout<T extends Element = HTMLElement, TAll e
 
         observer.observe(document.documentElement, {childList: true, subtree: true});
         setTimeout(() => {
+            if (signal?.aborted) {
+                observer.disconnect();
+                reject(signal.reason)
+                return
+            }
+
             observer.disconnect();
             resolve(getResult());
         }, timeout);

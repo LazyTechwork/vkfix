@@ -33,7 +33,12 @@ export default class GlobalConfig {
             'pvPhotoSwitchWheel': {
                 'label': 'Переключение фото колёсиком мыши',
                 'type': 'checkbox',
-                'default': false,
+                'default': true,
+            }, 
+              'pvPhotoMoreActCommunityKeeper': {
+                'label': 'Кнопка "Открыть в Хранителе Групп"',
+                'type': 'checkbox',
+                'default': true,
             },
             'logging': {
                 'label': 'Логирование в консоль',

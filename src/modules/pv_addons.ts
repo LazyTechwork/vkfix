@@ -11,7 +11,8 @@ interface PVAddonsContext {
 export default async function pv_addons() {
     const isPvExpand = GlobalConfig.Config.get('pvExpand') as boolean;
     const pvPhotoSwitchWheel = GlobalConfig.Config.get('pvPhotoSwitchWheel') as boolean;
-    if (!isPvExpand && !pvPhotoSwitchWheel) {
+    const pvPhotoMoreActCommunityKeeper = GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper') as boolean;
+    if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper) {
         return;
     }
 
@@ -53,7 +54,15 @@ export default async function pv_addons() {
         try {
             photoSwitchWheel(context);
         } catch (e: any) {
-            Logger.warn("Ошибка в photoSwitch.", {e});
+            Logger.warn("Ошибка в photoSwitchWheel.", {e});
+        }
+    }
+
+    if (pvPhotoMoreActCommunityKeeper) {
+        try {
+            photoMoreActCommunityKeeper(context);
+        } catch (e: any) {
+            Logger.warn("Ошибка в photoMoreActCommunityKeeper.", {e});
         }
     }
 }
@@ -171,11 +180,11 @@ function photoSwitchWheel({pvBox}: PVAddonsContext) {
         return;
     }
 
+    const win = document.defaultView as any;
     pvImageWrap.dataset.photoSwitchWheel = 'true';
     pvImageWrap.addEventListener('wheel', (e) => {
         const isNext = e.deltaY > 0;
         const isPrev = !isNext;
-        const win = document.defaultView as any;
         if (isNext) {
             win.Photoview.show(false, win.cur.pvIndex + 1);
         }
@@ -185,3 +194,72 @@ function photoSwitchWheel({pvBox}: PVAddonsContext) {
         }
     })
 }
+
+let initPhotoMoreActCommunityKeeper = false
+let abortControllerPhotoMoreActCommunityKeeper = new AbortController()
+
+function photoMoreActCommunityKeeper({pvBox}: PVAddonsContext) {
+    const pvImageWrap = pvBox.querySelector('.pv_image_wrap') as HTMLDivElement | undefined;
+    if (!pvImageWrap) {
+        Logger.info('pvImageWrap not found');
+        return;
+    }
+
+    const pvActionsMore = pvBox.querySelector<HTMLButtonElement>('.pv_actions_more')
+    if (!pvActionsMore) {
+        Logger.info('pvActionsMore not found');
+        return
+    }
+
+    if (!initPhotoMoreActCommunityKeeper) {
+        const style = document.createElement('style');
+        document.head.appendChild(style);
+        style.sheet.insertRule(`#pvMoreActCommunityKeeper::before { background-position: 0 -60px; }`, 0);
+        initPhotoMoreActCommunityKeeper = true
+    }
+
+    abortControllerPhotoMoreActCommunityKeeper.abort()
+    abortControllerPhotoMoreActCommunityKeeper = new AbortController()
+    const signal = abortControllerPhotoMoreActCommunityKeeper.signal
+
+    const registerMoreActCommunityKeeper = async () => {
+        if (pvActionsMore.querySelector('#pvMoreActCommunityKeeper') || !cur.pvCurPhoto.id.startsWith('-')) {
+            return
+        }
+
+        const pvMoreActDownload = await querySelectorWithTimeout<HTMLLinkElement>({
+            selectors: '#pv_more_act_download',
+            element: pvBox,
+            timeout: 1000,
+            signal,
+        }).catch(() => undefined)
+
+        if (!pvMoreActDownload) {
+            return
+        }
+
+        if (pvActionsMore.querySelector('#pvMoreActCommunityKeeper')) {
+            return
+        }
+
+        signal.throwIfAborted()
+
+        const pvMoreActCommunityKeeper = pvMoreActDownload.cloneNode() as HTMLLinkElement
+        pvMoreActCommunityKeeper.id = 'pvMoreActCommunityKeeper'
+        pvMoreActCommunityKeeper.textContent = 'Открыть в Хранителе Групп'
+        pvMoreActCommunityKeeper.href = `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`
+        pvMoreActDownload.parentElement.append(pvMoreActCommunityKeeper)
+
+        const pvMoreActsTt = pvBox.querySelector<HTMLDivElement>('#pv_more_acts_tt')
+        if (pvMoreActsTt) {
+            pvMoreActsTt.style.top = `${parseInt(pvMoreActsTt.style.top, 10) - 32}px`;
+        }
+    }
+
+    pvActionsMore.addEventListener('mouseenter', registerMoreActCommunityKeeper, {
+        capture: true,
+        signal,
+    })
+}
+
+declare const cur: any
