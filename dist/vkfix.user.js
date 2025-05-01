@@ -168,7 +168,7 @@ GlobalConfig.Config = new GM_config_1.default({
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
-const consts_1 = __webpack_require__(5);
+const consts_1 = __webpack_require__(6);
 class Logger {
     static log(...args) {
         if (consts_1.isLog) {
@@ -204,7 +204,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const VKLocation_1 = __webpack_require__(14);
 const location_mutations_1 = __webpack_require__(15);
 const lastOrDefault_1 = __webpack_require__(17);
-const consts_1 = __webpack_require__(5);
+const consts_1 = __webpack_require__(6);
 const Logger_1 = __webpack_require__(1);
 class LocationState {
     static init() {
@@ -275,6 +275,63 @@ LocationState.locUpdScanner = null;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.querySelectorWithTimeout = void 0;
+/** @description Получает элемент за указанный timeout с помощью наблюдения за мутациями в указанном элементе. */
+function querySelectorWithTimeout({ selectors, timeout = 2000, element = document.documentElement, all = false, signal, }) {
+    const getResult = () => {
+        if (all) {
+            const result = element.querySelectorAll(selectors);
+            if (result.length > 0) {
+                return result;
+            }
+            return undefined;
+        }
+        const result = element.querySelector(selectors);
+        if (result) {
+            return result;
+        }
+        return undefined;
+    };
+    return new Promise((resolve, reject) => {
+        const result = getResult();
+        if (result) {
+            resolve(result);
+            return;
+        }
+        const observer = new MutationObserver((_, observer) => {
+            if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
+                observer.disconnect();
+                reject(signal.reason);
+                return;
+            }
+            const result = getResult();
+            if (result) {
+                observer.disconnect();
+                resolve(result);
+            }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        setTimeout(() => {
+            if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
+                observer.disconnect();
+                reject(signal.reason);
+                return;
+            }
+            observer.disconnect();
+            resolve(getResult());
+        }, timeout);
+    });
+}
+exports.querySelectorWithTimeout = querySelectorWithTimeout;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 function default_1() {
     // TODO обработать все изменения на странице, если требуется
 }
@@ -282,7 +339,7 @@ exports.default = default_1;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -299,7 +356,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const GlobalConfig_1 = __webpack_require__(0);
 const Logger_1 = __webpack_require__(1);
-const querySelectorWithTimeout_1 = __webpack_require__(6);
+const querySelectorWithTimeout_1 = __webpack_require__(3);
 function pv_addons() {
     return __awaiter(this, void 0, void 0, function* () {
         const isPvExpand = GlobalConfig_1.default.Config.get('pvExpand');
@@ -524,7 +581,7 @@ function photoMoreActCommunityKeeper({ pvBox }) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -534,63 +591,6 @@ exports.isLog = exports.isDev = void 0;
 const GlobalConfig_1 = __webpack_require__(0);
 exports.isDev = "production" === 'development';
 exports.isLog = GlobalConfig_1.default.Config.get('logging');
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.querySelectorWithTimeout = void 0;
-/** @description Получает элемент за указанный timeout с помощью наблюдения за мутациями в указанном элементе. */
-function querySelectorWithTimeout({ selectors, timeout = 2000, element = document.documentElement, all = false, signal, }) {
-    const getResult = () => {
-        if (all) {
-            const result = element.querySelectorAll(selectors);
-            if (result.length > 0) {
-                return result;
-            }
-            return undefined;
-        }
-        const result = element.querySelector(selectors);
-        if (result) {
-            return result;
-        }
-        return undefined;
-    };
-    return new Promise((resolve, reject) => {
-        const result = getResult();
-        if (result) {
-            resolve(result);
-            return;
-        }
-        const observer = new MutationObserver((_, observer) => {
-            if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
-                observer.disconnect();
-                reject(signal.reason);
-                return;
-            }
-            const result = getResult();
-            if (result) {
-                observer.disconnect();
-                resolve(result);
-            }
-        });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
-        setTimeout(() => {
-            if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
-                observer.disconnect();
-                reject(signal.reason);
-                return;
-            }
-            observer.disconnect();
-            resolve(getResult());
-        }, timeout);
-    });
-}
-exports.querySelectorWithTimeout = querySelectorWithTimeout;
 
 
 /***/ }),
@@ -613,7 +613,7 @@ const uiHelpers_1 = __webpack_require__(16);
 const Logger_1 = __webpack_require__(1);
 const LocationState_1 = __webpack_require__(2);
 const GlobalConfig_1 = __webpack_require__(0);
-const querySelectorWithTimeout_1 = __webpack_require__(6);
+const querySelectorWithTimeout_1 = __webpack_require__(3);
 function getCurrentProfileId(profile_redesigned) {
     return __awaiter(this, void 0, void 0, function* () {
         let cp = LocationState_1.default.getCurrentPath();
@@ -701,52 +701,64 @@ exports.default = profile_actions;
 // @grant GM_setValue
 // @grant GM_addStyle
 // ==/UserScript==
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const styles_1 = __webpack_require__(9);
 const mutation_handler_1 = __webpack_require__(13);
 const GlobalConfig_1 = __webpack_require__(0);
 const LocationState_1 = __webpack_require__(2);
-const page_scanner_1 = __webpack_require__(3);
-const pv_addons_1 = __webpack_require__(4);
+const page_scanner_1 = __webpack_require__(4);
+const pv_addons_1 = __webpack_require__(5);
 const Logger_1 = __webpack_require__(1);
 const profile_actions_1 = __webpack_require__(7);
+const querySelectorWithTimeout_1 = __webpack_require__(3);
 (function (window) {
-    let w = window;
-    if (w.self != w.top) {
-        return;
-    }
-    // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
-    // Инициализируем новый конфиг
-    // [4] дополнительная проверка наряду с @include
-    if (/https:\/\/vk.com/.test(w.location.href)) {
-        Logger_1.Logger.log('VK Fix запущен');
-        // Добавляем кнопку настроек в верхнее меню
-        const settings_link = document.getElementById('top_settings_link');
-        if (settings_link === null || settings_link === void 0 ? void 0 : settings_link.parentNode) {
-            const vkfixconflink = document.createElement('a');
-            vkfixconflink.innerHTML = 'VK Fix';
-            vkfixconflink.id = 'top_vkfix_settings_link';
-            vkfixconflink.className = 'top_profile_mrow';
-            vkfixconflink.setAttribute('href', '#');
-            settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на
-            // настройки
-            vkfixconflink.addEventListener('click', (ev) => {
-                ev.preventDefault();
-                GlobalConfig_1.default.Config.open();
-            });
+    return __awaiter(this, void 0, void 0, function* () {
+        let w = window;
+        if (w.self != w.top) {
+            return;
         }
-        const onLoadWindow = () => {
-            (0, styles_1.default)(); // Инъекция стилей
-            (0, page_scanner_1.default)(); // Инициализируем сканер страницы
-            (0, mutation_handler_1.default)(); // Регистрируем модуль слежения за мутациями
-            (0, pv_addons_1.default)(); // Инициализируем дополнения к просмотрщику фото
-            (0, profile_actions_1.default)(); // Инициализируем дополнения к профилю пользователя
-            window.removeEventListener("load", onLoadWindow);
-            // Слежение за изменениями в URL
-            LocationState_1.default.init();
-        };
-        window.addEventListener("load", onLoadWindow);
-    }
+        // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
+        // Инициализируем новый конфиг
+        // [4] дополнительная проверка наряду с @include
+        if (/https:\/\/vk.com/.test(w.location.href)) {
+            Logger_1.Logger.log('VK Fix запущен');
+            // Добавляем кнопку настроек в верхнее меню
+            const settings_link = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#top_settings_link', timeout: 5000 });
+            if (settings_link === null || settings_link === void 0 ? void 0 : settings_link.parentNode) {
+                const vkfixconflink = document.createElement('a');
+                vkfixconflink.innerHTML = 'VK Fix';
+                vkfixconflink.id = 'top_vkfix_settings_link';
+                vkfixconflink.className = 'top_profile_mrow';
+                vkfixconflink.setAttribute('href', '#');
+                settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на
+                // настройки
+                vkfixconflink.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    GlobalConfig_1.default.Config.open();
+                });
+            }
+            const onLoadWindow = () => {
+                (0, styles_1.default)(); // Инъекция стилей
+                (0, page_scanner_1.default)(); // Инициализируем сканер страницы
+                (0, mutation_handler_1.default)(); // Регистрируем модуль слежения за мутациями
+                (0, pv_addons_1.default)(); // Инициализируем дополнения к просмотрщику фото
+                (0, profile_actions_1.default)(); // Инициализируем дополнения к профилю пользователя
+                window.removeEventListener("load", onLoadWindow);
+                // Слежение за изменениями в URL
+                LocationState_1.default.init();
+            };
+            window.addEventListener("load", onLoadWindow);
+        }
+    });
 })(window);
 
 
@@ -1718,8 +1730,8 @@ exports.default = VKLocation;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const LocationState_1 = __webpack_require__(2);
-const page_scanner_1 = __webpack_require__(3);
-const pv_addons_1 = __webpack_require__(4);
+const page_scanner_1 = __webpack_require__(4);
+const pv_addons_1 = __webpack_require__(5);
 const profile_actions_1 = __webpack_require__(7);
 function default_1() {
     LocationState_1.default.updateState();

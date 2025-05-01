@@ -19,8 +19,9 @@ import page_scanner from './modules/page_scanner';
 import pv_addons from './modules/pv_addons';
 import {Logger} from "./classes/Logger";
 import profile_actions from "./modules/profile_actions";
+import {querySelectorWithTimeout} from "./common/helpers/querySelectorWithTimeout";
 
-(function (window) { // Используем замыкание для запуска нашего скрипта
+(async function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;
 
     if (w.self != w.top) {
@@ -36,7 +37,7 @@ import profile_actions from "./modules/profile_actions";
         Logger.log('VK Fix запущен');
 
         // Добавляем кнопку настроек в верхнее меню
-        const settings_link = document.getElementById('top_settings_link');
+        const settings_link = await querySelectorWithTimeout({selectors: '#top_settings_link', timeout: 5000});
         if (settings_link?.parentNode) {
             const vkfixconflink = document.createElement('a');
             vkfixconflink.innerHTML = 'VK Fix';
