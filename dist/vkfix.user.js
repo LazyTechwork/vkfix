@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.1
+// @version 1.1.4
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -695,7 +695,7 @@ exports.default = profile_actions;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.1
+// @version 1.1.4
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
