@@ -40,6 +40,11 @@ export default class GlobalConfig {
                 'type': 'checkbox',
                 'default': true,
             },
+            'pvPhotoMoreActAlbum': {
+                'label': 'Кнопка "Открыть в альбоме"',
+                'type': 'checkbox',
+                'default': true,
+            },
             'logging': {
                 'label': 'Логирование в консоль',
                 'type': 'checkbox',

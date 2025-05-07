@@ -146,6 +146,11 @@ GlobalConfig.Config = new GM_config_1.default({
             'type': 'checkbox',
             'default': true,
         },
+        'pvPhotoMoreActAlbum': {
+            'label': 'Кнопка "Открыть в альбоме"',
+            'type': 'checkbox',
+            'default': true,
+        },
         'logging': {
             'label': 'Логирование в консоль',
             'type': 'checkbox',
@@ -362,7 +367,8 @@ function pv_addons() {
         const isPvExpand = GlobalConfig_1.default.Config.get('pvExpand');
         const pvPhotoSwitchWheel = GlobalConfig_1.default.Config.get('pvPhotoSwitchWheel');
         const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.default.Config.get('pvPhotoMoreActCommunityKeeper');
-        if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper) {
+        const pvPhotoMoreActAlbum = GlobalConfig_1.default.Config.get('pvPhotoMoreActAlbum');
+        if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper && !pvPhotoMoreActAlbum) {
             return;
         }
         const pvBox = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#pv_box' });
@@ -404,12 +410,12 @@ function pv_addons() {
                 Logger_1.Logger.warn("Ошибка в photoSwitchWheel.", { e });
             }
         }
-        if (pvPhotoMoreActCommunityKeeper) {
+        if (pvPhotoMoreActCommunityKeeper || pvPhotoMoreActAlbum) {
             try {
-                photoMoreActCommunityKeeper(context);
+                photoMoreActs(context);
             }
             catch (e) {
-                Logger_1.Logger.warn("Ошибка в photoMoreActCommunityKeeper.", { e });
+                Logger_1.Logger.warn("Ошибка в photoMoreActs.", { e });
             }
         }
     });
@@ -524,9 +530,9 @@ function photoSwitchWheel({ pvBox }) {
         }
     });
 }
-let initPhotoMoreActCommunityKeeper = false;
-let abortControllerPhotoMoreActCommunityKeeper = new AbortController();
-function photoMoreActCommunityKeeper({ pvBox }) {
+let initPhotoMoreActs = false;
+let abortControllerPhotoMoreActs = new AbortController();
+function photoMoreActs({ pvBox }) {
     const pvImageWrap = pvBox.querySelector('.pv_image_wrap');
     if (!pvImageWrap) {
         Logger_1.Logger.info('pvImageWrap not found');
@@ -537,17 +543,26 @@ function photoMoreActCommunityKeeper({ pvBox }) {
         Logger_1.Logger.info('pvActionsMore not found');
         return;
     }
-    if (!initPhotoMoreActCommunityKeeper) {
+    const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.default.Config.get('pvPhotoMoreActCommunityKeeper');
+    const pvPhotoMoreActAlbum = GlobalConfig_1.default.Config.get('pvPhotoMoreActAlbum');
+    const actNames = [];
+    if (pvPhotoMoreActCommunityKeeper) {
+        actNames.push('pvPhotoMoreActCommunityKeeper');
+    }
+    if (pvPhotoMoreActAlbum) {
+        actNames.push('pvPhotoMoreActAlbum');
+    }
+    if (!initPhotoMoreActs && actNames.length) {
         const style = document.createElement('style');
         document.head.appendChild(style);
-        style.sheet.insertRule(`#pvMoreActCommunityKeeper::before { background-position: 0 -60px; }`, 0);
-        initPhotoMoreActCommunityKeeper = true;
+        style.sheet.insertRule(`.pv_more_act_vkfix::before { background-position: 0 -60px; }`, 0);
+        initPhotoMoreActs = true;
     }
-    abortControllerPhotoMoreActCommunityKeeper.abort();
-    abortControllerPhotoMoreActCommunityKeeper = new AbortController();
-    const signal = abortControllerPhotoMoreActCommunityKeeper.signal;
-    const registerMoreActCommunityKeeper = () => __awaiter(this, void 0, void 0, function* () {
-        if (pvActionsMore.querySelector('#pvMoreActCommunityKeeper') || !cur.pvCurPhoto.id.startsWith('-')) {
+    abortControllerPhotoMoreActs.abort();
+    abortControllerPhotoMoreActs = new AbortController();
+    const signal = abortControllerPhotoMoreActs.signal;
+    const registerMoreAct = (name, textContent, href) => __awaiter(this, void 0, void 0, function* () {
+        if (pvActionsMore.querySelector(`#${name}`) || !cur.pvCurPhoto.id.startsWith('-')) {
             return;
         }
         const pvMoreActDownload = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
@@ -559,21 +574,32 @@ function photoMoreActCommunityKeeper({ pvBox }) {
         if (!pvMoreActDownload) {
             return;
         }
-        if (pvActionsMore.querySelector('#pvMoreActCommunityKeeper')) {
+        if (pvActionsMore.querySelector(`#${name}`)) {
             return;
         }
         signal.throwIfAborted();
-        const pvMoreActCommunityKeeper = pvMoreActDownload.cloneNode();
-        pvMoreActCommunityKeeper.id = 'pvMoreActCommunityKeeper';
-        pvMoreActCommunityKeeper.textContent = 'Открыть в Хранителе Групп';
-        pvMoreActCommunityKeeper.href = `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`;
-        pvMoreActDownload.parentElement.append(pvMoreActCommunityKeeper);
+        const pvMoreAct = pvMoreActDownload.cloneNode();
+        pvMoreAct.id = name;
+        pvMoreAct.textContent = textContent;
+        pvMoreAct.href = href;
+        pvMoreAct.classList.add('pv_more_act_vkfix');
+        pvMoreActDownload.parentElement.append(pvMoreAct);
         const pvMoreActsTt = pvBox.querySelector('#pv_more_acts_tt');
         if (pvMoreActsTt) {
             pvMoreActsTt.style.top = `${parseInt(pvMoreActsTt.style.top, 10) - 32}px`;
         }
     });
-    pvActionsMore.addEventListener('mouseenter', registerMoreActCommunityKeeper, {
+    const registerMoreActs = () => __awaiter(this, void 0, void 0, function* () {
+        for (let actName of actNames) {
+        }
+        if (pvPhotoMoreActCommunityKeeper) {
+            yield registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`);
+        }
+        if (pvPhotoMoreActAlbum && !window.location.href.includes('vk.com/photo-')) {
+            yield registerMoreAct('pvPhotoMoreActAlbum', 'Открыть в альбоме', `https://vk.com/photo${cur.pvCurPhoto.id}`);
+        }
+    });
+    pvActionsMore.addEventListener('mouseenter', registerMoreActs, {
         capture: true,
         signal,
     });

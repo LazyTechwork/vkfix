@@ -12,7 +12,8 @@ export default async function pv_addons() {
     const isPvExpand = GlobalConfig.Config.get('pvExpand') as boolean;
     const pvPhotoSwitchWheel = GlobalConfig.Config.get('pvPhotoSwitchWheel') as boolean;
     const pvPhotoMoreActCommunityKeeper = GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper') as boolean;
-    if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper) {
+    const pvPhotoMoreActAlbum = GlobalConfig.Config.get('pvPhotoMoreActAlbum') as boolean;
+    if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper && !pvPhotoMoreActAlbum) {
         return;
     }
 
@@ -58,11 +59,11 @@ export default async function pv_addons() {
         }
     }
 
-    if (pvPhotoMoreActCommunityKeeper) {
+    if (pvPhotoMoreActCommunityKeeper || pvPhotoMoreActAlbum) {
         try {
-            photoMoreActCommunityKeeper(context);
+            photoMoreActs(context);
         } catch (e: any) {
-            Logger.warn("Ошибка в photoMoreActCommunityKeeper.", {e});
+            Logger.warn("Ошибка в photoMoreActs.", {e});
         }
     }
 }
@@ -195,10 +196,10 @@ function photoSwitchWheel({pvBox}: PVAddonsContext) {
     })
 }
 
-let initPhotoMoreActCommunityKeeper = false
-let abortControllerPhotoMoreActCommunityKeeper = new AbortController()
+let initPhotoMoreActs = false
+let abortControllerPhotoMoreActs = new AbortController()
 
-function photoMoreActCommunityKeeper({pvBox}: PVAddonsContext) {
+function photoMoreActs({pvBox}: PVAddonsContext) {
     const pvImageWrap = pvBox.querySelector('.pv_image_wrap') as HTMLDivElement | undefined;
     if (!pvImageWrap) {
         Logger.info('pvImageWrap not found');
@@ -211,19 +212,31 @@ function photoMoreActCommunityKeeper({pvBox}: PVAddonsContext) {
         return
     }
 
-    if (!initPhotoMoreActCommunityKeeper) {
-        const style = document.createElement('style');
-        document.head.appendChild(style);
-        style.sheet.insertRule(`#pvMoreActCommunityKeeper::before { background-position: 0 -60px; }`, 0);
-        initPhotoMoreActCommunityKeeper = true
+    const pvPhotoMoreActCommunityKeeper = GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper') as boolean;
+    const pvPhotoMoreActAlbum = GlobalConfig.Config.get('pvPhotoMoreActAlbum') as boolean;
+    const actNames: ('pvPhotoMoreActCommunityKeeper' | 'pvPhotoMoreActAlbum')[] = []
+    if (pvPhotoMoreActCommunityKeeper) {
+        actNames.push('pvPhotoMoreActCommunityKeeper')
     }
 
-    abortControllerPhotoMoreActCommunityKeeper.abort()
-    abortControllerPhotoMoreActCommunityKeeper = new AbortController()
-    const signal = abortControllerPhotoMoreActCommunityKeeper.signal
+    if (pvPhotoMoreActAlbum) {
+        actNames.push('pvPhotoMoreActAlbum')
+    }
 
-    const registerMoreActCommunityKeeper = async () => {
-        if (pvActionsMore.querySelector('#pvMoreActCommunityKeeper') || !cur.pvCurPhoto.id.startsWith('-')) {
+
+    if (!initPhotoMoreActs && actNames.length) {
+        const style = document.createElement('style');
+        document.head.appendChild(style);
+        style.sheet.insertRule(`.pv_more_act_vkfix::before { background-position: 0 -60px; }`, 0);
+        initPhotoMoreActs = true
+    }
+
+    abortControllerPhotoMoreActs.abort()
+    abortControllerPhotoMoreActs = new AbortController()
+    const signal = abortControllerPhotoMoreActs.signal
+
+    const registerMoreAct = async (name: 'pvPhotoMoreActCommunityKeeper' | 'pvPhotoMoreActAlbum', textContent: string, href: string) => {
+        if (pvActionsMore.querySelector(`#${name}`) || !cur.pvCurPhoto.id.startsWith('-')) {
             return
         }
 
@@ -238,17 +251,18 @@ function photoMoreActCommunityKeeper({pvBox}: PVAddonsContext) {
             return
         }
 
-        if (pvActionsMore.querySelector('#pvMoreActCommunityKeeper')) {
+        if (pvActionsMore.querySelector(`#${name}`)) {
             return
         }
 
         signal.throwIfAborted()
 
-        const pvMoreActCommunityKeeper = pvMoreActDownload.cloneNode() as HTMLLinkElement
-        pvMoreActCommunityKeeper.id = 'pvMoreActCommunityKeeper'
-        pvMoreActCommunityKeeper.textContent = 'Открыть в Хранителе Групп'
-        pvMoreActCommunityKeeper.href = `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`
-        pvMoreActDownload.parentElement.append(pvMoreActCommunityKeeper)
+        const pvMoreAct = pvMoreActDownload.cloneNode() as HTMLLinkElement
+        pvMoreAct.id = name
+        pvMoreAct.textContent = textContent
+        pvMoreAct.href = href
+        pvMoreAct.classList.add('pv_more_act_vkfix')
+        pvMoreActDownload.parentElement.append(pvMoreAct)
 
         const pvMoreActsTt = pvBox.querySelector<HTMLDivElement>('#pv_more_acts_tt')
         if (pvMoreActsTt) {
@@ -256,7 +270,17 @@ function photoMoreActCommunityKeeper({pvBox}: PVAddonsContext) {
         }
     }
 
-    pvActionsMore.addEventListener('mouseenter', registerMoreActCommunityKeeper, {
+    const registerMoreActs = async () => {
+        if (pvPhotoMoreActCommunityKeeper) {
+            await registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`)
+        }
+
+        if (pvPhotoMoreActAlbum && !window.location.href.includes('vk.com/photo-')) {
+            await registerMoreAct('pvPhotoMoreActAlbum', 'Открыть в альбоме', `https://vk.com/photo${cur.pvCurPhoto.id}`)
+        }
+    }
+
+    pvActionsMore.addEventListener('mouseenter', registerMoreActs, {
         capture: true,
         signal,
     })
