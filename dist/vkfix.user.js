@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.4
+// @version 1.1.5
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -590,8 +590,6 @@ function photoMoreActs({ pvBox }) {
         }
     });
     const registerMoreActs = () => __awaiter(this, void 0, void 0, function* () {
-        for (let actName of actNames) {
-        }
         if (pvPhotoMoreActCommunityKeeper) {
             yield registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`);
         }
@@ -721,7 +719,7 @@ exports.default = profile_actions;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.4
+// @version 1.1.5
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
