@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.5
+// @version 1.1.6
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -94,7 +94,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 9);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -104,7 +104,7 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const GM_config_1 = __webpack_require__(11);
+const GM_config_1 = __webpack_require__(12);
 class GlobalConfig {
 }
 exports.default = GlobalConfig;
@@ -269,9 +269,9 @@ exports.querySelectorWithTimeout = querySelectorWithTimeout;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const VKLocation_1 = __webpack_require__(15);
-const location_mutations_1 = __webpack_require__(16);
-const lastOrDefault_1 = __webpack_require__(18);
+const VKLocation_1 = __webpack_require__(16);
+const location_mutations_1 = __webpack_require__(17);
+const lastOrDefault_1 = __webpack_require__(20);
 const consts_1 = __webpack_require__(6);
 const Logger_1 = __webpack_require__(1);
 class LocationState {
@@ -639,7 +639,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const uiHelpers_1 = __webpack_require__(17);
+const uiHelpers_1 = __webpack_require__(18);
 const Logger_1 = __webpack_require__(1);
 const LocationState_1 = __webpack_require__(3);
 const GlobalConfig_1 = __webpack_require__(0);
@@ -771,13 +771,87 @@ exports.default = APIInteractor;
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Logger_1 = __webpack_require__(1);
+const GlobalConfig_1 = __webpack_require__(0);
+const querySelectorWithTimeout_1 = __webpack_require__(2);
+const ApiInteractor_1 = __webpack_require__(8);
+const saveTemplateAsFile_1 = __webpack_require__(19);
+const exportCommunityKeeperBtn = 'exportCommunityKeeperBtn';
+function app_actions() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const isNewsBtn = GlobalConfig_1.default.Config.get('exportCommunityKeeperBtn');
+        if (!isNewsBtn || !window.location.href.includes('vk.com/app51658481') || document.getElementById(exportCommunityKeeperBtn)) {
+            return;
+        }
+        const grCodeBtn = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
+            selectors: "#qr_code_btn"
+        });
+        if (!grCodeBtn) {
+            Logger_1.Logger.warn('not found #qr_code_btn');
+            return;
+        }
+        const btn = document.createElement('button');
+        btn.textContent = 'Создать бэкап из всех сообществ';
+        btn.style.setProperty('color', 'var(--vkui--color_text_link)');
+        btn.style.setProperty('background-color', 'transparent');
+        btn.style.setProperty('border', 'none');
+        btn.style.setProperty('cursor', 'pointer');
+        btn.style.setProperty('margin-right', '10px');
+        btn.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
+            const ids = [];
+            while (true) {
+                const list = yield ApiInteractor_1.default.callApi({
+                    'method': 'groups.get',
+                    data: {
+                        count: '1000',
+                        offset: `${ids.length}`
+                    }
+                });
+                if (list.response.items.length === 0) {
+                    break;
+                }
+                ids.push(...list.response.items);
+            }
+            const name = unsafeWindow.prompt('Введите название папки', 'Сообщества');
+            const groupIdsDictByFolderName = {
+                [name]: ids
+            };
+            const backup = {
+                groupIdsDictByFolderName,
+            };
+            (0, saveTemplateAsFile_1.saveTemplateAsFile)('backup.json', backup);
+        }));
+        btn.id = exportCommunityKeeperBtn;
+        btn.style.marginLeft = '6px';
+        grCodeBtn.parentElement.prepend(btn);
+    });
+}
+exports.default = app_actions;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 // ==UserScript==
 // @name VK Fix
 // @description Скрипт для улучшения интерфейса ВКонтакте
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.5
+// @version 1.1.6
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -794,8 +868,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const styles_1 = __webpack_require__(10);
-const mutation_handler_1 = __webpack_require__(14);
+const styles_1 = __webpack_require__(11);
+const mutation_handler_1 = __webpack_require__(15);
 const GlobalConfig_1 = __webpack_require__(0);
 const LocationState_1 = __webpack_require__(3);
 const page_scanner_1 = __webpack_require__(4);
@@ -803,7 +877,7 @@ const pv_addons_1 = __webpack_require__(5);
 const Logger_1 = __webpack_require__(1);
 const profile_actions_1 = __webpack_require__(7);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
-const app_actions_1 = __webpack_require__(19);
+const app_actions_1 = __webpack_require__(9);
 (function (window) {
     return __awaiter(this, void 0, void 0, function* () {
         let w = window;
@@ -848,15 +922,15 @@ const app_actions_1 = __webpack_require__(19);
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const GlobalConfig_1 = __webpack_require__(0);
-const fix_images_zooming_1 = __webpack_require__(12);
-const fix_left_menu_overflow_1 = __webpack_require__(13);
+const fix_images_zooming_1 = __webpack_require__(13);
+const fix_left_menu_overflow_1 = __webpack_require__(14);
 function default_1() {
     let style = document.createElement('style');
     style.innerHTML = `
@@ -887,7 +961,7 @@ exports.default = default_1;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1701,7 +1775,7 @@ GM_configField.prototype = {
 /* harmony default export */ __webpack_exports__["default"] = (GM_configStruct);
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1742,7 +1816,7 @@ exports.fixImagesZoomingCss = `
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1758,7 +1832,7 @@ exports.fixLeftMenuOverflow = `
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1777,7 +1851,7 @@ exports.default = default_1;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1808,7 +1882,7 @@ exports.default = VKLocation;
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1818,6 +1892,7 @@ const LocationState_1 = __webpack_require__(3);
 const page_scanner_1 = __webpack_require__(4);
 const pv_addons_1 = __webpack_require__(5);
 const profile_actions_1 = __webpack_require__(7);
+const app_actions_1 = __webpack_require__(9);
 function default_1() {
     LocationState_1.default.updateState();
     let cq = LocationState_1.default.getCurrentQuery();
@@ -1830,13 +1905,16 @@ function default_1() {
     if (cq.get('z') != pq.get('z') || cp.startsWith('/photo') && cp !== pp) {
         (0, pv_addons_1.default)();
     }
+    if (cp.startsWith('/app')) {
+        (0, app_actions_1.default)();
+    }
     (0, profile_actions_1.default)();
 }
 exports.default = default_1;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1863,98 +1941,7 @@ exports.createVkUiButton = createVkUiButton;
 
 
 /***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.lastOrDefault = void 0;
-function lastOrDefault(array, _default = undefined) {
-    if (!array || array.length === 0) {
-        return _default;
-    }
-    return array[array.length - 1];
-}
-exports.lastOrDefault = lastOrDefault;
-
-
-/***/ }),
 /* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const Logger_1 = __webpack_require__(1);
-const GlobalConfig_1 = __webpack_require__(0);
-const querySelectorWithTimeout_1 = __webpack_require__(2);
-const ApiInteractor_1 = __webpack_require__(8);
-const saveTemplateAsFile_1 = __webpack_require__(20);
-const exportCommunityKeeperBtn = 'exportCommunityKeeperBtn';
-function app_actions() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const isNewsBtn = GlobalConfig_1.default.Config.get('exportCommunityKeeperBtn');
-        if (!isNewsBtn || document.getElementById(exportCommunityKeeperBtn)) {
-            return;
-        }
-        const grCodeBtn = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
-            selectors: "#qr_code_btn"
-        });
-        if (!grCodeBtn) {
-            Logger_1.Logger.warn('not found #qr_code_btn');
-            return;
-        }
-        const btn = document.createElement('button');
-        btn.textContent = 'Создать бэкап из всех сообществ';
-        btn.style.setProperty('color', 'var(--vkui--color_text_link)');
-        btn.style.setProperty('background-color', 'transparent');
-        btn.style.setProperty('border', 'none');
-        btn.style.setProperty('cursor', 'pointer');
-        btn.style.setProperty('margin-right', '10px');
-        btn.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
-            const ids = [];
-            while (true) {
-                const list = yield ApiInteractor_1.default.callApi({
-                    'method': 'groups.get',
-                    data: {
-                        count: '1000',
-                        offset: `${ids.length}`
-                    }
-                });
-                if (list.response.items.length === 0) {
-                    break;
-                }
-                ids.push(...list.response.items);
-            }
-            const name = unsafeWindow.prompt('Введите название папки', 'Сообщества');
-            const groupIdsDictByFolderName = {
-                [name]: ids
-            };
-            const backup = {
-                groupIdsDictByFolderName,
-            };
-            (0, saveTemplateAsFile_1.saveTemplateAsFile)('backup.json', backup);
-        }));
-        btn.id = exportCommunityKeeperBtn;
-        btn.style.marginLeft = '6px';
-        grCodeBtn.parentElement.prepend(btn);
-    });
-}
-exports.default = app_actions;
-
-
-/***/ }),
-/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1977,6 +1964,23 @@ function saveTemplateAsFile(filename, dataObjToWrite) {
     link.remove();
 }
 exports.saveTemplateAsFile = saveTemplateAsFile;
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.lastOrDefault = void 0;
+function lastOrDefault(array, _default = undefined) {
+    if (!array || array.length === 0) {
+        return _default;
+    }
+    return array[array.length - 1];
+}
+exports.lastOrDefault = lastOrDefault;
 
 
 /***/ })

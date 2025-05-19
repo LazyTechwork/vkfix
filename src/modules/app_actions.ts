@@ -9,7 +9,7 @@ const exportCommunityKeeperBtn = 'exportCommunityKeeperBtn'
 
 export default async function app_actions() {
     const isNewsBtn = GlobalConfig.Config.get('exportCommunityKeeperBtn') as boolean;
-    if (!isNewsBtn || document.getElementById(exportCommunityKeeperBtn)) {
+    if (!isNewsBtn || !window.location.href.includes('vk.com/app51658481') || document.getElementById(exportCommunityKeeperBtn)) {
         return;
     }
 
