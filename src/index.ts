@@ -21,6 +21,7 @@ import pv_addons from './modules/pv_addons';
 import {Logger} from "./classes/Logger";
 import profile_actions from "./modules/profile_actions";
 import {querySelectorWithTimeout} from "./common/helpers/querySelectorWithTimeout";
+import app_actions from "./modules/app_actions";
 
 (async function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -59,6 +60,7 @@ import {querySelectorWithTimeout} from "./common/helpers/querySelectorWithTimeou
             mutation_handler(); // Регистрируем модуль слежения за мутациями
             pv_addons(); // Инициализируем дополнения к просмотрщику фото
             profile_actions(); // Инициализируем дополнения к профилю пользователя
+            app_actions(); // Инициализируем дополнения к приложениям
             window.removeEventListener("load", onLoadWindow);
             // Слежение за изменениями в URL
             LocationState.init();

@@ -34,7 +34,7 @@ export default class APIInteractor {
 
 export interface ICallApiParams {
     // если execute - params.code обязателен к заполнению
-    method?: 'execute' | 'messages.removeChatUser' | 'utils.resolveScreenName' | string;
+    method?: 'execute' | 'messages.removeChatUser' | 'utils.resolveScreenName' | 'newsfeed.getLists' | 'groups.get' | string;
     data?: {
         [U: string]: string;
     };

@@ -34,8 +34,8 @@ export default class GlobalConfig {
                 'label': 'Переключение фото колёсиком мыши',
                 'type': 'checkbox',
                 'default': true,
-            }, 
-              'pvPhotoMoreActCommunityKeeper': {
+            },
+            'pvPhotoMoreActCommunityKeeper': {
                 'label': 'Кнопка "Открыть в Хранителе Групп"',
                 'type': 'checkbox',
                 'default': true,
@@ -44,6 +44,11 @@ export default class GlobalConfig {
                 'label': 'Кнопка "Открыть в альбоме"',
                 'type': 'checkbox',
                 'default': true,
+            },
+            'exportCommunityKeeperBtn': {
+                'label': 'Кнопка "Создать бэкап из всех сообществ" возле приложения Хранитель Групп',
+                'type': 'checkbox',
+                'default': false,
             },
             'logging': {
                 'label': 'Логирование в консоль',
