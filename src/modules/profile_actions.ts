@@ -3,6 +3,7 @@ import {Logger} from "../classes/Logger";
 import LocationState from "../classes/LocationState";
 import GlobalConfig from "../GlobalConfig";
 import {querySelectorWithTimeout} from "../common/helpers/querySelectorWithTimeout";
+import APIInteractor from "../classes/ApiInteractor";
 
 async function getCurrentProfileId(profile_redesigned: HTMLElement) {
     let cp = LocationState.getCurrentPath();
@@ -10,29 +11,30 @@ async function getCurrentProfileId(profile_redesigned: HTMLElement) {
         return cp.slice(3);
     }
 
-    // TODO: переделать получение id на использование метода, когда ApiInteractor заработает
-    // const screen_name = cp.slice(1);
-    // return ApiInteractor.callApi({
-    //     method: "utils.resolveScreenName",
-    //     data: {
-    //         screen_name,
-    //     },
-    // });
+    const screen_name = cp.slice(1);
+    const result = await APIInteractor.callApi({
+        method: "utils.resolveScreenName",
+        data: {
+            screen_name,
+        },
+    });
+    return result.response.object_id
 
-    const linkSel = profile_redesigned.querySelector("a[href^='/im?sel=']") as HTMLLinkElement | undefined;
-    if (linkSel) {
-        return linkSel.href.split("/im?sel=")[1];
-    }
-
-    const linkAudios = profile_redesigned.querySelector("a[href^='/audios']") as HTMLLinkElement | undefined;
-    if (linkAudios) {
-        return linkAudios.href.split("/audios")[1];
-    }
-
-    const linkAlbums = profile_redesigned.querySelector("a[href^='/albums']") as HTMLLinkElement | undefined;
-    if (linkAlbums) {
-        return linkAlbums.href.split("/albums")[1];
-    }
+    // раскомментировать, если потребуется больше не использовать APIInteractor
+    // const linkSel = profile_redesigned.querySelector("a[href^='/im?sel=']") as HTMLLinkElement | undefined;
+    // if (linkSel) {
+    //     return linkSel.href.split("/im?sel=")[1];
+    // }
+    //
+    // const linkAudios = profile_redesigned.querySelector("a[href^='/audios']") as HTMLLinkElement | undefined;
+    // if (linkAudios) {
+    //     return linkAudios.href.split("/audios")[1];
+    // }
+    //
+    // const linkAlbums = profile_redesigned.querySelector("a[href^='/albums']") as HTMLLinkElement | undefined;
+    // if (linkAlbums) {
+    //     return linkAlbums.href.split("/albums")[1];
+    // }
 }
 
 

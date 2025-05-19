@@ -93,1730 +93,237 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/index.ts");
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ "./src/GlobalConfig.ts":
+/*!*****************************!*\
+  !*** ./src/GlobalConfig.ts ***!
+  \*****************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const GM_config_1 = __webpack_require__(10);
-class GlobalConfig {
-}
-exports.default = GlobalConfig;
-GlobalConfig.Config = new GM_config_1.default({
-    'id': 'vkfix',
-    'title': 'Настройка VK Fix',
-    'fields': {
-        'fixImagesZooming': {
-            'label': 'Исправить зумирование картинок при нестандартном масштабировании в операционной системе windows (может быть и других)',
-            'type': 'checkbox',
-            'default': false,
-        },
-        'fixLeftMenuOverflow': {
-            'label': 'Исправить высоту левого меню так, чтобы не создавался скролл страницы.',
-            'type': 'checkbox',
-            'default': false,
-        },
-        'pvExpand': {
-            'label': 'Кнопка "Расширить" при просмотре фото (работает только с исправленным зумированием)',
-            'type': 'checkbox',
-            'default': false,
-        },
-        'pvExpandRightMonitorDefault': {
-            'label': 'Кнопка "Расширить" будет нажиматься автоматически на (основном!) правом мониторе',
-            'type': 'checkbox',
-            'default': false,
-        },
-        'pvExpandLeftMonitorDefault': {
-            'label': 'Кнопка "Расширить" будет нажиматься автоматически на (дополнительном!) левом мониторе',
-            'type': 'checkbox',
-            'default': false,
-        },
-        'pvPhotoSwitchWheel': {
-            'label': 'Переключение фото колёсиком мыши',
-            'type': 'checkbox',
-            'default': true,
-        },
-        'pvPhotoMoreActCommunityKeeper': {
-            'label': 'Кнопка "Открыть в Хранителе Групп"',
-            'type': 'checkbox',
-            'default': true,
-        },
-        'pvPhotoMoreActAlbum': {
-            'label': 'Кнопка "Открыть в альбоме"',
-            'type': 'checkbox',
-            'default': true,
-        },
-        'logging': {
-            'label': 'Логирование в консоль',
-            'type': 'checkbox',
-            'default': false,
-        },
-        "newsBtn": {
-            'label': 'Ссылка на новости в профиле пользователя',
-            'type': 'checkbox',
-            'default': false,
-        }
-    }
-});
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst GM_config_1 = __webpack_require__(/*! ./libs/GM_config */ \"./src/libs/GM_config.js\");\r\nclass GlobalConfig {\r\n}\r\nexports.default = GlobalConfig;\r\nGlobalConfig.Config = new GM_config_1.default({\r\n    'id': 'vkfix',\r\n    'title': 'Настройка VK Fix',\r\n    'fields': {\r\n        'fixImagesZooming': {\r\n            'label': 'Исправить зумирование картинок при нестандартном масштабировании в операционной системе windows (может быть и других)',\r\n            'type': 'checkbox',\r\n            'default': false,\r\n        },\r\n        'fixLeftMenuOverflow': {\r\n            'label': 'Исправить высоту левого меню так, чтобы не создавался скролл страницы.',\r\n            'type': 'checkbox',\r\n            'default': false,\r\n        },\r\n        'pvExpand': {\r\n            'label': 'Кнопка \"Расширить\" при просмотре фото (работает только с исправленным зумированием)',\r\n            'type': 'checkbox',\r\n            'default': false,\r\n        },\r\n        'pvExpandRightMonitorDefault': {\r\n            'label': 'Кнопка \"Расширить\" будет нажиматься автоматически на (основном!) правом мониторе',\r\n            'type': 'checkbox',\r\n            'default': false,\r\n        },\r\n        'pvExpandLeftMonitorDefault': {\r\n            'label': 'Кнопка \"Расширить\" будет нажиматься автоматически на (дополнительном!) левом мониторе',\r\n            'type': 'checkbox',\r\n            'default': false,\r\n        },\r\n        'pvPhotoSwitchWheel': {\r\n            'label': 'Переключение фото колёсиком мыши',\r\n            'type': 'checkbox',\r\n            'default': true,\r\n        },\r\n        'pvPhotoMoreActCommunityKeeper': {\r\n            'label': 'Кнопка \"Открыть в Хранителе Групп\"',\r\n            'type': 'checkbox',\r\n            'default': true,\r\n        },\r\n        'pvPhotoMoreActAlbum': {\r\n            'label': 'Кнопка \"Открыть в альбоме\"',\r\n            'type': 'checkbox',\r\n            'default': true,\r\n        },\r\n        'logging': {\r\n            'label': 'Логирование в консоль',\r\n            'type': 'checkbox',\r\n            'default': false,\r\n        },\r\n        \"newsBtn\": {\r\n            'label': 'Ссылка на новости в профиле пользователя',\r\n            'type': 'checkbox',\r\n            'default': false,\r\n        }\r\n    }\r\n});\r\n\n\n//# sourceURL=webpack:///./src/GlobalConfig.ts?");
 
 /***/ }),
-/* 1 */
+
+/***/ "./src/classes/ApiInteractor.ts":
+/*!**************************************!*\
+  !*** ./src/classes/ApiInteractor.ts ***!
+  \**************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Logger = void 0;
-const consts_1 = __webpack_require__(6);
-class Logger {
-    static log(...args) {
-        if (consts_1.isLog) {
-            console.log(args);
-        }
-    }
-    static info(...args) {
-        if (consts_1.isLog) {
-            console.info(args);
-        }
-    }
-    static warn(...args) {
-        if (consts_1.isLog) {
-            console.warn(args);
-        }
-    }
-    static error(...args) {
-        if (consts_1.isLog) {
-            console.error(args);
-        }
-    }
-}
-exports.Logger = Logger;
-
+eval("\r\nvar __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\r\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\r\n    return new (P || (P = Promise))(function (resolve, reject) {\r\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\r\n        function rejected(value) { try { step(generator[\"throw\"](value)); } catch (e) { reject(e); } }\r\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\r\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\r\n    });\r\n};\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst Logger_1 = __webpack_require__(/*! ./Logger */ \"./src/classes/Logger.ts\");\r\nclass APIInteractor {\r\n    static callApiRaw(endpoint, data) {\r\n        return __awaiter(this, void 0, void 0, function* () {\r\n            Logger_1.Logger.log('Call API Raw', data, endpoint);\r\n            const response = yield fetch(endpoint, {\r\n                method: 'POST',\r\n                body: data,\r\n                credentials: \"same-origin\"\r\n            });\r\n            return yield response.json();\r\n        });\r\n    }\r\n    static callApi(cParams) {\r\n        // Пример доступа к window страницы\r\n        const pageWindow = unsafeWindow;\r\n        const endpoint = `https://api.vk.com/method/${cParams.method}?v=5.251&client_id=6287487`;\r\n        const token = JSON.parse(pageWindow.localStorage.getItem('6287487:web_token:login:auth')).access_token;\r\n        const form = new FormData();\r\n        form.set('access_token', token);\r\n        if (cParams.data) {\r\n            const keys = Object.keys(cParams.data);\r\n            for (const key of keys) {\r\n                form.set(key, cParams.data[key]);\r\n            }\r\n        }\r\n        return APIInteractor.callApiRaw(endpoint, form);\r\n    }\r\n}\r\nexports.default = APIInteractor;\r\n\n\n//# sourceURL=webpack:///./src/classes/ApiInteractor.ts?");
 
 /***/ }),
-/* 2 */
+
+/***/ "./src/classes/LocationState.ts":
+/*!**************************************!*\
+  !*** ./src/classes/LocationState.ts ***!
+  \**************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const VKLocation_1 = __webpack_require__(14);
-const location_mutations_1 = __webpack_require__(15);
-const lastOrDefault_1 = __webpack_require__(17);
-const consts_1 = __webpack_require__(6);
-const Logger_1 = __webpack_require__(1);
-class LocationState {
-    static init() {
-        this.updateState();
-        LocationState.locationScanner(); // Инициализируем слежение за изменениями в URL
-    }
-    static changeState(href, newQuery) {
-        this.previousQuery = this.query;
-        this.previousHref = this.href;
-        this.query = newQuery;
-        this.href = href;
-    }
-    static updateState() {
-        this.changeState(location.href, VKLocation_1.default.getQueryParams());
-        const getParamsQuery = (p) => {
-            if (!p) {
-                return null;
-            }
-            return {
-                sel: p.get('sel'),
-                z: p.get('z'),
-            };
-        };
-        if (consts_1.isLog) {
-            Logger_1.Logger.warn('Updated location', {
-                previousQuery: getParamsQuery(this.previousQuery),
-                query: getParamsQuery(this.query),
-            });
-        }
-    }
-    static getCurrentQuery() {
-        return this.query;
-    }
-    static getPreviousQuery() {
-        return this.previousQuery;
-    }
-    static getCurrentPath() {
-        var _a;
-        return (_a = '/' + (0, lastOrDefault_1.lastOrDefault)(this.href.split('/'))) !== null && _a !== void 0 ? _a : '';
-    }
-    static getPreviousPath() {
-        var _a;
-        return (_a = '/' + (0, lastOrDefault_1.lastOrDefault)(this.previousHref.split('/'))) !== null && _a !== void 0 ? _a : '';
-    }
-    static locationScanner() {
-        if (this.locUpdScanner !== null) {
-            clearInterval(this.locUpdScanner);
-        }
-        this.locUpdScanner = setInterval(() => {
-            if (location.href !== this.href) {
-                (0, location_mutations_1.default)();
-            }
-        }, 100);
-    }
-}
-exports.default = LocationState;
-LocationState.previousQuery = null;
-LocationState.previousHref = null;
-LocationState.query = null;
-LocationState.href = null;
-LocationState.locUpdScanner = null;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst VKLocation_1 = __webpack_require__(/*! ./VKLocation */ \"./src/classes/VKLocation.ts\");\r\nconst location_mutations_1 = __webpack_require__(/*! ../modules/mutations/location_mutations */ \"./src/modules/mutations/location_mutations.ts\");\r\nconst lastOrDefault_1 = __webpack_require__(/*! ../common/helpers/lastOrDefault */ \"./src/common/helpers/lastOrDefault.ts\");\r\nconst consts_1 = __webpack_require__(/*! ../common/consts */ \"./src/common/consts.ts\");\r\nconst Logger_1 = __webpack_require__(/*! ./Logger */ \"./src/classes/Logger.ts\");\r\nclass LocationState {\r\n    static init() {\r\n        this.updateState();\r\n        LocationState.locationScanner(); // Инициализируем слежение за изменениями в URL\r\n    }\r\n    static changeState(href, newQuery) {\r\n        this.previousQuery = this.query;\r\n        this.previousHref = this.href;\r\n        this.query = newQuery;\r\n        this.href = href;\r\n    }\r\n    static updateState() {\r\n        this.changeState(location.href, VKLocation_1.default.getQueryParams());\r\n        const getParamsQuery = (p) => {\r\n            if (!p) {\r\n                return null;\r\n            }\r\n            return {\r\n                sel: p.get('sel'),\r\n                z: p.get('z'),\r\n            };\r\n        };\r\n        if (consts_1.isLog) {\r\n            Logger_1.Logger.warn('Updated location', {\r\n                previousQuery: getParamsQuery(this.previousQuery),\r\n                query: getParamsQuery(this.query),\r\n            });\r\n        }\r\n    }\r\n    static getCurrentQuery() {\r\n        return this.query;\r\n    }\r\n    static getPreviousQuery() {\r\n        return this.previousQuery;\r\n    }\r\n    static getCurrentPath() {\r\n        var _a;\r\n        return (_a = '/' + (0, lastOrDefault_1.lastOrDefault)(this.href.split('/'))) !== null && _a !== void 0 ? _a : '';\r\n    }\r\n    static getPreviousPath() {\r\n        var _a;\r\n        return (_a = '/' + (0, lastOrDefault_1.lastOrDefault)(this.previousHref.split('/'))) !== null && _a !== void 0 ? _a : '';\r\n    }\r\n    static locationScanner() {\r\n        if (this.locUpdScanner !== null) {\r\n            clearInterval(this.locUpdScanner);\r\n        }\r\n        this.locUpdScanner = setInterval(() => {\r\n            if (location.href !== this.href) {\r\n                (0, location_mutations_1.default)();\r\n            }\r\n        }, 100);\r\n    }\r\n}\r\nexports.default = LocationState;\r\nLocationState.previousQuery = null;\r\nLocationState.previousHref = null;\r\nLocationState.query = null;\r\nLocationState.href = null;\r\nLocationState.locUpdScanner = null;\r\n\n\n//# sourceURL=webpack:///./src/classes/LocationState.ts?");
 
 /***/ }),
-/* 3 */
+
+/***/ "./src/classes/Logger.ts":
+/*!*******************************!*\
+  !*** ./src/classes/Logger.ts ***!
+  \*******************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.querySelectorWithTimeout = void 0;
-/** @description Получает элемент за указанный timeout с помощью наблюдения за мутациями в указанном элементе. */
-function querySelectorWithTimeout({ selectors, timeout = 2000, element = document.documentElement, all = false, signal, }) {
-    const getResult = () => {
-        if (all) {
-            const result = element.querySelectorAll(selectors);
-            if (result.length > 0) {
-                return result;
-            }
-            return undefined;
-        }
-        const result = element.querySelector(selectors);
-        if (result) {
-            return result;
-        }
-        return undefined;
-    };
-    return new Promise((resolve, reject) => {
-        const result = getResult();
-        if (result) {
-            resolve(result);
-            return;
-        }
-        const observer = new MutationObserver((_, observer) => {
-            if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
-                observer.disconnect();
-                reject(signal.reason);
-                return;
-            }
-            const result = getResult();
-            if (result) {
-                observer.disconnect();
-                resolve(result);
-            }
-        });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
-        setTimeout(() => {
-            if (signal === null || signal === void 0 ? void 0 : signal.aborted) {
-                observer.disconnect();
-                reject(signal.reason);
-                return;
-            }
-            observer.disconnect();
-            resolve(getResult());
-        }, timeout);
-    });
-}
-exports.querySelectorWithTimeout = querySelectorWithTimeout;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nexports.Logger = void 0;\r\nconst consts_1 = __webpack_require__(/*! ../common/consts */ \"./src/common/consts.ts\");\r\nclass Logger {\r\n    static log(...args) {\r\n        if (consts_1.isLog) {\r\n            console.log(args);\r\n        }\r\n    }\r\n    static info(...args) {\r\n        if (consts_1.isLog) {\r\n            console.info(args);\r\n        }\r\n    }\r\n    static warn(...args) {\r\n        if (consts_1.isLog) {\r\n            console.warn(args);\r\n        }\r\n    }\r\n    static error(...args) {\r\n        if (consts_1.isLog) {\r\n            console.error(args);\r\n        }\r\n    }\r\n}\r\nexports.Logger = Logger;\r\n\n\n//# sourceURL=webpack:///./src/classes/Logger.ts?");
 
 /***/ }),
-/* 4 */
+
+/***/ "./src/classes/VKLocation.ts":
+/*!***********************************!*\
+  !*** ./src/classes/VKLocation.ts ***!
+  \***********************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function default_1() {
-    // TODO обработать все изменения на странице, если требуется
-}
-exports.default = default_1;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nclass VKLocation {\r\n    static getQueryParams() {\r\n        return new URLSearchParams(window.location.search);\r\n    }\r\n    static getConversation() {\r\n        const params = this.getQueryParams();\r\n        const selected = params.get('sel');\r\n        if (!selected || !selected.startsWith('c')) {\r\n            return null;\r\n        }\r\n        return parseInt(selected.substr(1));\r\n    }\r\n    static isConversation() {\r\n        const params = this.getQueryParams();\r\n        const selected = params.get('sel');\r\n        if (!selected) {\r\n            return false;\r\n        }\r\n        return selected.startsWith('c');\r\n    }\r\n}\r\nexports.default = VKLocation;\r\n\n\n//# sourceURL=webpack:///./src/classes/VKLocation.ts?");
 
 /***/ }),
-/* 5 */
+
+/***/ "./src/common/consts.ts":
+/*!******************************!*\
+  !*** ./src/common/consts.ts ***!
+  \******************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const GlobalConfig_1 = __webpack_require__(0);
-const Logger_1 = __webpack_require__(1);
-const querySelectorWithTimeout_1 = __webpack_require__(3);
-function pv_addons() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const isPvExpand = GlobalConfig_1.default.Config.get('pvExpand');
-        const pvPhotoSwitchWheel = GlobalConfig_1.default.Config.get('pvPhotoSwitchWheel');
-        const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.default.Config.get('pvPhotoMoreActCommunityKeeper');
-        const pvPhotoMoreActAlbum = GlobalConfig_1.default.Config.get('pvPhotoMoreActAlbum');
-        if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper && !pvPhotoMoreActAlbum) {
-            return;
-        }
-        const pvBox = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#pv_box' });
-        if (!pvBox) {
-            return;
-        }
-        const pvBottomInfo = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
-            element: pvBox,
-            selectors: '.pv_bottom_info'
-        });
-        if (!pvBottomInfo) {
-            Logger_1.Logger.info('pv_bottom_info not found');
-            return;
-        }
-        const pvPhoto = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
-            element: pvBox,
-            selectors: `#pv_photo`
-        });
-        if (!pvPhoto) {
-            Logger_1.Logger.info('pv_photo not found');
-            return;
-        }
-        const context = {
-            pvPhoto, pvBox, pvBottomInfo,
-        };
-        if (isPvExpand) {
-            try {
-                pvExpand(context);
-            }
-            catch (e) {
-                Logger_1.Logger.warn("Ошибка в expand.", { e });
-            }
-        }
-        if (pvPhotoSwitchWheel) {
-            try {
-                photoSwitchWheel(context);
-            }
-            catch (e) {
-                Logger_1.Logger.warn("Ошибка в photoSwitchWheel.", { e });
-            }
-        }
-        if (pvPhotoMoreActCommunityKeeper || pvPhotoMoreActAlbum) {
-            try {
-                photoMoreActs(context);
-            }
-            catch (e) {
-                Logger_1.Logger.warn("Ошибка в photoMoreActs.", { e });
-            }
-        }
-    });
-}
-exports.default = pv_addons;
-let pvExpandClickValue = undefined;
-function pvExpand({ pvPhoto, pvBottomInfo, }) {
-    const buttonId = 'pv_expand_photo';
-    if (document.getElementById(buttonId)) {
-        return;
-    }
-    const pvBottomActions = pvBottomInfo.querySelector('.pv_bottom_actions');
-    if (!pvBottomActions) {
-        Logger_1.Logger.info('pv_bottom_actions not found');
-        return;
-    }
-    const prependDivider = () => {
-        const dividerEl = document.createElement('span');
-        dividerEl.classList.add('divider');
-        pvBottomActions.prepend(dividerEl);
-    };
-    prependDivider();
-    const expandBtn = document.createElement('a');
-    expandBtn.id = buttonId;
-    expandBtn.style.setProperty('min-width', '68px');
-    expandBtn.style.setProperty('display', 'inline-block');
-    let prevObserver = undefined;
-    let stateExpand = false;
-    // В этих переменных храним изначальное значение, которое задаёт сам VK.
-    // После отмены сужения задаём их обратно.
-    let prevWidth = undefined;
-    let prevHeight = undefined;
-    const switchExpand = (value = !stateExpand) => __awaiter(this, void 0, void 0, function* () {
-        prevObserver === null || prevObserver === void 0 ? void 0 : prevObserver.disconnect();
-        prevObserver = undefined;
-        stateExpand = value;
-        const imgExpand = (img) => {
-            img.style.setProperty('width', '100%', 'important');
-            img.style.setProperty('height', '100%', 'important');
-            img.style.setProperty('object-fit', 'contain', 'important');
-            expandBtn.innerHTML = "Сузить";
-            stateExpand = true;
-        };
-        const imgRemoveExpand = (img) => {
-            if (img.style.width !== '100%') {
-                prevWidth = img.style.width;
-                prevHeight = img.style.height;
-            }
-            else {
-                img.style.removeProperty('width');
-                img.style.removeProperty('height');
-                if (prevWidth && prevHeight) {
-                    img.style.setProperty('width', prevWidth);
-                    img.style.setProperty('height', prevHeight);
-                }
-            }
-            img.style.removeProperty('object-fit');
-            expandBtn.innerHTML = "Расширить";
-            stateExpand = false;
-        };
-        const applyChanges = () => __awaiter(this, void 0, void 0, function* () {
-            const img = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
-                element: pvPhoto,
-                selectors: `img`
-            });
-            if (!img) {
-                Logger_1.Logger.info('img not found');
-                return;
-            }
-            value ? imgExpand(img) : imgRemoveExpand(img);
-        });
-        yield applyChanges();
-        const observer = new MutationObserver(applyChanges);
-        observer.observe(pvPhoto, { childList: true });
-        prevObserver = observer;
-    });
-    expandBtn.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
-        yield switchExpand();
-        pvExpandClickValue = stateExpand;
-    }));
-    pvBottomActions.prepend(expandBtn);
-    if (pvExpandClickValue !== undefined) {
-        switchExpand(pvExpandClickValue);
-        return;
-    }
-    if (!stateExpand && GlobalConfig_1.default.Config.get(window.screenLeft < 0 ? 'pvExpandLeftMonitorDefault' : 'pvExpandRightMonitorDefault')) {
-        switchExpand(true);
-        return;
-    }
-    switchExpand(false);
-}
-function photoSwitchWheel({ pvBox }) {
-    const pvImageWrap = pvBox.querySelector('.pv_image_wrap');
-    if (!pvImageWrap) {
-        Logger_1.Logger.info('pvImageWrap not found');
-        return;
-    }
-    if (pvImageWrap.dataset.photoSwitchWheel === 'true') {
-        // событие уже зарегистрировано
-        return;
-    }
-    const win = document.defaultView;
-    pvImageWrap.dataset.photoSwitchWheel = 'true';
-    pvImageWrap.addEventListener('wheel', (e) => {
-        const isNext = e.deltaY > 0;
-        const isPrev = !isNext;
-        if (isNext) {
-            win.Photoview.show(false, win.cur.pvIndex + 1);
-        }
-        if (isPrev) {
-            win.Photoview.show(false, win.cur.pvIndex - 1);
-        }
-    });
-}
-let initPhotoMoreActs = false;
-let abortControllerPhotoMoreActs = new AbortController();
-function photoMoreActs({ pvBox }) {
-    const pvImageWrap = pvBox.querySelector('.pv_image_wrap');
-    if (!pvImageWrap) {
-        Logger_1.Logger.info('pvImageWrap not found');
-        return;
-    }
-    const pvActionsMore = pvBox.querySelector('.pv_actions_more');
-    if (!pvActionsMore) {
-        Logger_1.Logger.info('pvActionsMore not found');
-        return;
-    }
-    const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.default.Config.get('pvPhotoMoreActCommunityKeeper');
-    const pvPhotoMoreActAlbum = GlobalConfig_1.default.Config.get('pvPhotoMoreActAlbum');
-    const actNames = [];
-    if (pvPhotoMoreActCommunityKeeper) {
-        actNames.push('pvPhotoMoreActCommunityKeeper');
-    }
-    if (pvPhotoMoreActAlbum) {
-        actNames.push('pvPhotoMoreActAlbum');
-    }
-    if (!initPhotoMoreActs && actNames.length) {
-        const style = document.createElement('style');
-        document.head.appendChild(style);
-        style.sheet.insertRule(`.pv_more_act_vkfix::before { background-position: 0 -60px; }`, 0);
-        initPhotoMoreActs = true;
-    }
-    abortControllerPhotoMoreActs.abort();
-    abortControllerPhotoMoreActs = new AbortController();
-    const signal = abortControllerPhotoMoreActs.signal;
-    const registerMoreAct = (name, textContent, href) => __awaiter(this, void 0, void 0, function* () {
-        if (pvActionsMore.querySelector(`#${name}`) || !cur.pvCurPhoto.id.startsWith('-')) {
-            return;
-        }
-        const pvMoreActDownload = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
-            selectors: '#pv_more_act_download',
-            element: pvBox,
-            timeout: 1000,
-            signal,
-        }).catch(() => undefined);
-        if (!pvMoreActDownload) {
-            return;
-        }
-        if (pvActionsMore.querySelector(`#${name}`)) {
-            return;
-        }
-        signal.throwIfAborted();
-        const pvMoreAct = pvMoreActDownload.cloneNode();
-        pvMoreAct.id = name;
-        pvMoreAct.textContent = textContent;
-        pvMoreAct.href = href;
-        pvMoreAct.classList.add('pv_more_act_vkfix');
-        pvMoreActDownload.parentElement.append(pvMoreAct);
-        const pvMoreActsTt = pvBox.querySelector('#pv_more_acts_tt');
-        if (pvMoreActsTt) {
-            pvMoreActsTt.style.top = `${parseInt(pvMoreActsTt.style.top, 10) - 32}px`;
-        }
-    });
-    const registerMoreActs = () => __awaiter(this, void 0, void 0, function* () {
-        if (pvPhotoMoreActCommunityKeeper) {
-            yield registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`);
-        }
-        if (pvPhotoMoreActAlbum && !window.location.href.includes('vk.com/photo-')) {
-            yield registerMoreAct('pvPhotoMoreActAlbum', 'Открыть в альбоме', `https://vk.com/photo${cur.pvCurPhoto.id}`);
-        }
-    });
-    pvActionsMore.addEventListener('mouseenter', registerMoreActs, {
-        capture: true,
-        signal,
-    });
-}
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nexports.isLog = exports.isDev = void 0;\r\nconst GlobalConfig_1 = __webpack_require__(/*! ../GlobalConfig */ \"./src/GlobalConfig.ts\");\r\nexports.isDev = \"development\" === 'development';\r\nexports.isLog = GlobalConfig_1.default.Config.get('logging');\r\n\n\n//# sourceURL=webpack:///./src/common/consts.ts?");
 
 /***/ }),
-/* 6 */
+
+/***/ "./src/common/helpers/lastOrDefault.ts":
+/*!*********************************************!*\
+  !*** ./src/common/helpers/lastOrDefault.ts ***!
+  \*********************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.isLog = exports.isDev = void 0;
-const GlobalConfig_1 = __webpack_require__(0);
-exports.isDev = "production" === 'development';
-exports.isLog = GlobalConfig_1.default.Config.get('logging');
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nexports.lastOrDefault = void 0;\r\nfunction lastOrDefault(array, _default = undefined) {\r\n    if (!array || array.length === 0) {\r\n        return _default;\r\n    }\r\n    return array[array.length - 1];\r\n}\r\nexports.lastOrDefault = lastOrDefault;\r\n\n\n//# sourceURL=webpack:///./src/common/helpers/lastOrDefault.ts?");
 
 /***/ }),
-/* 7 */
+
+/***/ "./src/common/helpers/querySelectorWithTimeout.ts":
+/*!********************************************************!*\
+  !*** ./src/common/helpers/querySelectorWithTimeout.ts ***!
+  \********************************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const uiHelpers_1 = __webpack_require__(16);
-const Logger_1 = __webpack_require__(1);
-const LocationState_1 = __webpack_require__(2);
-const GlobalConfig_1 = __webpack_require__(0);
-const querySelectorWithTimeout_1 = __webpack_require__(3);
-function getCurrentProfileId(profile_redesigned) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let cp = LocationState_1.default.getCurrentPath();
-        if (cp.startsWith("/id")) {
-            return cp.slice(3);
-        }
-        // TODO: переделать получение id на использование метода, когда ApiInteractor заработает
-        // const screen_name = cp.slice(1);
-        // return ApiInteractor.callApi({
-        //     method: "utils.resolveScreenName",
-        //     data: {
-        //         screen_name,
-        //     },
-        // });
-        const linkSel = profile_redesigned.querySelector("a[href^='/im?sel=']");
-        if (linkSel) {
-            return linkSel.href.split("/im?sel=")[1];
-        }
-        const linkAudios = profile_redesigned.querySelector("a[href^='/audios']");
-        if (linkAudios) {
-            return linkAudios.href.split("/audios")[1];
-        }
-        const linkAlbums = profile_redesigned.querySelector("a[href^='/albums']");
-        if (linkAlbums) {
-            return linkAlbums.href.split("/albums")[1];
-        }
-    });
-}
-const newsBtnId = "vkfix-newsBtn";
-function profile_actions() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const isNewsBtn = GlobalConfig_1.default.Config.get('newsBtn');
-        if (!isNewsBtn || document.getElementById(newsBtnId)) {
-            return;
-        }
-        const profile_redesigned = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
-            selectors: `#profile_redesigned`
-        });
-        if (!profile_redesigned) {
-            return;
-        }
-        const ProfileHeader__actions = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
-            element: profile_redesigned,
-            selectors: `.ProfileHeader__actions`,
-        });
-        if (!ProfileHeader__actions) {
-            Logger_1.Logger.warn('not found ProfileHeader__actions');
-            return;
-        }
-        const ProfileHeaderActions__buttons = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
-            element: ProfileHeader__actions,
-            selectors: ".ProfileHeaderActions__buttons"
-        });
-        if (!ProfileHeaderActions__buttons) {
-            Logger_1.Logger.warn('not found ProfileHeaderActions__buttons');
-            return;
-        }
-        const userId = yield getCurrentProfileId(profile_redesigned);
-        const newsBtn = (0, uiHelpers_1.createVkUiButton)('Новости', () => {
-            window.open(`/feed?section=source&source=${userId}`);
-        });
-        newsBtn.id = newsBtnId;
-        newsBtn.style.marginLeft = '6px';
-        ProfileHeaderActions__buttons.appendChild(newsBtn);
-    });
-}
-exports.default = profile_actions;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nexports.querySelectorWithTimeout = void 0;\r\n/** @description Получает элемент за указанный timeout с помощью наблюдения за мутациями в указанном элементе. */\r\nfunction querySelectorWithTimeout({ selectors, timeout = 2000, element = document.documentElement, all = false, signal, }) {\r\n    const getResult = () => {\r\n        if (all) {\r\n            const result = element.querySelectorAll(selectors);\r\n            if (result.length > 0) {\r\n                return result;\r\n            }\r\n            return undefined;\r\n        }\r\n        const result = element.querySelector(selectors);\r\n        if (result) {\r\n            return result;\r\n        }\r\n        return undefined;\r\n    };\r\n    return new Promise((resolve, reject) => {\r\n        const result = getResult();\r\n        if (result) {\r\n            resolve(result);\r\n            return;\r\n        }\r\n        const observer = new MutationObserver((_, observer) => {\r\n            if (signal === null || signal === void 0 ? void 0 : signal.aborted) {\r\n                observer.disconnect();\r\n                reject(signal.reason);\r\n                return;\r\n            }\r\n            const result = getResult();\r\n            if (result) {\r\n                observer.disconnect();\r\n                resolve(result);\r\n            }\r\n        });\r\n        observer.observe(document.documentElement, { childList: true, subtree: true });\r\n        setTimeout(() => {\r\n            if (signal === null || signal === void 0 ? void 0 : signal.aborted) {\r\n                observer.disconnect();\r\n                reject(signal.reason);\r\n                return;\r\n            }\r\n            observer.disconnect();\r\n            resolve(getResult());\r\n        }, timeout);\r\n    });\r\n}\r\nexports.querySelectorWithTimeout = querySelectorWithTimeout;\r\n\n\n//# sourceURL=webpack:///./src/common/helpers/querySelectorWithTimeout.ts?");
 
 /***/ }),
-/* 8 */
+
+/***/ "./src/common/helpers/uiHelpers.ts":
+/*!*****************************************!*\
+  !*** ./src/common/helpers/uiHelpers.ts ***!
+  \*****************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-// ==UserScript==
-// @name VK Fix
-// @description Скрипт для улучшения интерфейса ВКонтакте
-// @author Ivan Petrov (LazyTechwork)
-// @contributors Ivan Mel (xeleoss)
-// @license MIT
-// @version 1.1.5
-// @include https://vk.com/*
-// @grant GM_getValue
-// @grant GM_setValue
-// @grant GM_addStyle
-// ==/UserScript==
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const styles_1 = __webpack_require__(9);
-const mutation_handler_1 = __webpack_require__(13);
-const GlobalConfig_1 = __webpack_require__(0);
-const LocationState_1 = __webpack_require__(2);
-const page_scanner_1 = __webpack_require__(4);
-const pv_addons_1 = __webpack_require__(5);
-const Logger_1 = __webpack_require__(1);
-const profile_actions_1 = __webpack_require__(7);
-const querySelectorWithTimeout_1 = __webpack_require__(3);
-(function (window) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let w = window;
-        if (w.self != w.top) {
-            return;
-        }
-        // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
-        // Инициализируем новый конфиг
-        // [4] дополнительная проверка наряду с @include
-        if (/https:\/\/vk.com/.test(w.location.href)) {
-            Logger_1.Logger.log('VK Fix запущен');
-            // Добавляем кнопку настроек в верхнее меню
-            const settings_link = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#top_settings_link', timeout: 5000 });
-            if (settings_link === null || settings_link === void 0 ? void 0 : settings_link.parentNode) {
-                const vkfixconflink = document.createElement('a');
-                vkfixconflink.innerHTML = 'VK Fix';
-                vkfixconflink.id = 'top_vkfix_settings_link';
-                vkfixconflink.className = 'top_profile_mrow';
-                vkfixconflink.setAttribute('href', '#');
-                settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на
-                // настройки
-                vkfixconflink.addEventListener('click', (ev) => {
-                    ev.preventDefault();
-                    GlobalConfig_1.default.Config.open();
-                });
-            }
-            const onLoadWindow = () => {
-                (0, styles_1.default)(); // Инъекция стилей
-                (0, page_scanner_1.default)(); // Инициализируем сканер страницы
-                (0, mutation_handler_1.default)(); // Регистрируем модуль слежения за мутациями
-                (0, pv_addons_1.default)(); // Инициализируем дополнения к просмотрщику фото
-                (0, profile_actions_1.default)(); // Инициализируем дополнения к профилю пользователя
-                window.removeEventListener("load", onLoadWindow);
-                // Слежение за изменениями в URL
-                LocationState_1.default.init();
-            };
-            window.addEventListener("load", onLoadWindow);
-        }
-    });
-})(window);
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nexports.createVkUiButton = void 0;\r\nfunction createVkUiButton(innerHTML, click) {\r\n    const ProfileHeaderButton = document.createElement(\"div\");\r\n    ProfileHeaderButton.className = \"ProfileHeaderButton\";\r\n    const spanIn = document.createElement('span');\r\n    spanIn.className = \"vkuiButton__in\";\r\n    const spanCaption = document.createElement(\"span\");\r\n    spanCaption.className = \"vkuiButton__content vkuiSubhead vkuiSubhead--sizeY-compact vkuiSubhead--w-2\";\r\n    spanCaption.innerHTML = innerHTML;\r\n    const btn = document.createElement('a');\r\n    btn.className = \"vkuiButton vkuiButton--sz-m vkuiButton--lvl-secondary vkuiButton--clr-accent vkuiButton--aln-center vkuiButton--sizeY-compact vkuiTappable vkuiTappable--sizeX-regular vkuiTappable--hasHover vkuiTappable--hasActive vkuiTappable--mouse\";\r\n    spanIn.appendChild(spanCaption);\r\n    btn.appendChild(spanIn);\r\n    ProfileHeaderButton.appendChild(btn);\r\n    ProfileHeaderButton.addEventListener('click', click);\r\n    return ProfileHeaderButton;\r\n}\r\nexports.createVkUiButton = createVkUiButton;\r\n\n\n//# sourceURL=webpack:///./src/common/helpers/uiHelpers.ts?");
 
 /***/ }),
-/* 9 */
+
+/***/ "./src/index.ts":
+/*!**********************!*\
+  !*** ./src/index.ts ***!
+  \**********************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const GlobalConfig_1 = __webpack_require__(0);
-const fix_images_zooming_1 = __webpack_require__(11);
-const fix_left_menu_overflow_1 = __webpack_require__(12);
-function default_1() {
-    let style = document.createElement('style');
-    style.innerHTML = `
-    .im-mess 
-    .vkfix-action{
-        display: inline-block;
-        vertical-align: top;
-        width: 24px;
-        height: 24px;
-        visibility: hidden;
-        outline: 0;
-        user-select: none;
-    }
-    .im-mess:hover .vkfix-action{
-        visibility: visible;
-    }`;
-    const fixImagesZoomingEnabled = GlobalConfig_1.default.Config.get('fixImagesZooming');
-    if (fixImagesZoomingEnabled) {
-        style.innerHTML += fix_images_zooming_1.fixImagesZoomingCss;
-    }
-    const fixLeftMenuOverflowEnabled = GlobalConfig_1.default.Config.get('fixLeftMenuOverflow');
-    if (fixLeftMenuOverflowEnabled) {
-        style.innerHTML += fix_left_menu_overflow_1.fixLeftMenuOverflow;
-    }
-    document.head.appendChild(style);
-}
-exports.default = default_1;
-
+eval("\r\n// ==UserScript==\r\n// @name VK Fix\r\n// @description Скрипт для улучшения интерфейса ВКонтакте\r\n// @author Ivan Petrov (LazyTechwork)\r\n// @contributors Ivan Mel (xeleoss)\r\n// @license MIT\r\n// @version 1.1.5\r\n// @include https://vk.com/*\r\n// @grant GM_getValue\r\n// @grant GM_setValue\r\n// @grant GM_addStyle\r\n// @grant unsafeWindow\r\n// ==/UserScript==\r\nvar __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\r\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\r\n    return new (P || (P = Promise))(function (resolve, reject) {\r\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\r\n        function rejected(value) { try { step(generator[\"throw\"](value)); } catch (e) { reject(e); } }\r\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\r\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\r\n    });\r\n};\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst styles_1 = __webpack_require__(/*! ./modules/styles */ \"./src/modules/styles.ts\");\r\nconst mutation_handler_1 = __webpack_require__(/*! ./modules/mutations/mutation_handler */ \"./src/modules/mutations/mutation_handler.ts\");\r\nconst GlobalConfig_1 = __webpack_require__(/*! ./GlobalConfig */ \"./src/GlobalConfig.ts\");\r\nconst LocationState_1 = __webpack_require__(/*! ./classes/LocationState */ \"./src/classes/LocationState.ts\");\r\nconst page_scanner_1 = __webpack_require__(/*! ./modules/page_scanner */ \"./src/modules/page_scanner.ts\");\r\nconst pv_addons_1 = __webpack_require__(/*! ./modules/pv_addons */ \"./src/modules/pv_addons.ts\");\r\nconst Logger_1 = __webpack_require__(/*! ./classes/Logger */ \"./src/classes/Logger.ts\");\r\nconst profile_actions_1 = __webpack_require__(/*! ./modules/profile_actions */ \"./src/modules/profile_actions.ts\");\r\nconst querySelectorWithTimeout_1 = __webpack_require__(/*! ./common/helpers/querySelectorWithTimeout */ \"./src/common/helpers/querySelectorWithTimeout.ts\");\r\n(function (window) {\r\n    return __awaiter(this, void 0, void 0, function* () {\r\n        let w = window;\r\n        if (w.self != w.top) {\r\n            return;\r\n        }\r\n        // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте\r\n        // Инициализируем новый конфиг\r\n        // [4] дополнительная проверка наряду с @include\r\n        if (/https:\\/\\/vk.com/.test(w.location.href)) {\r\n            Logger_1.Logger.log('VK Fix запущен');\r\n            // Добавляем кнопку настроек в верхнее меню\r\n            const settings_link = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#top_settings_link', timeout: 5000 });\r\n            if (settings_link === null || settings_link === void 0 ? void 0 : settings_link.parentNode) {\r\n                const vkfixconflink = document.createElement('a');\r\n                vkfixconflink.innerHTML = 'VK Fix';\r\n                vkfixconflink.id = 'top_vkfix_settings_link';\r\n                vkfixconflink.className = 'top_profile_mrow';\r\n                vkfixconflink.setAttribute('href', '#');\r\n                settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на\r\n                // настройки\r\n                vkfixconflink.addEventListener('click', (ev) => {\r\n                    ev.preventDefault();\r\n                    GlobalConfig_1.default.Config.open();\r\n                });\r\n            }\r\n            const onLoadWindow = () => {\r\n                (0, styles_1.default)(); // Инъекция стилей\r\n                (0, page_scanner_1.default)(); // Инициализируем сканер страницы\r\n                (0, mutation_handler_1.default)(); // Регистрируем модуль слежения за мутациями\r\n                (0, pv_addons_1.default)(); // Инициализируем дополнения к просмотрщику фото\r\n                (0, profile_actions_1.default)(); // Инициализируем дополнения к профилю пользователя\r\n                window.removeEventListener(\"load\", onLoadWindow);\r\n                // Слежение за изменениями в URL\r\n                LocationState_1.default.init();\r\n            };\r\n            window.addEventListener(\"load\", onLoadWindow);\r\n        }\r\n    });\r\n})(window);\r\n\n\n//# sourceURL=webpack:///./src/index.ts?");
 
 /***/ }),
-/* 10 */
+
+/***/ "./src/libs/GM_config.js":
+/*!*******************************!*\
+  !*** ./src/libs/GM_config.js ***!
+  \*******************************/
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/*
-Copyright 2009+, GM_config Contributors (https://github.com/sizzlemctwizzle/GM_config)
-
-GM_config Contributors:
-    Mike Medley <medleymind@gmail.com>
-    Joe Simmons
-    Izzy Soft
-    Marti Martz
-
-GM_config is distributed under the terms of the GNU Lesser General Public License.
-
-    GM_config is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-// The GM_config constructor
-function GM_configStruct() {
-    // call init() if settings were passed to constructor
-    if (arguments.length) {
-        GM_configInit(this, arguments);
-        this.onInit();
-    }
-}
-
-// This is the initializer function
-function GM_configInit(config, args) {
-    // Initialize instance variables
-    if (typeof config.fields == "undefined") {
-        config.fields = {};
-        config.onInit = config.onInit || function() {};
-        config.onOpen = config.onOpen || function() {};
-        config.onSave = config.onSave || function() {};
-        config.onClose = config.onClose || function() {};
-        config.onReset = config.onReset || function() {};
-        config.isOpen = false;
-        config.title = 'User Script Settings';
-        config.css = {
-            basic: [
-                "#GM_config * { font-family: arial,tahoma,myriad pro,sans-serif; }",
-                "#GM_config { background: #FFF; }",
-                "#GM_config input[type='radio'] { margin-right: 8px; }",
-                "#GM_config .indent40 { margin-left: 40%; }",
-                "#GM_config .field_label { font-size: 12px; font-weight: bold; margin-right: 6px; }",
-                "#GM_config .radio_label { font-size: 12px; }",
-                "#GM_config .block { display: block; }",
-                "#GM_config .saveclose_buttons { margin: 16px 10px 10px; padding: 2px 12px; }",
-                "#GM_config .reset, #GM_config .reset a," +
-                " #GM_config_buttons_holder { color: #000; text-align: right; }",
-                "#GM_config .config_header { font-size: 20pt; margin: 0; }",
-                "#GM_config .config_desc, #GM_config .section_desc, #GM_config .reset { font-size: 9pt; }",
-                "#GM_config .center { text-align: center; }",
-                "#GM_config .section_header_holder { margin-top: 8px; }",
-                "#GM_config .config_var { margin: 0 0 4px; }",
-                "#GM_config .section_header { background: #414141; border: 1px solid #000; color: #FFF;",
-                " font-size: 13pt; margin: 0; }",
-                "#GM_config .section_desc { background: #EFEFEF; border: 1px solid #CCC; color: #575757;" +
-                " font-size: 9pt; margin: 0 0 6px; }"
-            ].join('\n') + '\n',
-            basicPrefix: "GM_config",
-            stylish: ""
-        };
-    }
-
-    if (args.length == 1 &&
-        typeof args[0].id == "string" &&
-        typeof args[0].appendChild != "function") var settings = args[0];
-    else {
-        // Provide backwards-compatibility with argument style intialization
-        var settings = {};
-
-        // loop through GM_config.init() arguments
-        for (var i = 0, l = args.length, arg; i < l; ++i) {
-            arg = args[i];
-
-            // An element to use as the config window
-            if (typeof arg.appendChild == "function") {
-                settings.frame = arg;
-                continue;
-            }
-
-            switch (typeof arg) {
-                case 'object':
-                    for (var j in arg) { // could be a callback functions or settings object
-                        if (typeof arg[j] != "function") { // we are in the settings object
-                            settings.fields = arg; // store settings object
-                            break; // leave the loop
-                        } // otherwise it must be a callback function
-                        if (!settings.events) settings.events = {};
-                        settings.events[j] = arg[j];
-                    }
-                    break;
-                case 'function': // passing a bare function is set to open callback
-                    settings.events = {onOpen: arg};
-                    break;
-                case 'string': // could be custom CSS or the title string
-                    if (/\w+\s*\{\s*\w+\s*:\s*\w+[\s|\S]*\}/.test(arg))
-                        settings.css = arg;
-                    else
-                        settings.title = arg;
-                    break;
-            }
-        }
-    }
-
-    /* Initialize everything using the new settings object */
-    // Set the id
-    if (settings.id) config.id = settings.id;
-    else if (typeof config.id == "undefined") config.id = 'GM_config';
-
-    // Set the title
-    if (settings.title) config.title = settings.title;
-
-    // Set the custom css
-    if (settings.css) config.css.stylish = settings.css;
-
-    // Set the frame
-    if (settings.frame) config.frame = settings.frame;
-
-    // Set the event callbacks
-    if (settings.events) {
-        var events = settings.events;
-        for (var e in events)
-            config["on" + e.charAt(0).toUpperCase() + e.slice(1)] = events[e];
-    }
-
-    // Create the fields
-    if (settings.fields) {
-        var stored = config.read(), // read the stored settings
-            fields = settings.fields,
-            customTypes = settings.types || {},
-            configId = config.id;
-
-        for (var id in fields) {
-            var field = fields[id];
-
-            // for each field definition create a field object
-            if (field)
-                config.fields[id] = new GM_configField(field, stored[id], id,
-                    customTypes[field.type], configId);
-            else if (config.fields[id]) delete config.fields[id];
-        }
-    }
-
-    // If the id has changed we must modify the default style
-    if (config.id != config.css.basicPrefix) {
-        config.css.basic = config.css.basic.replace(
-            new RegExp('#' + config.css.basicPrefix, 'gm'), '#' + config.id);
-        config.css.basicPrefix = config.id;
-    }
-}
-
-GM_configStruct.prototype = {
-    // Support old method of initalizing
-    init: function() {
-        GM_configInit(this, arguments);
-        this.onInit();
-    },
-
-    // call GM_config.open() from your script to open the menu
-    open: function () {
-        // Die if the menu is already open on this page
-        // You can have multiple instances but you can't open the same instance twice
-        var match = document.getElementById(this.id);
-        if (match && (match.tagName == "IFRAME" || match.childNodes.length > 0)) return;
-
-        // Sometimes "this" gets overwritten so create an alias
-        var config = this;
-
-        // Function to build the mighty config window :)
-        function buildConfigWin (body, head) {
-            var create = config.create,
-                fields = config.fields,
-                configId = config.id,
-                bodyWrapper = create('div', {id: configId + '_wrapper'});
-
-            // Append the style which is our default style plus the user style
-            head.appendChild(
-                create('style', {
-                    type: 'text/css',
-                    textContent: config.css.basic + config.css.stylish
-                }));
-
-            // Add header and title
-            bodyWrapper.appendChild(create('div', {
-                id: configId + '_header',
-                className: 'config_header block center'
-            }, config.title));
-
-            // Append elements
-            var section = bodyWrapper,
-                secNum = 0; // Section count
-
-            // loop through fields
-            for (var id in fields) {
-                var field = fields[id],
-                    settings = field.settings;
-
-                if (settings.section) { // the start of a new section
-                    section = bodyWrapper.appendChild(create('div', {
-                        className: 'section_header_holder',
-                        id: configId + '_section_' + secNum
-                    }));
-
-                    if (Object.prototype.toString.call(settings.section) !== '[object Array]')
-                        settings.section = [settings.section];
-
-                    if (settings.section[0])
-                        section.appendChild(create('div', {
-                            className: 'section_header center',
-                            id: configId + '_section_header_' + secNum
-                        }, settings.section[0]));
-
-                    if (settings.section[1])
-                        section.appendChild(create('p', {
-                            className: 'section_desc center',
-                            id: configId + '_section_desc_' + secNum
-                        }, settings.section[1]));
-                    ++secNum;
-                }
-
-                // Create field elements and append to current section
-                section.appendChild((field.wrapper = field.toNode()));
-            }
-
-            // Add save and close buttons
-            bodyWrapper.appendChild(create('div',
-                {id: configId + '_buttons_holder'},
-
-                create('button', {
-                    id: configId + '_saveBtn',
-                    textContent: 'Save',
-                    title: 'Save settings',
-                    className: 'saveclose_buttons',
-                    onclick: function () { config.save() }
-                }),
-
-                create('button', {
-                    id: configId + '_closeBtn',
-                    textContent: 'Close',
-                    title: 'Close window',
-                    className: 'saveclose_buttons',
-                    onclick: function () { config.close() }
-                }),
-
-                create('div',
-                    {className: 'reset_holder block'},
-
-                    // Reset link
-                    create('a', {
-                        id: configId + '_resetLink',
-                        textContent: 'Reset to defaults',
-                        href: '#',
-                        title: 'Reset fields to default values',
-                        className: 'reset',
-                        onclick: function(e) { e.preventDefault(); config.reset() }
-                    })
-                )));
-
-            body.appendChild(bodyWrapper); // Paint everything to window at once
-            config.center(); // Show and center iframe
-            window.addEventListener('resize', config.center, false); // Center frame on resize
-
-            // Call the open() callback function
-            config.onOpen(config.frame.contentDocument || config.frame.ownerDocument,
-                config.frame.contentWindow || window,
-                config.frame);
-
-            // Close frame on window close
-            window.addEventListener('beforeunload', function () {
-                config.close();
-            }, false);
-
-            // Now that everything is loaded, make it visible
-            config.frame.style.display = "block";
-            config.isOpen = true;
-        }
-
-        // Change this in the onOpen callback using this.frame.setAttribute('style', '')
-        var defaultStyle = 'bottom: auto; border: 1px solid #000; display: none; height: 75%;'
-            + ' left: 0; margin: 0; max-height: 95%; max-width: 95%; opacity: 0;'
-            + ' overflow: auto; padding: 0; position: fixed; right: auto; top: 0;'
-            + ' width: 75%; z-index: 9999;';
-
-        // Either use the element passed to init() or create an iframe
-        if (this.frame) {
-            this.frame.id = this.id; // Allows for prefixing styles with the config id
-            this.frame.setAttribute('style', defaultStyle);
-            buildConfigWin(this.frame, this.frame.ownerDocument.getElementsByTagName('head')[0]);
-        } else {
-            // Create frame
-            document.body.appendChild((this.frame = this.create('iframe', {
-                id: this.id,
-                style: defaultStyle
-            })));
-
-            // In WebKit src can't be set until it is added to the page
-            this.frame.src = 'about:blank';
-            // we wait for the iframe to load before we can modify it
-            this.frame.addEventListener('load', function(e) {
-                var frame = config.frame;
-                var body = frame.contentDocument.getElementsByTagName('body')[0];
-                body.id = config.id; // Allows for prefixing styles with the config id
-                buildConfigWin(body, frame.contentDocument.getElementsByTagName('head')[0]);
-            }, false);
-        }
-    },
-
-    save: function () {
-        var forgotten = this.write();
-        this.onSave(forgotten); // Call the save() callback function
-    },
-
-    close: function() {
-        // If frame is an iframe then remove it
-        if (this.frame.contentDocument) {
-            this.remove(this.frame);
-            this.frame = null;
-        } else { // else wipe its content
-            this.frame.innerHTML = "";
-            this.frame.style.display = "none";
-        }
-
-        // Null out all the fields so we don't leak memory
-        var fields = this.fields;
-        for (var id in fields) {
-            var field = fields[id];
-            field.wrapper = null;
-            field.node = null;
-        }
-
-        this.onClose(); //  Call the close() callback function
-        this.isOpen = false;
-    },
-
-    set: function (name, val) {
-        this.fields[name].value = val;
-
-        if (this.fields[name].node) {
-            this.fields[name].reload();
-        }
-    },
-
-    get: function (name, getLive) {
-        var field = this.fields[name],
-            fieldVal = null;
-
-        if (getLive && field.node) {
-            fieldVal = field.toValue();
-        }
-
-        return fieldVal != null ? fieldVal : field.value;
-    },
-
-    write: function (store, obj) {
-        if (!obj) {
-            var values = {},
-                forgotten = {},
-                fields = this.fields;
-
-            for (var id in fields) {
-                var field = fields[id];
-                var value = field.toValue();
-
-                if (field.save) {
-                    if (value != null) {
-                        values[id] = value;
-                        field.value = value;
-                    } else
-                        values[id] = field.value;
-                } else
-                    forgotten[id] = value;
-            }
-        }
-        try {
-            this.setValue(store || this.id, this.stringify(obj || values));
-        } catch(e) {
-            this.log("GM_config failed to save settings!");
-        }
-
-        return forgotten;
-    },
-
-    read: function (store) {
-        try {
-            var rval = this.parser(this.getValue(store || this.id, '{}'));
-        } catch(e) {
-            this.log("GM_config failed to read saved settings!");
-            var rval = {};
-        }
-        return rval;
-    },
-
-    reset: function () {
-        var fields = this.fields;
-
-        // Reset all the fields
-        for (var id in fields) fields[id].reset();
-
-        this.onReset(); // Call the reset() callback function
-    },
-
-    create: function () {
-        switch(arguments.length) {
-            case 1:
-                var A = document.createTextNode(arguments[0]);
-                break;
-            default:
-                var A = document.createElement(arguments[0]),
-                    B = arguments[1];
-                for (var b in B) {
-                    if (b.indexOf("on") == 0)
-                        A.addEventListener(b.substring(2), B[b], false);
-                    else if (",style,accesskey,id,name,src,href,which,for".indexOf("," +
-                        b.toLowerCase()) != -1)
-                        A.setAttribute(b, B[b]);
-                    else
-                        A[b] = B[b];
-                }
-                if (typeof arguments[2] == "string")
-                    A.innerHTML = arguments[2];
-                else
-                    for (var i = 2, len = arguments.length; i < len; ++i)
-                        A.appendChild(arguments[i]);
-        }
-        return A;
-    },
-
-    center: function () {
-        var node = this.frame;
-        if (!node) return;
-        var style = node.style,
-            beforeOpacity = style.opacity;
-        if (style.display == 'none') style.opacity = '0';
-        style.display = '';
-        style.top = Math.floor((window.innerHeight / 2) - (node.offsetHeight / 2)) + 'px';
-        style.left = Math.floor((window.innerWidth / 2) - (node.offsetWidth / 2)) + 'px';
-        style.opacity = '1';
-    },
-
-    remove: function (el) {
-        if (el && el.parentNode) el.parentNode.removeChild(el);
-    }
-};
-
-// Define a bunch of API stuff
-(function() {
-    var isGM = typeof GM_getValue != 'undefined' &&
-        typeof GM_getValue('a', 'b') != 'undefined',
-        setValue, getValue, stringify, parser;
-
-    // Define value storing and reading API
-    if (!isGM) {
-        setValue = function (name, value) {
-            return localStorage.setItem(name, value);
-        };
-        getValue = function(name, def){
-            var s = localStorage.getItem(name);
-            return s == null ? def : s
-        };
-
-        // We only support JSON parser outside GM
-        stringify = JSON.stringify;
-        parser = JSON.parse;
-    } else {
-        setValue = GM_setValue;
-        getValue = GM_getValue;
-        stringify = typeof JSON == "undefined" ?
-            function(obj) {
-                return obj.toSource();
-            } : JSON.stringify;
-        parser = typeof JSON == "undefined" ?
-            function(jsonData) {
-                return (new Function('return ' + jsonData + ';'))();
-            } : JSON.parse;
-    }
-
-    GM_configStruct.prototype.isGM = isGM;
-    GM_configStruct.prototype.setValue = setValue;
-    GM_configStruct.prototype.getValue = getValue;
-    GM_configStruct.prototype.stringify = stringify;
-    GM_configStruct.prototype.parser = parser;
-    GM_configStruct.prototype.log =  window.console ?
-        console.log : (isGM && typeof GM_log != 'undefined' ?
-            GM_log : (window.opera ?
-                    opera.postError : function(){ /* no logging */ }
-            ));
-})();
-
-function GM_configDefaultValue(type, options) {
-    var value;
-
-    if (type.indexOf('unsigned ') == 0)
-        type = type.substring(9);
-
-    switch (type) {
-        case 'radio': case 'select':
-            value = options[0];
-            break;
-        case 'checkbox':
-            value = false;
-            break;
-        case 'int': case 'integer':
-        case 'float': case 'number':
-            value = 0;
-            break;
-        default:
-            value = '';
-    }
-
-    return value;
-}
-
-function GM_configField(settings, stored, id, customType, configId) {
-    // Store the field's settings
-    this.settings = settings;
-    this.id = id;
-    this.configId = configId;
-    this.node = null;
-    this.wrapper = null;
-    this.save = typeof settings.save == "undefined" ? true : settings.save;
-
-    // Buttons are static and don't have a stored value
-    if (settings.type == "button") this.save = false;
-
-    // if a default value wasn't passed through init() then
-    //   if the type is custom use its default value
-    //   else use default value for type
-    // else use the default value passed through init()
-    this['default'] = typeof settings['default'] == "undefined" ?
-        customType ?
-            customType['default']
-            : GM_configDefaultValue(settings.type, settings.options)
-        : settings['default'];
-
-    // Store the field's value
-    this.value = typeof stored == "undefined" ? this['default'] : stored;
-
-    // Setup methods for a custom type
-    if (customType) {
-        this.toNode = customType.toNode;
-        this.toValue = customType.toValue;
-        this.reset = customType.reset;
-    }
-}
-
-GM_configField.prototype = {
-    create: GM_configStruct.prototype.create,
-
-    toNode: function() {
-        var field = this.settings,
-            value = this.value,
-            options = field.options,
-            type = field.type,
-            id = this.id,
-            configId = this.configId,
-            labelPos = field.labelPos,
-            create = this.create;
-
-        function addLabel(pos, labelEl, parentNode, beforeEl) {
-            if (!beforeEl) beforeEl = parentNode.firstChild;
-            switch (pos) {
-                case 'right': case 'below':
-                    if (pos == 'below')
-                        parentNode.appendChild(create('br', {}));
-                    parentNode.appendChild(labelEl);
-                    break;
-                default:
-                    if (pos == 'above')
-                        parentNode.insertBefore(create('br', {}), beforeEl);
-                    parentNode.insertBefore(labelEl, beforeEl);
-            }
-        }
-
-        var retNode = create('div', { className: 'config_var',
-                id: configId + '_' + id + '_var',
-                title: field.title || '' }),
-            firstProp;
-
-        // Retrieve the first prop
-        for (var i in field) { firstProp = i; break; }
-
-        var label = field.label && type != "button" ?
-            create('label', {
-                id: configId + '_' + id + '_field_label',
-                for: configId + '_field_' + id,
-                className: 'field_label'
-            }, field.label) : null;
-
-        switch (type) {
-            case 'textarea':
-                retNode.appendChild((this.node = create('textarea', {
-                    innerHTML: value,
-                    id: configId + '_field_' + id,
-                    className: 'block',
-                    cols: (field.cols ? field.cols : 20),
-                    rows: (field.rows ? field.rows : 2)
-                })));
-                break;
-            case 'radio':
-                var wrap = create('div', {
-                    id: configId + '_field_' + id
-                });
-                this.node = wrap;
-
-                for (var i = 0, len = options.length; i < len; ++i) {
-                    var radLabel = create('label', {
-                        className: 'radio_label'
-                    }, options[i]);
-
-                    var rad = wrap.appendChild(create('input', {
-                        value: options[i],
-                        type: 'radio',
-                        name: id,
-                        checked: options[i] == value
-                    }));
-
-                    var radLabelPos = labelPos &&
-                    (labelPos == 'left' || labelPos == 'right') ?
-                        labelPos : firstProp == 'options' ? 'left' : 'right';
-
-                    addLabel(radLabelPos, radLabel, wrap, rad);
-                }
-
-                retNode.appendChild(wrap);
-                break;
-            case 'select':
-                var wrap = create('select', {
-                    id: configId + '_field_' + id
-                });
-                this.node = wrap;
-
-                for (var i = 0, len = options.length; i < len; ++i) {
-                    var option = options[i];
-                    wrap.appendChild(create('option', {
-                        value: option,
-                        selected: option == value
-                    }, option));
-                }
-
-                retNode.appendChild(wrap);
-                break;
-            default: // fields using input elements
-                var props = {
-                    id: configId + '_field_' + id,
-                    type: type,
-                    value: type == 'button' ? field.label : value
-                };
-
-                switch (type) {
-                    case 'checkbox':
-                        props.checked = value;
-                        break;
-                    case 'button':
-                        props.size = field.size ? field.size : 25;
-                        if (field.script) field.click = field.script;
-                        if (field.click) props.onclick = field.click;
-                        break;
-                    case 'hidden':
-                        break;
-                    default:
-                        // type = text, int, or float
-                        props.type = 'text';
-                        props.size = field.size ? field.size : 25;
-                }
-
-                retNode.appendChild((this.node = create('input', props)));
-        }
-
-        if (label) {
-            // If the label is passed first, insert it before the field
-            // else insert it after
-            if (!labelPos)
-                labelPos = firstProp == "label" || type == "radio" ?
-                    "left" : "right";
-
-            addLabel(labelPos, label, retNode);
-        }
-
-        return retNode;
-    },
-
-    toValue: function() {
-        var node = this.node,
-            field = this.settings,
-            type = field.type,
-            unsigned = false,
-            rval = null;
-
-        if (!node) return rval;
-
-        if (type.indexOf('unsigned ') == 0) {
-            type = type.substring(9);
-            unsigned = true;
-        }
-
-        switch (type) {
-            case 'checkbox':
-                rval = node.checked;
-                break;
-            case 'select':
-                rval = node[node.selectedIndex].value;
-                break;
-            case 'radio':
-                var radios = node.getElementsByTagName('input');
-                for (var i = 0, len = radios.length; i < len; ++i)
-                    if (radios[i].checked)
-                        rval = radios[i].value;
-                break;
-            case 'button':
-                break;
-            case 'int': case 'integer':
-            case 'float': case 'number':
-                var num = Number(node.value);
-                var warn = 'Field labeled "' + field.label + '" expects a' +
-                    (unsigned ? ' positive ' : 'n ') + 'integer value';
-
-                if (isNaN(num) || (type.substr(0, 3) == 'int' &&
-                    Math.ceil(num) != Math.floor(num)) ||
-                    (unsigned && num < 0)) {
-                    alert(warn + '.');
-                    return null;
-                }
-
-                if (!this._checkNumberRange(num, warn))
-                    return null;
-                rval = num;
-                break;
-            default:
-                rval = node.value;
-                break;
-        }
-
-        return rval; // value read successfully
-    },
-
-    reset: function() {
-        var node = this.node,
-            field = this.settings,
-            type = field.type;
-
-        if (!node) return;
-
-        switch (type) {
-            case 'checkbox':
-                node.checked = this['default'];
-                break;
-            case 'select':
-                for (var i = 0, len = node.options.length; i < len; ++i)
-                    if (node.options[i].textContent == this['default'])
-                        node.selectedIndex = i;
-                break;
-            case 'radio':
-                var radios = node.getElementsByTagName('input');
-                for (var i = 0, len = radios.length; i < len; ++i)
-                    if (radios[i].value == this['default'])
-                        radios[i].checked = true;
-                break;
-            case 'button' :
-                break;
-            default:
-                node.value = this['default'];
-                break;
-        }
-    },
-
-    remove: function(el) {
-        GM_configStruct.prototype.remove(el || this.wrapper);
-        this.wrapper = null;
-        this.node = null;
-    },
-
-    reload: function() {
-        var wrapper = this.wrapper;
-        if (wrapper) {
-            var fieldParent = wrapper.parentNode;
-            fieldParent.insertBefore((this.wrapper = this.toNode()), wrapper);
-            this.remove(wrapper);
-        }
-    },
-
-    _checkNumberRange: function(num, warn) {
-        var field = this.settings;
-        if (typeof field.min == "number" && num < field.min) {
-            alert(warn + ' greater than or equal to ' + field.min + '.');
-            return null;
-        }
-
-        if (typeof field.max == "number" && num > field.max) {
-            alert(warn + ' less than or equal to ' + field.max + '.');
-            return null;
-        }
-        return true;
-    }
-};
-
-// Create default instance of GM_config
-/* harmony default export */ __webpack_exports__["default"] = (GM_configStruct);
+eval("__webpack_require__.r(__webpack_exports__);\n/*\r\nCopyright 2009+, GM_config Contributors (https://github.com/sizzlemctwizzle/GM_config)\r\n\r\nGM_config Contributors:\r\n    Mike Medley <medleymind@gmail.com>\r\n    Joe Simmons\r\n    Izzy Soft\r\n    Marti Martz\r\n\r\nGM_config is distributed under the terms of the GNU Lesser General Public License.\r\n\r\n    GM_config is free software: you can redistribute it and/or modify\r\n    it under the terms of the GNU Lesser General Public License as published by\r\n    the Free Software Foundation, either version 3 of the License, or\r\n    (at your option) any later version.\r\n\r\n    This program is distributed in the hope that it will be useful,\r\n    but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\r\n    GNU Lesser General Public License for more details.\r\n\r\n    You should have received a copy of the GNU Lesser General Public License\r\n    along with this program.  If not, see <http://www.gnu.org/licenses/>.\r\n*/\r\n\r\n// The GM_config constructor\r\nfunction GM_configStruct() {\r\n    // call init() if settings were passed to constructor\r\n    if (arguments.length) {\r\n        GM_configInit(this, arguments);\r\n        this.onInit();\r\n    }\r\n}\r\n\r\n// This is the initializer function\r\nfunction GM_configInit(config, args) {\r\n    // Initialize instance variables\r\n    if (typeof config.fields == \"undefined\") {\r\n        config.fields = {};\r\n        config.onInit = config.onInit || function() {};\r\n        config.onOpen = config.onOpen || function() {};\r\n        config.onSave = config.onSave || function() {};\r\n        config.onClose = config.onClose || function() {};\r\n        config.onReset = config.onReset || function() {};\r\n        config.isOpen = false;\r\n        config.title = 'User Script Settings';\r\n        config.css = {\r\n            basic: [\r\n                \"#GM_config * { font-family: arial,tahoma,myriad pro,sans-serif; }\",\r\n                \"#GM_config { background: #FFF; }\",\r\n                \"#GM_config input[type='radio'] { margin-right: 8px; }\",\r\n                \"#GM_config .indent40 { margin-left: 40%; }\",\r\n                \"#GM_config .field_label { font-size: 12px; font-weight: bold; margin-right: 6px; }\",\r\n                \"#GM_config .radio_label { font-size: 12px; }\",\r\n                \"#GM_config .block { display: block; }\",\r\n                \"#GM_config .saveclose_buttons { margin: 16px 10px 10px; padding: 2px 12px; }\",\r\n                \"#GM_config .reset, #GM_config .reset a,\" +\r\n                \" #GM_config_buttons_holder { color: #000; text-align: right; }\",\r\n                \"#GM_config .config_header { font-size: 20pt; margin: 0; }\",\r\n                \"#GM_config .config_desc, #GM_config .section_desc, #GM_config .reset { font-size: 9pt; }\",\r\n                \"#GM_config .center { text-align: center; }\",\r\n                \"#GM_config .section_header_holder { margin-top: 8px; }\",\r\n                \"#GM_config .config_var { margin: 0 0 4px; }\",\r\n                \"#GM_config .section_header { background: #414141; border: 1px solid #000; color: #FFF;\",\r\n                \" font-size: 13pt; margin: 0; }\",\r\n                \"#GM_config .section_desc { background: #EFEFEF; border: 1px solid #CCC; color: #575757;\" +\r\n                \" font-size: 9pt; margin: 0 0 6px; }\"\r\n            ].join('\\n') + '\\n',\r\n            basicPrefix: \"GM_config\",\r\n            stylish: \"\"\r\n        };\r\n    }\r\n\r\n    if (args.length == 1 &&\r\n        typeof args[0].id == \"string\" &&\r\n        typeof args[0].appendChild != \"function\") var settings = args[0];\r\n    else {\r\n        // Provide backwards-compatibility with argument style intialization\r\n        var settings = {};\r\n\r\n        // loop through GM_config.init() arguments\r\n        for (var i = 0, l = args.length, arg; i < l; ++i) {\r\n            arg = args[i];\r\n\r\n            // An element to use as the config window\r\n            if (typeof arg.appendChild == \"function\") {\r\n                settings.frame = arg;\r\n                continue;\r\n            }\r\n\r\n            switch (typeof arg) {\r\n                case 'object':\r\n                    for (var j in arg) { // could be a callback functions or settings object\r\n                        if (typeof arg[j] != \"function\") { // we are in the settings object\r\n                            settings.fields = arg; // store settings object\r\n                            break; // leave the loop\r\n                        } // otherwise it must be a callback function\r\n                        if (!settings.events) settings.events = {};\r\n                        settings.events[j] = arg[j];\r\n                    }\r\n                    break;\r\n                case 'function': // passing a bare function is set to open callback\r\n                    settings.events = {onOpen: arg};\r\n                    break;\r\n                case 'string': // could be custom CSS or the title string\r\n                    if (/\\w+\\s*\\{\\s*\\w+\\s*:\\s*\\w+[\\s|\\S]*\\}/.test(arg))\r\n                        settings.css = arg;\r\n                    else\r\n                        settings.title = arg;\r\n                    break;\r\n            }\r\n        }\r\n    }\r\n\r\n    /* Initialize everything using the new settings object */\r\n    // Set the id\r\n    if (settings.id) config.id = settings.id;\r\n    else if (typeof config.id == \"undefined\") config.id = 'GM_config';\r\n\r\n    // Set the title\r\n    if (settings.title) config.title = settings.title;\r\n\r\n    // Set the custom css\r\n    if (settings.css) config.css.stylish = settings.css;\r\n\r\n    // Set the frame\r\n    if (settings.frame) config.frame = settings.frame;\r\n\r\n    // Set the event callbacks\r\n    if (settings.events) {\r\n        var events = settings.events;\r\n        for (var e in events)\r\n            config[\"on\" + e.charAt(0).toUpperCase() + e.slice(1)] = events[e];\r\n    }\r\n\r\n    // Create the fields\r\n    if (settings.fields) {\r\n        var stored = config.read(), // read the stored settings\r\n            fields = settings.fields,\r\n            customTypes = settings.types || {},\r\n            configId = config.id;\r\n\r\n        for (var id in fields) {\r\n            var field = fields[id];\r\n\r\n            // for each field definition create a field object\r\n            if (field)\r\n                config.fields[id] = new GM_configField(field, stored[id], id,\r\n                    customTypes[field.type], configId);\r\n            else if (config.fields[id]) delete config.fields[id];\r\n        }\r\n    }\r\n\r\n    // If the id has changed we must modify the default style\r\n    if (config.id != config.css.basicPrefix) {\r\n        config.css.basic = config.css.basic.replace(\r\n            new RegExp('#' + config.css.basicPrefix, 'gm'), '#' + config.id);\r\n        config.css.basicPrefix = config.id;\r\n    }\r\n}\r\n\r\nGM_configStruct.prototype = {\r\n    // Support old method of initalizing\r\n    init: function() {\r\n        GM_configInit(this, arguments);\r\n        this.onInit();\r\n    },\r\n\r\n    // call GM_config.open() from your script to open the menu\r\n    open: function () {\r\n        // Die if the menu is already open on this page\r\n        // You can have multiple instances but you can't open the same instance twice\r\n        var match = document.getElementById(this.id);\r\n        if (match && (match.tagName == \"IFRAME\" || match.childNodes.length > 0)) return;\r\n\r\n        // Sometimes \"this\" gets overwritten so create an alias\r\n        var config = this;\r\n\r\n        // Function to build the mighty config window :)\r\n        function buildConfigWin (body, head) {\r\n            var create = config.create,\r\n                fields = config.fields,\r\n                configId = config.id,\r\n                bodyWrapper = create('div', {id: configId + '_wrapper'});\r\n\r\n            // Append the style which is our default style plus the user style\r\n            head.appendChild(\r\n                create('style', {\r\n                    type: 'text/css',\r\n                    textContent: config.css.basic + config.css.stylish\r\n                }));\r\n\r\n            // Add header and title\r\n            bodyWrapper.appendChild(create('div', {\r\n                id: configId + '_header',\r\n                className: 'config_header block center'\r\n            }, config.title));\r\n\r\n            // Append elements\r\n            var section = bodyWrapper,\r\n                secNum = 0; // Section count\r\n\r\n            // loop through fields\r\n            for (var id in fields) {\r\n                var field = fields[id],\r\n                    settings = field.settings;\r\n\r\n                if (settings.section) { // the start of a new section\r\n                    section = bodyWrapper.appendChild(create('div', {\r\n                        className: 'section_header_holder',\r\n                        id: configId + '_section_' + secNum\r\n                    }));\r\n\r\n                    if (Object.prototype.toString.call(settings.section) !== '[object Array]')\r\n                        settings.section = [settings.section];\r\n\r\n                    if (settings.section[0])\r\n                        section.appendChild(create('div', {\r\n                            className: 'section_header center',\r\n                            id: configId + '_section_header_' + secNum\r\n                        }, settings.section[0]));\r\n\r\n                    if (settings.section[1])\r\n                        section.appendChild(create('p', {\r\n                            className: 'section_desc center',\r\n                            id: configId + '_section_desc_' + secNum\r\n                        }, settings.section[1]));\r\n                    ++secNum;\r\n                }\r\n\r\n                // Create field elements and append to current section\r\n                section.appendChild((field.wrapper = field.toNode()));\r\n            }\r\n\r\n            // Add save and close buttons\r\n            bodyWrapper.appendChild(create('div',\r\n                {id: configId + '_buttons_holder'},\r\n\r\n                create('button', {\r\n                    id: configId + '_saveBtn',\r\n                    textContent: 'Save',\r\n                    title: 'Save settings',\r\n                    className: 'saveclose_buttons',\r\n                    onclick: function () { config.save() }\r\n                }),\r\n\r\n                create('button', {\r\n                    id: configId + '_closeBtn',\r\n                    textContent: 'Close',\r\n                    title: 'Close window',\r\n                    className: 'saveclose_buttons',\r\n                    onclick: function () { config.close() }\r\n                }),\r\n\r\n                create('div',\r\n                    {className: 'reset_holder block'},\r\n\r\n                    // Reset link\r\n                    create('a', {\r\n                        id: configId + '_resetLink',\r\n                        textContent: 'Reset to defaults',\r\n                        href: '#',\r\n                        title: 'Reset fields to default values',\r\n                        className: 'reset',\r\n                        onclick: function(e) { e.preventDefault(); config.reset() }\r\n                    })\r\n                )));\r\n\r\n            body.appendChild(bodyWrapper); // Paint everything to window at once\r\n            config.center(); // Show and center iframe\r\n            window.addEventListener('resize', config.center, false); // Center frame on resize\r\n\r\n            // Call the open() callback function\r\n            config.onOpen(config.frame.contentDocument || config.frame.ownerDocument,\r\n                config.frame.contentWindow || window,\r\n                config.frame);\r\n\r\n            // Close frame on window close\r\n            window.addEventListener('beforeunload', function () {\r\n                config.close();\r\n            }, false);\r\n\r\n            // Now that everything is loaded, make it visible\r\n            config.frame.style.display = \"block\";\r\n            config.isOpen = true;\r\n        }\r\n\r\n        // Change this in the onOpen callback using this.frame.setAttribute('style', '')\r\n        var defaultStyle = 'bottom: auto; border: 1px solid #000; display: none; height: 75%;'\r\n            + ' left: 0; margin: 0; max-height: 95%; max-width: 95%; opacity: 0;'\r\n            + ' overflow: auto; padding: 0; position: fixed; right: auto; top: 0;'\r\n            + ' width: 75%; z-index: 9999;';\r\n\r\n        // Either use the element passed to init() or create an iframe\r\n        if (this.frame) {\r\n            this.frame.id = this.id; // Allows for prefixing styles with the config id\r\n            this.frame.setAttribute('style', defaultStyle);\r\n            buildConfigWin(this.frame, this.frame.ownerDocument.getElementsByTagName('head')[0]);\r\n        } else {\r\n            // Create frame\r\n            document.body.appendChild((this.frame = this.create('iframe', {\r\n                id: this.id,\r\n                style: defaultStyle\r\n            })));\r\n\r\n            // In WebKit src can't be set until it is added to the page\r\n            this.frame.src = 'about:blank';\r\n            // we wait for the iframe to load before we can modify it\r\n            this.frame.addEventListener('load', function(e) {\r\n                var frame = config.frame;\r\n                var body = frame.contentDocument.getElementsByTagName('body')[0];\r\n                body.id = config.id; // Allows for prefixing styles with the config id\r\n                buildConfigWin(body, frame.contentDocument.getElementsByTagName('head')[0]);\r\n            }, false);\r\n        }\r\n    },\r\n\r\n    save: function () {\r\n        var forgotten = this.write();\r\n        this.onSave(forgotten); // Call the save() callback function\r\n    },\r\n\r\n    close: function() {\r\n        // If frame is an iframe then remove it\r\n        if (this.frame.contentDocument) {\r\n            this.remove(this.frame);\r\n            this.frame = null;\r\n        } else { // else wipe its content\r\n            this.frame.innerHTML = \"\";\r\n            this.frame.style.display = \"none\";\r\n        }\r\n\r\n        // Null out all the fields so we don't leak memory\r\n        var fields = this.fields;\r\n        for (var id in fields) {\r\n            var field = fields[id];\r\n            field.wrapper = null;\r\n            field.node = null;\r\n        }\r\n\r\n        this.onClose(); //  Call the close() callback function\r\n        this.isOpen = false;\r\n    },\r\n\r\n    set: function (name, val) {\r\n        this.fields[name].value = val;\r\n\r\n        if (this.fields[name].node) {\r\n            this.fields[name].reload();\r\n        }\r\n    },\r\n\r\n    get: function (name, getLive) {\r\n        var field = this.fields[name],\r\n            fieldVal = null;\r\n\r\n        if (getLive && field.node) {\r\n            fieldVal = field.toValue();\r\n        }\r\n\r\n        return fieldVal != null ? fieldVal : field.value;\r\n    },\r\n\r\n    write: function (store, obj) {\r\n        if (!obj) {\r\n            var values = {},\r\n                forgotten = {},\r\n                fields = this.fields;\r\n\r\n            for (var id in fields) {\r\n                var field = fields[id];\r\n                var value = field.toValue();\r\n\r\n                if (field.save) {\r\n                    if (value != null) {\r\n                        values[id] = value;\r\n                        field.value = value;\r\n                    } else\r\n                        values[id] = field.value;\r\n                } else\r\n                    forgotten[id] = value;\r\n            }\r\n        }\r\n        try {\r\n            this.setValue(store || this.id, this.stringify(obj || values));\r\n        } catch(e) {\r\n            this.log(\"GM_config failed to save settings!\");\r\n        }\r\n\r\n        return forgotten;\r\n    },\r\n\r\n    read: function (store) {\r\n        try {\r\n            var rval = this.parser(this.getValue(store || this.id, '{}'));\r\n        } catch(e) {\r\n            this.log(\"GM_config failed to read saved settings!\");\r\n            var rval = {};\r\n        }\r\n        return rval;\r\n    },\r\n\r\n    reset: function () {\r\n        var fields = this.fields;\r\n\r\n        // Reset all the fields\r\n        for (var id in fields) fields[id].reset();\r\n\r\n        this.onReset(); // Call the reset() callback function\r\n    },\r\n\r\n    create: function () {\r\n        switch(arguments.length) {\r\n            case 1:\r\n                var A = document.createTextNode(arguments[0]);\r\n                break;\r\n            default:\r\n                var A = document.createElement(arguments[0]),\r\n                    B = arguments[1];\r\n                for (var b in B) {\r\n                    if (b.indexOf(\"on\") == 0)\r\n                        A.addEventListener(b.substring(2), B[b], false);\r\n                    else if (\",style,accesskey,id,name,src,href,which,for\".indexOf(\",\" +\r\n                        b.toLowerCase()) != -1)\r\n                        A.setAttribute(b, B[b]);\r\n                    else\r\n                        A[b] = B[b];\r\n                }\r\n                if (typeof arguments[2] == \"string\")\r\n                    A.innerHTML = arguments[2];\r\n                else\r\n                    for (var i = 2, len = arguments.length; i < len; ++i)\r\n                        A.appendChild(arguments[i]);\r\n        }\r\n        return A;\r\n    },\r\n\r\n    center: function () {\r\n        var node = this.frame;\r\n        if (!node) return;\r\n        var style = node.style,\r\n            beforeOpacity = style.opacity;\r\n        if (style.display == 'none') style.opacity = '0';\r\n        style.display = '';\r\n        style.top = Math.floor((window.innerHeight / 2) - (node.offsetHeight / 2)) + 'px';\r\n        style.left = Math.floor((window.innerWidth / 2) - (node.offsetWidth / 2)) + 'px';\r\n        style.opacity = '1';\r\n    },\r\n\r\n    remove: function (el) {\r\n        if (el && el.parentNode) el.parentNode.removeChild(el);\r\n    }\r\n};\r\n\r\n// Define a bunch of API stuff\r\n(function() {\r\n    var isGM = typeof GM_getValue != 'undefined' &&\r\n        typeof GM_getValue('a', 'b') != 'undefined',\r\n        setValue, getValue, stringify, parser;\r\n\r\n    // Define value storing and reading API\r\n    if (!isGM) {\r\n        setValue = function (name, value) {\r\n            return localStorage.setItem(name, value);\r\n        };\r\n        getValue = function(name, def){\r\n            var s = localStorage.getItem(name);\r\n            return s == null ? def : s\r\n        };\r\n\r\n        // We only support JSON parser outside GM\r\n        stringify = JSON.stringify;\r\n        parser = JSON.parse;\r\n    } else {\r\n        setValue = GM_setValue;\r\n        getValue = GM_getValue;\r\n        stringify = typeof JSON == \"undefined\" ?\r\n            function(obj) {\r\n                return obj.toSource();\r\n            } : JSON.stringify;\r\n        parser = typeof JSON == \"undefined\" ?\r\n            function(jsonData) {\r\n                return (new Function('return ' + jsonData + ';'))();\r\n            } : JSON.parse;\r\n    }\r\n\r\n    GM_configStruct.prototype.isGM = isGM;\r\n    GM_configStruct.prototype.setValue = setValue;\r\n    GM_configStruct.prototype.getValue = getValue;\r\n    GM_configStruct.prototype.stringify = stringify;\r\n    GM_configStruct.prototype.parser = parser;\r\n    GM_configStruct.prototype.log =  window.console ?\r\n        console.log : (isGM && typeof GM_log != 'undefined' ?\r\n            GM_log : (window.opera ?\r\n                    opera.postError : function(){ /* no logging */ }\r\n            ));\r\n})();\r\n\r\nfunction GM_configDefaultValue(type, options) {\r\n    var value;\r\n\r\n    if (type.indexOf('unsigned ') == 0)\r\n        type = type.substring(9);\r\n\r\n    switch (type) {\r\n        case 'radio': case 'select':\r\n            value = options[0];\r\n            break;\r\n        case 'checkbox':\r\n            value = false;\r\n            break;\r\n        case 'int': case 'integer':\r\n        case 'float': case 'number':\r\n            value = 0;\r\n            break;\r\n        default:\r\n            value = '';\r\n    }\r\n\r\n    return value;\r\n}\r\n\r\nfunction GM_configField(settings, stored, id, customType, configId) {\r\n    // Store the field's settings\r\n    this.settings = settings;\r\n    this.id = id;\r\n    this.configId = configId;\r\n    this.node = null;\r\n    this.wrapper = null;\r\n    this.save = typeof settings.save == \"undefined\" ? true : settings.save;\r\n\r\n    // Buttons are static and don't have a stored value\r\n    if (settings.type == \"button\") this.save = false;\r\n\r\n    // if a default value wasn't passed through init() then\r\n    //   if the type is custom use its default value\r\n    //   else use default value for type\r\n    // else use the default value passed through init()\r\n    this['default'] = typeof settings['default'] == \"undefined\" ?\r\n        customType ?\r\n            customType['default']\r\n            : GM_configDefaultValue(settings.type, settings.options)\r\n        : settings['default'];\r\n\r\n    // Store the field's value\r\n    this.value = typeof stored == \"undefined\" ? this['default'] : stored;\r\n\r\n    // Setup methods for a custom type\r\n    if (customType) {\r\n        this.toNode = customType.toNode;\r\n        this.toValue = customType.toValue;\r\n        this.reset = customType.reset;\r\n    }\r\n}\r\n\r\nGM_configField.prototype = {\r\n    create: GM_configStruct.prototype.create,\r\n\r\n    toNode: function() {\r\n        var field = this.settings,\r\n            value = this.value,\r\n            options = field.options,\r\n            type = field.type,\r\n            id = this.id,\r\n            configId = this.configId,\r\n            labelPos = field.labelPos,\r\n            create = this.create;\r\n\r\n        function addLabel(pos, labelEl, parentNode, beforeEl) {\r\n            if (!beforeEl) beforeEl = parentNode.firstChild;\r\n            switch (pos) {\r\n                case 'right': case 'below':\r\n                    if (pos == 'below')\r\n                        parentNode.appendChild(create('br', {}));\r\n                    parentNode.appendChild(labelEl);\r\n                    break;\r\n                default:\r\n                    if (pos == 'above')\r\n                        parentNode.insertBefore(create('br', {}), beforeEl);\r\n                    parentNode.insertBefore(labelEl, beforeEl);\r\n            }\r\n        }\r\n\r\n        var retNode = create('div', { className: 'config_var',\r\n                id: configId + '_' + id + '_var',\r\n                title: field.title || '' }),\r\n            firstProp;\r\n\r\n        // Retrieve the first prop\r\n        for (var i in field) { firstProp = i; break; }\r\n\r\n        var label = field.label && type != \"button\" ?\r\n            create('label', {\r\n                id: configId + '_' + id + '_field_label',\r\n                for: configId + '_field_' + id,\r\n                className: 'field_label'\r\n            }, field.label) : null;\r\n\r\n        switch (type) {\r\n            case 'textarea':\r\n                retNode.appendChild((this.node = create('textarea', {\r\n                    innerHTML: value,\r\n                    id: configId + '_field_' + id,\r\n                    className: 'block',\r\n                    cols: (field.cols ? field.cols : 20),\r\n                    rows: (field.rows ? field.rows : 2)\r\n                })));\r\n                break;\r\n            case 'radio':\r\n                var wrap = create('div', {\r\n                    id: configId + '_field_' + id\r\n                });\r\n                this.node = wrap;\r\n\r\n                for (var i = 0, len = options.length; i < len; ++i) {\r\n                    var radLabel = create('label', {\r\n                        className: 'radio_label'\r\n                    }, options[i]);\r\n\r\n                    var rad = wrap.appendChild(create('input', {\r\n                        value: options[i],\r\n                        type: 'radio',\r\n                        name: id,\r\n                        checked: options[i] == value\r\n                    }));\r\n\r\n                    var radLabelPos = labelPos &&\r\n                    (labelPos == 'left' || labelPos == 'right') ?\r\n                        labelPos : firstProp == 'options' ? 'left' : 'right';\r\n\r\n                    addLabel(radLabelPos, radLabel, wrap, rad);\r\n                }\r\n\r\n                retNode.appendChild(wrap);\r\n                break;\r\n            case 'select':\r\n                var wrap = create('select', {\r\n                    id: configId + '_field_' + id\r\n                });\r\n                this.node = wrap;\r\n\r\n                for (var i = 0, len = options.length; i < len; ++i) {\r\n                    var option = options[i];\r\n                    wrap.appendChild(create('option', {\r\n                        value: option,\r\n                        selected: option == value\r\n                    }, option));\r\n                }\r\n\r\n                retNode.appendChild(wrap);\r\n                break;\r\n            default: // fields using input elements\r\n                var props = {\r\n                    id: configId + '_field_' + id,\r\n                    type: type,\r\n                    value: type == 'button' ? field.label : value\r\n                };\r\n\r\n                switch (type) {\r\n                    case 'checkbox':\r\n                        props.checked = value;\r\n                        break;\r\n                    case 'button':\r\n                        props.size = field.size ? field.size : 25;\r\n                        if (field.script) field.click = field.script;\r\n                        if (field.click) props.onclick = field.click;\r\n                        break;\r\n                    case 'hidden':\r\n                        break;\r\n                    default:\r\n                        // type = text, int, or float\r\n                        props.type = 'text';\r\n                        props.size = field.size ? field.size : 25;\r\n                }\r\n\r\n                retNode.appendChild((this.node = create('input', props)));\r\n        }\r\n\r\n        if (label) {\r\n            // If the label is passed first, insert it before the field\r\n            // else insert it after\r\n            if (!labelPos)\r\n                labelPos = firstProp == \"label\" || type == \"radio\" ?\r\n                    \"left\" : \"right\";\r\n\r\n            addLabel(labelPos, label, retNode);\r\n        }\r\n\r\n        return retNode;\r\n    },\r\n\r\n    toValue: function() {\r\n        var node = this.node,\r\n            field = this.settings,\r\n            type = field.type,\r\n            unsigned = false,\r\n            rval = null;\r\n\r\n        if (!node) return rval;\r\n\r\n        if (type.indexOf('unsigned ') == 0) {\r\n            type = type.substring(9);\r\n            unsigned = true;\r\n        }\r\n\r\n        switch (type) {\r\n            case 'checkbox':\r\n                rval = node.checked;\r\n                break;\r\n            case 'select':\r\n                rval = node[node.selectedIndex].value;\r\n                break;\r\n            case 'radio':\r\n                var radios = node.getElementsByTagName('input');\r\n                for (var i = 0, len = radios.length; i < len; ++i)\r\n                    if (radios[i].checked)\r\n                        rval = radios[i].value;\r\n                break;\r\n            case 'button':\r\n                break;\r\n            case 'int': case 'integer':\r\n            case 'float': case 'number':\r\n                var num = Number(node.value);\r\n                var warn = 'Field labeled \"' + field.label + '\" expects a' +\r\n                    (unsigned ? ' positive ' : 'n ') + 'integer value';\r\n\r\n                if (isNaN(num) || (type.substr(0, 3) == 'int' &&\r\n                    Math.ceil(num) != Math.floor(num)) ||\r\n                    (unsigned && num < 0)) {\r\n                    alert(warn + '.');\r\n                    return null;\r\n                }\r\n\r\n                if (!this._checkNumberRange(num, warn))\r\n                    return null;\r\n                rval = num;\r\n                break;\r\n            default:\r\n                rval = node.value;\r\n                break;\r\n        }\r\n\r\n        return rval; // value read successfully\r\n    },\r\n\r\n    reset: function() {\r\n        var node = this.node,\r\n            field = this.settings,\r\n            type = field.type;\r\n\r\n        if (!node) return;\r\n\r\n        switch (type) {\r\n            case 'checkbox':\r\n                node.checked = this['default'];\r\n                break;\r\n            case 'select':\r\n                for (var i = 0, len = node.options.length; i < len; ++i)\r\n                    if (node.options[i].textContent == this['default'])\r\n                        node.selectedIndex = i;\r\n                break;\r\n            case 'radio':\r\n                var radios = node.getElementsByTagName('input');\r\n                for (var i = 0, len = radios.length; i < len; ++i)\r\n                    if (radios[i].value == this['default'])\r\n                        radios[i].checked = true;\r\n                break;\r\n            case 'button' :\r\n                break;\r\n            default:\r\n                node.value = this['default'];\r\n                break;\r\n        }\r\n    },\r\n\r\n    remove: function(el) {\r\n        GM_configStruct.prototype.remove(el || this.wrapper);\r\n        this.wrapper = null;\r\n        this.node = null;\r\n    },\r\n\r\n    reload: function() {\r\n        var wrapper = this.wrapper;\r\n        if (wrapper) {\r\n            var fieldParent = wrapper.parentNode;\r\n            fieldParent.insertBefore((this.wrapper = this.toNode()), wrapper);\r\n            this.remove(wrapper);\r\n        }\r\n    },\r\n\r\n    _checkNumberRange: function(num, warn) {\r\n        var field = this.settings;\r\n        if (typeof field.min == \"number\" && num < field.min) {\r\n            alert(warn + ' greater than or equal to ' + field.min + '.');\r\n            return null;\r\n        }\r\n\r\n        if (typeof field.max == \"number\" && num > field.max) {\r\n            alert(warn + ' less than or equal to ' + field.max + '.');\r\n            return null;\r\n        }\r\n        return true;\r\n    }\r\n};\r\n\r\n// Create default instance of GM_config\r\n/* harmony default export */ __webpack_exports__[\"default\"] = (GM_configStruct);\n\n//# sourceURL=webpack:///./src/libs/GM_config.js?");
 
 /***/ }),
-/* 11 */
+
+/***/ "./src/modules/fix_images_zooming.ts":
+/*!*******************************************!*\
+  !*** ./src/modules/fix_images_zooming.ts ***!
+  \*******************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.fixImagesZoomingCss = void 0;
-document.documentElement.style.setProperty("--device-pixel-ratio", `${window.devicePixelRatio}`);
-exports.fixImagesZoomingCss = `
-#pv_photo {
-   display: flex !important;
-   align-items: center;
-}
-
-#pv_photo img {
-  max-width: 100%;
-  max-height: 100%;
-  margin-top: 0 !important;
-  width: auto !important;
-  height: auto !important;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-}
-
-.pv_img_progress_wrap {
-  display: flex;
-  align-items: center;
-}
-
-#pv_image_progress {
-  margin-top: 0 !important;
-}
-
-#pv_photo img, img.can_zoom {
-  zoom: calc(1 / var(--device-pixel-ratio));
-}
-`;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nexports.fixImagesZoomingCss = void 0;\r\ndocument.documentElement.style.setProperty(\"--device-pixel-ratio\", `${window.devicePixelRatio}`);\r\nexports.fixImagesZoomingCss = `\r\n#pv_photo {\r\n   display: flex !important;\r\n   align-items: center;\r\n}\r\n\r\n#pv_photo img {\r\n  max-width: 100%;\r\n  max-height: 100%;\r\n  margin-top: 0 !important;\r\n  width: auto !important;\r\n  height: auto !important;\r\n  display: flex;\r\n  justify-content: center;\r\n  align-content: center;\r\n}\r\n\r\n.pv_img_progress_wrap {\r\n  display: flex;\r\n  align-items: center;\r\n}\r\n\r\n#pv_image_progress {\r\n  margin-top: 0 !important;\r\n}\r\n\r\n#pv_photo img, img.can_zoom {\r\n  zoom: calc(1 / var(--device-pixel-ratio));\r\n}\r\n`;\r\n\n\n//# sourceURL=webpack:///./src/modules/fix_images_zooming.ts?");
 
 /***/ }),
-/* 12 */
+
+/***/ "./src/modules/fix_left_menu_overflow.ts":
+/*!***********************************************!*\
+  !*** ./src/modules/fix_left_menu_overflow.ts ***!
+  \***********************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.fixLeftMenuOverflow = void 0;
-exports.fixLeftMenuOverflow = `
-#side_bar {
-    overflow: hidden;
-    max-height: calc(100vh - 20px);
-}
-`;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nexports.fixLeftMenuOverflow = void 0;\r\nexports.fixLeftMenuOverflow = `\r\n#side_bar {\r\n    overflow: hidden;\r\n    max-height: calc(100vh - 20px);\r\n}\r\n`;\r\n\n\n//# sourceURL=webpack:///./src/modules/fix_left_menu_overflow.ts?");
 
 /***/ }),
-/* 13 */
+
+/***/ "./src/modules/mutations/location_mutations.ts":
+/*!*****************************************************!*\
+  !*** ./src/modules/mutations/location_mutations.ts ***!
+  \*****************************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function default_1() {
-    // Настраиваем слежение мутаций в DOM
-    let observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-            // TODO обработать мутации, если нужно
-        });
-    });
-    observer.observe(document.body, { childList: true, subtree: true }); // Включаем нашего следящего на body
-}
-exports.default = default_1;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst LocationState_1 = __webpack_require__(/*! ../../classes/LocationState */ \"./src/classes/LocationState.ts\");\r\nconst page_scanner_1 = __webpack_require__(/*! ../page_scanner */ \"./src/modules/page_scanner.ts\");\r\nconst pv_addons_1 = __webpack_require__(/*! ../pv_addons */ \"./src/modules/pv_addons.ts\");\r\nconst profile_actions_1 = __webpack_require__(/*! ../profile_actions */ \"./src/modules/profile_actions.ts\");\r\nfunction default_1() {\r\n    LocationState_1.default.updateState();\r\n    let cq = LocationState_1.default.getCurrentQuery();\r\n    let pq = LocationState_1.default.getPreviousQuery();\r\n    let cp = LocationState_1.default.getCurrentPath();\r\n    let pp = LocationState_1.default.getPreviousPath();\r\n    if (cq.get('sel') != pq.get('sel')) {\r\n        (0, page_scanner_1.default)();\r\n    }\r\n    if (cq.get('z') != pq.get('z') || cp.startsWith('/photo') && cp !== pp) {\r\n        (0, pv_addons_1.default)();\r\n    }\r\n    (0, profile_actions_1.default)();\r\n}\r\nexports.default = default_1;\r\n\n\n//# sourceURL=webpack:///./src/modules/mutations/location_mutations.ts?");
 
 /***/ }),
-/* 14 */
+
+/***/ "./src/modules/mutations/mutation_handler.ts":
+/*!***************************************************!*\
+  !*** ./src/modules/mutations/mutation_handler.ts ***!
+  \***************************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-class VKLocation {
-    static getQueryParams() {
-        return new URLSearchParams(window.location.search);
-    }
-    static getConversation() {
-        const params = this.getQueryParams();
-        const selected = params.get('sel');
-        if (!selected || !selected.startsWith('c')) {
-            return null;
-        }
-        return parseInt(selected.substr(1));
-    }
-    static isConversation() {
-        const params = this.getQueryParams();
-        const selected = params.get('sel');
-        if (!selected) {
-            return false;
-        }
-        return selected.startsWith('c');
-    }
-}
-exports.default = VKLocation;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nfunction default_1() {\r\n    // Настраиваем слежение мутаций в DOM\r\n    let observer = new MutationObserver(function (mutations) {\r\n        mutations.forEach(function (mutation) {\r\n            // TODO обработать мутации, если нужно\r\n        });\r\n    });\r\n    observer.observe(document.body, { childList: true, subtree: true }); // Включаем нашего следящего на body\r\n}\r\nexports.default = default_1;\r\n\n\n//# sourceURL=webpack:///./src/modules/mutations/mutation_handler.ts?");
 
 /***/ }),
-/* 15 */
+
+/***/ "./src/modules/page_scanner.ts":
+/*!*************************************!*\
+  !*** ./src/modules/page_scanner.ts ***!
+  \*************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const LocationState_1 = __webpack_require__(2);
-const page_scanner_1 = __webpack_require__(4);
-const pv_addons_1 = __webpack_require__(5);
-const profile_actions_1 = __webpack_require__(7);
-function default_1() {
-    LocationState_1.default.updateState();
-    let cq = LocationState_1.default.getCurrentQuery();
-    let pq = LocationState_1.default.getPreviousQuery();
-    let cp = LocationState_1.default.getCurrentPath();
-    let pp = LocationState_1.default.getPreviousPath();
-    if (cq.get('sel') != pq.get('sel')) {
-        (0, page_scanner_1.default)();
-    }
-    if (cq.get('z') != pq.get('z') || cp.startsWith('/photo') && cp !== pp) {
-        (0, pv_addons_1.default)();
-    }
-    (0, profile_actions_1.default)();
-}
-exports.default = default_1;
-
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nfunction default_1() {\r\n    // TODO обработать все изменения на странице, если требуется\r\n}\r\nexports.default = default_1;\r\n\n\n//# sourceURL=webpack:///./src/modules/page_scanner.ts?");
 
 /***/ }),
-/* 16 */
+
+/***/ "./src/modules/profile_actions.ts":
+/*!****************************************!*\
+  !*** ./src/modules/profile_actions.ts ***!
+  \****************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createVkUiButton = void 0;
-function createVkUiButton(innerHTML, click) {
-    const ProfileHeaderButton = document.createElement("div");
-    ProfileHeaderButton.className = "ProfileHeaderButton";
-    const spanIn = document.createElement('span');
-    spanIn.className = "vkuiButton__in";
-    const spanCaption = document.createElement("span");
-    spanCaption.className = "vkuiButton__content vkuiSubhead vkuiSubhead--sizeY-compact vkuiSubhead--w-2";
-    spanCaption.innerHTML = innerHTML;
-    const btn = document.createElement('a');
-    btn.className = "vkuiButton vkuiButton--sz-m vkuiButton--lvl-secondary vkuiButton--clr-accent vkuiButton--aln-center vkuiButton--sizeY-compact vkuiTappable vkuiTappable--sizeX-regular vkuiTappable--hasHover vkuiTappable--hasActive vkuiTappable--mouse";
-    spanIn.appendChild(spanCaption);
-    btn.appendChild(spanIn);
-    ProfileHeaderButton.appendChild(btn);
-    ProfileHeaderButton.addEventListener('click', click);
-    return ProfileHeaderButton;
-}
-exports.createVkUiButton = createVkUiButton;
-
+eval("\r\nvar __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\r\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\r\n    return new (P || (P = Promise))(function (resolve, reject) {\r\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\r\n        function rejected(value) { try { step(generator[\"throw\"](value)); } catch (e) { reject(e); } }\r\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\r\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\r\n    });\r\n};\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst uiHelpers_1 = __webpack_require__(/*! ../common/helpers/uiHelpers */ \"./src/common/helpers/uiHelpers.ts\");\r\nconst Logger_1 = __webpack_require__(/*! ../classes/Logger */ \"./src/classes/Logger.ts\");\r\nconst LocationState_1 = __webpack_require__(/*! ../classes/LocationState */ \"./src/classes/LocationState.ts\");\r\nconst GlobalConfig_1 = __webpack_require__(/*! ../GlobalConfig */ \"./src/GlobalConfig.ts\");\r\nconst querySelectorWithTimeout_1 = __webpack_require__(/*! ../common/helpers/querySelectorWithTimeout */ \"./src/common/helpers/querySelectorWithTimeout.ts\");\r\nconst ApiInteractor_1 = __webpack_require__(/*! ../classes/ApiInteractor */ \"./src/classes/ApiInteractor.ts\");\r\nfunction getCurrentProfileId(profile_redesigned) {\r\n    return __awaiter(this, void 0, void 0, function* () {\r\n        let cp = LocationState_1.default.getCurrentPath();\r\n        if (cp.startsWith(\"/id\")) {\r\n            return cp.slice(3);\r\n        }\r\n        const screen_name = cp.slice(1);\r\n        const result = yield ApiInteractor_1.default.callApi({\r\n            method: \"utils.resolveScreenName\",\r\n            data: {\r\n                screen_name,\r\n            },\r\n        });\r\n        return result.response.object_id;\r\n        // раскомментировать, если потребуется больше не использовать APIInteractor\r\n        // const linkSel = profile_redesigned.querySelector(\"a[href^='/im?sel=']\") as HTMLLinkElement | undefined;\r\n        // if (linkSel) {\r\n        //     return linkSel.href.split(\"/im?sel=\")[1];\r\n        // }\r\n        //\r\n        // const linkAudios = profile_redesigned.querySelector(\"a[href^='/audios']\") as HTMLLinkElement | undefined;\r\n        // if (linkAudios) {\r\n        //     return linkAudios.href.split(\"/audios\")[1];\r\n        // }\r\n        //\r\n        // const linkAlbums = profile_redesigned.querySelector(\"a[href^='/albums']\") as HTMLLinkElement | undefined;\r\n        // if (linkAlbums) {\r\n        //     return linkAlbums.href.split(\"/albums\")[1];\r\n        // }\r\n    });\r\n}\r\nconst newsBtnId = \"vkfix-newsBtn\";\r\nfunction profile_actions() {\r\n    return __awaiter(this, void 0, void 0, function* () {\r\n        const isNewsBtn = GlobalConfig_1.default.Config.get('newsBtn');\r\n        if (!isNewsBtn || document.getElementById(newsBtnId)) {\r\n            return;\r\n        }\r\n        const profile_redesigned = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({\r\n            selectors: `#profile_redesigned`\r\n        });\r\n        if (!profile_redesigned) {\r\n            return;\r\n        }\r\n        const ProfileHeader__actions = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({\r\n            element: profile_redesigned,\r\n            selectors: `.ProfileHeader__actions`,\r\n        });\r\n        if (!ProfileHeader__actions) {\r\n            Logger_1.Logger.warn('not found ProfileHeader__actions');\r\n            return;\r\n        }\r\n        const ProfileHeaderActions__buttons = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({\r\n            element: ProfileHeader__actions,\r\n            selectors: \".ProfileHeaderActions__buttons\"\r\n        });\r\n        if (!ProfileHeaderActions__buttons) {\r\n            Logger_1.Logger.warn('not found ProfileHeaderActions__buttons');\r\n            return;\r\n        }\r\n        const userId = yield getCurrentProfileId(profile_redesigned);\r\n        const newsBtn = (0, uiHelpers_1.createVkUiButton)('Новости', () => {\r\n            window.open(`/feed?section=source&source=${userId}`);\r\n        });\r\n        newsBtn.id = newsBtnId;\r\n        newsBtn.style.marginLeft = '6px';\r\n        ProfileHeaderActions__buttons.appendChild(newsBtn);\r\n    });\r\n}\r\nexports.default = profile_actions;\r\n\n\n//# sourceURL=webpack:///./src/modules/profile_actions.ts?");
 
 /***/ }),
-/* 17 */
+
+/***/ "./src/modules/pv_addons.ts":
+/*!**********************************!*\
+  !*** ./src/modules/pv_addons.ts ***!
+  \**********************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+eval("\r\nvar __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {\r\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\r\n    return new (P || (P = Promise))(function (resolve, reject) {\r\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\r\n        function rejected(value) { try { step(generator[\"throw\"](value)); } catch (e) { reject(e); } }\r\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\r\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\r\n    });\r\n};\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst GlobalConfig_1 = __webpack_require__(/*! ../GlobalConfig */ \"./src/GlobalConfig.ts\");\r\nconst Logger_1 = __webpack_require__(/*! ../classes/Logger */ \"./src/classes/Logger.ts\");\r\nconst querySelectorWithTimeout_1 = __webpack_require__(/*! ../common/helpers/querySelectorWithTimeout */ \"./src/common/helpers/querySelectorWithTimeout.ts\");\r\nfunction pv_addons() {\r\n    return __awaiter(this, void 0, void 0, function* () {\r\n        const isPvExpand = GlobalConfig_1.default.Config.get('pvExpand');\r\n        const pvPhotoSwitchWheel = GlobalConfig_1.default.Config.get('pvPhotoSwitchWheel');\r\n        const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.default.Config.get('pvPhotoMoreActCommunityKeeper');\r\n        const pvPhotoMoreActAlbum = GlobalConfig_1.default.Config.get('pvPhotoMoreActAlbum');\r\n        if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper && !pvPhotoMoreActAlbum) {\r\n            return;\r\n        }\r\n        const pvBox = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#pv_box' });\r\n        if (!pvBox) {\r\n            return;\r\n        }\r\n        const pvBottomInfo = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({\r\n            element: pvBox,\r\n            selectors: '.pv_bottom_info'\r\n        });\r\n        if (!pvBottomInfo) {\r\n            Logger_1.Logger.info('pv_bottom_info not found');\r\n            return;\r\n        }\r\n        const pvPhoto = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({\r\n            element: pvBox,\r\n            selectors: `#pv_photo`\r\n        });\r\n        if (!pvPhoto) {\r\n            Logger_1.Logger.info('pv_photo not found');\r\n            return;\r\n        }\r\n        const context = {\r\n            pvPhoto, pvBox, pvBottomInfo,\r\n        };\r\n        if (isPvExpand) {\r\n            try {\r\n                pvExpand(context);\r\n            }\r\n            catch (e) {\r\n                Logger_1.Logger.warn(\"Ошибка в expand.\", { e });\r\n            }\r\n        }\r\n        if (pvPhotoSwitchWheel) {\r\n            try {\r\n                photoSwitchWheel(context);\r\n            }\r\n            catch (e) {\r\n                Logger_1.Logger.warn(\"Ошибка в photoSwitchWheel.\", { e });\r\n            }\r\n        }\r\n        if (pvPhotoMoreActCommunityKeeper || pvPhotoMoreActAlbum) {\r\n            try {\r\n                photoMoreActs(context);\r\n            }\r\n            catch (e) {\r\n                Logger_1.Logger.warn(\"Ошибка в photoMoreActs.\", { e });\r\n            }\r\n        }\r\n    });\r\n}\r\nexports.default = pv_addons;\r\nlet pvExpandClickValue = undefined;\r\nfunction pvExpand({ pvPhoto, pvBottomInfo, }) {\r\n    const buttonId = 'pv_expand_photo';\r\n    if (document.getElementById(buttonId)) {\r\n        return;\r\n    }\r\n    const pvBottomActions = pvBottomInfo.querySelector('.pv_bottom_actions');\r\n    if (!pvBottomActions) {\r\n        Logger_1.Logger.info('pv_bottom_actions not found');\r\n        return;\r\n    }\r\n    const prependDivider = () => {\r\n        const dividerEl = document.createElement('span');\r\n        dividerEl.classList.add('divider');\r\n        pvBottomActions.prepend(dividerEl);\r\n    };\r\n    prependDivider();\r\n    const expandBtn = document.createElement('a');\r\n    expandBtn.id = buttonId;\r\n    expandBtn.style.setProperty('min-width', '68px');\r\n    expandBtn.style.setProperty('display', 'inline-block');\r\n    let prevObserver = undefined;\r\n    let stateExpand = false;\r\n    // В этих переменных храним изначальное значение, которое задаёт сам VK.\r\n    // После отмены сужения задаём их обратно.\r\n    let prevWidth = undefined;\r\n    let prevHeight = undefined;\r\n    const switchExpand = (value = !stateExpand) => __awaiter(this, void 0, void 0, function* () {\r\n        prevObserver === null || prevObserver === void 0 ? void 0 : prevObserver.disconnect();\r\n        prevObserver = undefined;\r\n        stateExpand = value;\r\n        const imgExpand = (img) => {\r\n            img.style.setProperty('width', '100%', 'important');\r\n            img.style.setProperty('height', '100%', 'important');\r\n            img.style.setProperty('object-fit', 'contain', 'important');\r\n            expandBtn.innerHTML = \"Сузить\";\r\n            stateExpand = true;\r\n        };\r\n        const imgRemoveExpand = (img) => {\r\n            if (img.style.width !== '100%') {\r\n                prevWidth = img.style.width;\r\n                prevHeight = img.style.height;\r\n            }\r\n            else {\r\n                img.style.removeProperty('width');\r\n                img.style.removeProperty('height');\r\n                if (prevWidth && prevHeight) {\r\n                    img.style.setProperty('width', prevWidth);\r\n                    img.style.setProperty('height', prevHeight);\r\n                }\r\n            }\r\n            img.style.removeProperty('object-fit');\r\n            expandBtn.innerHTML = \"Расширить\";\r\n            stateExpand = false;\r\n        };\r\n        const applyChanges = () => __awaiter(this, void 0, void 0, function* () {\r\n            const img = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({\r\n                element: pvPhoto,\r\n                selectors: `img`\r\n            });\r\n            if (!img) {\r\n                Logger_1.Logger.info('img not found');\r\n                return;\r\n            }\r\n            value ? imgExpand(img) : imgRemoveExpand(img);\r\n        });\r\n        yield applyChanges();\r\n        const observer = new MutationObserver(applyChanges);\r\n        observer.observe(pvPhoto, { childList: true });\r\n        prevObserver = observer;\r\n    });\r\n    expandBtn.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {\r\n        yield switchExpand();\r\n        pvExpandClickValue = stateExpand;\r\n    }));\r\n    pvBottomActions.prepend(expandBtn);\r\n    if (pvExpandClickValue !== undefined) {\r\n        switchExpand(pvExpandClickValue);\r\n        return;\r\n    }\r\n    if (!stateExpand && GlobalConfig_1.default.Config.get(window.screenLeft < 0 ? 'pvExpandLeftMonitorDefault' : 'pvExpandRightMonitorDefault')) {\r\n        switchExpand(true);\r\n        return;\r\n    }\r\n    switchExpand(false);\r\n}\r\nfunction photoSwitchWheel({ pvBox }) {\r\n    const pvImageWrap = pvBox.querySelector('.pv_image_wrap');\r\n    if (!pvImageWrap) {\r\n        Logger_1.Logger.info('pvImageWrap not found');\r\n        return;\r\n    }\r\n    if (pvImageWrap.dataset.photoSwitchWheel === 'true') {\r\n        // событие уже зарегистрировано\r\n        return;\r\n    }\r\n    const win = document.defaultView;\r\n    pvImageWrap.dataset.photoSwitchWheel = 'true';\r\n    pvImageWrap.addEventListener('wheel', (e) => {\r\n        const isNext = e.deltaY > 0;\r\n        const isPrev = !isNext;\r\n        if (isNext) {\r\n            win.Photoview.show(false, win.cur.pvIndex + 1);\r\n        }\r\n        if (isPrev) {\r\n            win.Photoview.show(false, win.cur.pvIndex - 1);\r\n        }\r\n    });\r\n}\r\nlet initPhotoMoreActs = false;\r\nlet abortControllerPhotoMoreActs = new AbortController();\r\nfunction photoMoreActs({ pvBox }) {\r\n    const pvImageWrap = pvBox.querySelector('.pv_image_wrap');\r\n    if (!pvImageWrap) {\r\n        Logger_1.Logger.info('pvImageWrap not found');\r\n        return;\r\n    }\r\n    const pvActionsMore = pvBox.querySelector('.pv_actions_more');\r\n    if (!pvActionsMore) {\r\n        Logger_1.Logger.info('pvActionsMore not found');\r\n        return;\r\n    }\r\n    const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.default.Config.get('pvPhotoMoreActCommunityKeeper');\r\n    const pvPhotoMoreActAlbum = GlobalConfig_1.default.Config.get('pvPhotoMoreActAlbum');\r\n    const actNames = [];\r\n    if (pvPhotoMoreActCommunityKeeper) {\r\n        actNames.push('pvPhotoMoreActCommunityKeeper');\r\n    }\r\n    if (pvPhotoMoreActAlbum) {\r\n        actNames.push('pvPhotoMoreActAlbum');\r\n    }\r\n    if (!initPhotoMoreActs && actNames.length) {\r\n        const style = document.createElement('style');\r\n        document.head.appendChild(style);\r\n        style.sheet.insertRule(`.pv_more_act_vkfix::before { background-position: 0 -60px; }`, 0);\r\n        initPhotoMoreActs = true;\r\n    }\r\n    abortControllerPhotoMoreActs.abort();\r\n    abortControllerPhotoMoreActs = new AbortController();\r\n    const signal = abortControllerPhotoMoreActs.signal;\r\n    const registerMoreAct = (name, textContent, href) => __awaiter(this, void 0, void 0, function* () {\r\n        if (pvActionsMore.querySelector(`#${name}`) || !cur.pvCurPhoto.id.startsWith('-')) {\r\n            return;\r\n        }\r\n        const pvMoreActDownload = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({\r\n            selectors: '#pv_more_act_download',\r\n            element: pvBox,\r\n            timeout: 1000,\r\n            signal,\r\n        }).catch(() => undefined);\r\n        if (!pvMoreActDownload) {\r\n            return;\r\n        }\r\n        if (pvActionsMore.querySelector(`#${name}`)) {\r\n            return;\r\n        }\r\n        signal.throwIfAborted();\r\n        const pvMoreAct = pvMoreActDownload.cloneNode();\r\n        pvMoreAct.id = name;\r\n        pvMoreAct.textContent = textContent;\r\n        pvMoreAct.href = href;\r\n        pvMoreAct.classList.add('pv_more_act_vkfix');\r\n        pvMoreActDownload.parentElement.append(pvMoreAct);\r\n        const pvMoreActsTt = pvBox.querySelector('#pv_more_acts_tt');\r\n        if (pvMoreActsTt) {\r\n            pvMoreActsTt.style.top = `${parseInt(pvMoreActsTt.style.top, 10) - 32}px`;\r\n        }\r\n    });\r\n    const registerMoreActs = () => __awaiter(this, void 0, void 0, function* () {\r\n        if (pvPhotoMoreActCommunityKeeper) {\r\n            yield registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`);\r\n        }\r\n        if (pvPhotoMoreActAlbum && !window.location.href.includes('vk.com/photo-')) {\r\n            yield registerMoreAct('pvPhotoMoreActAlbum', 'Открыть в альбоме', `https://vk.com/photo${cur.pvCurPhoto.id}`);\r\n        }\r\n    });\r\n    pvActionsMore.addEventListener('mouseenter', registerMoreActs, {\r\n        capture: true,\r\n        signal,\r\n    });\r\n}\r\n\n\n//# sourceURL=webpack:///./src/modules/pv_addons.ts?");
 
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.lastOrDefault = void 0;
-function lastOrDefault(array, _default = undefined) {
-    if (!array || array.length === 0) {
-        return _default;
-    }
-    return array[array.length - 1];
-}
-exports.lastOrDefault = lastOrDefault;
+/***/ }),
 
+/***/ "./src/modules/styles.ts":
+/*!*******************************!*\
+  !*** ./src/modules/styles.ts ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\r\nObject.defineProperty(exports, \"__esModule\", { value: true });\r\nconst GlobalConfig_1 = __webpack_require__(/*! ../GlobalConfig */ \"./src/GlobalConfig.ts\");\r\nconst fix_images_zooming_1 = __webpack_require__(/*! ./fix_images_zooming */ \"./src/modules/fix_images_zooming.ts\");\r\nconst fix_left_menu_overflow_1 = __webpack_require__(/*! ./fix_left_menu_overflow */ \"./src/modules/fix_left_menu_overflow.ts\");\r\nfunction default_1() {\r\n    let style = document.createElement('style');\r\n    style.innerHTML = `\r\n    .im-mess \r\n    .vkfix-action{\r\n        display: inline-block;\r\n        vertical-align: top;\r\n        width: 24px;\r\n        height: 24px;\r\n        visibility: hidden;\r\n        outline: 0;\r\n        user-select: none;\r\n    }\r\n    .im-mess:hover .vkfix-action{\r\n        visibility: visible;\r\n    }`;\r\n    const fixImagesZoomingEnabled = GlobalConfig_1.default.Config.get('fixImagesZooming');\r\n    if (fixImagesZoomingEnabled) {\r\n        style.innerHTML += fix_images_zooming_1.fixImagesZoomingCss;\r\n    }\r\n    const fixLeftMenuOverflowEnabled = GlobalConfig_1.default.Config.get('fixLeftMenuOverflow');\r\n    if (fixLeftMenuOverflowEnabled) {\r\n        style.innerHTML += fix_left_menu_overflow_1.fixLeftMenuOverflow;\r\n    }\r\n    document.head.appendChild(style);\r\n}\r\nexports.default = default_1;\r\n\n\n//# sourceURL=webpack:///./src/modules/styles.ts?");
 
 /***/ })
-/******/ ]);
+
+/******/ });
