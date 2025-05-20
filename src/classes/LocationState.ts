@@ -1,31 +1,30 @@
-import VKLocation from './VKLocation';
-import location_mutations from '../modules/mutations/location_mutations';
-import {lastOrDefault} from '../common/helpers/lastOrDefault';
+import {VKLocation} from './VKLocation';
+import {locationMutations} from '../modules/mutations/locationMutations';
 import {isLog} from '../common/consts';
 import {Logger} from "./Logger";
+import {extractPath} from "../common/helpers/extractPath";
 
-export default class LocationState {
-    private static previousQuery: URLSearchParams | null = null;
-    private static previousHref: string | null = null;
-    private static query: URLSearchParams | null = null;
-    private static href: string | null = null;
+export class LocationState {
+    static #previousQuery: URLSearchParams | null = null;
+    static #previousHref: string | null = null;
+    static #query: URLSearchParams | null = null;
+    static #href: string | null = null;
+    static #locUpdScanner: NodeJS.Timeout | null = null;
 
-    private static locUpdScanner: NodeJS.Timer | null = null;
-
-    public static init() {
+    static init() {
         this.updateState();
         LocationState.locationScanner(); // Инициализируем слежение за изменениями в URL
     }
 
-    public static changeState(href: string, newQuery: URLSearchParams) {
-        this.previousQuery = this.query;
-        this.previousHref = this.href;
-        this.query = newQuery;
-        this.href = href;
+    static changeState(href: string, newQuery: URLSearchParams) {
+        this.#previousQuery = this.#query;
+        this.#previousHref = this.#href;
+        this.#query = newQuery;
+        this.#href = href;
     }
 
 
-    public static updateState() {
+    static updateState() {
         this.changeState(location.href, VKLocation.getQueryParams());
 
         const getParamsQuery = (p: URLSearchParams | null) => {
@@ -40,36 +39,36 @@ export default class LocationState {
 
         if (isLog) {
             Logger.warn('Updated location', {
-                previousQuery: getParamsQuery(this.previousQuery),
-                query: getParamsQuery(this.query),
+                previousQuery: getParamsQuery(this.#previousQuery),
+                query: getParamsQuery(this.#query),
             });
         }
     }
 
-    public static getCurrentQuery() {
-        return this.query;
+    static get currentQuery() {
+        return this.#query;
     }
 
-    public static getPreviousQuery() {
-        return this.previousQuery;
+    static get previousQuery() {
+        return this.#previousQuery;
     }
 
-    public static getCurrentPath() {
-        return '/' + lastOrDefault(this.href.split('/')) ?? '';
+    static get currentPath() {
+        return extractPath(this.#href);
     }
 
-    public static getPreviousPath() {
-        return '/' + lastOrDefault(this.previousHref.split('/')) ?? '';
+    static get previousPath() {
+        return extractPath(this.#previousHref);
     }
 
-    public static locationScanner() {
-        if (this.locUpdScanner !== null) {
-            clearInterval(this.locUpdScanner);
+    static locationScanner() {
+        if (this.#locUpdScanner !== null) {
+            clearInterval(this.#locUpdScanner);
         }
 
-        this.locUpdScanner = setInterval(() => {
-            if (location.href !== this.href) {
-                location_mutations();
+        this.#locUpdScanner = setInterval(() => {
+            if (location.href !== this.#href) {
+                locationMutations();
             }
         }, 100);
     }

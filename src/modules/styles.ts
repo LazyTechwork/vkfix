@@ -1,6 +1,6 @@
-import GlobalConfig from '../GlobalConfig';
-import {fixImagesZoomingCss} from './fix_images_zooming';
-import {fixLeftMenuOverflow} from "./fix_left_menu_overflow";
+import {GlobalConfig} from '../GlobalConfig';
+import {fixImagesZoomingCss} from './fixImagesZooming';
+import {fixLeftMenuOverflow} from "./fixLeftMenuOverflow";
 
 export default function () {
     let style = document.createElement('style');

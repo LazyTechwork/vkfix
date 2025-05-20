@@ -1,6 +1,6 @@
 import GM_config from './libs/GM_config';
 
-export default class GlobalConfig {
+export class GlobalConfig {
     static Config = new GM_config({
         'id': 'vkfix',
         'title': 'Настройка VK Fix',

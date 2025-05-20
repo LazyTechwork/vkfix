@@ -1,4 +1,4 @@
-export default class VKLocation {
+export class VKLocation {
   static getQueryParams(): URLSearchParams {
     return new URLSearchParams(window.location.search);
   }

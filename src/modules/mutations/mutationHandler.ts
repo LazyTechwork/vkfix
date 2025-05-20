@@ -1,5 +1,4 @@
-
-export default function () {
+export function mutationHandler() {
     // Настраиваем слежение мутаций в DOM
     let observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {

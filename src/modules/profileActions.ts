@@ -1,12 +1,12 @@
 import {createVkUiButton} from "../common/helpers/uiHelpers";
 import {Logger} from "../classes/Logger";
-import LocationState from "../classes/LocationState";
-import GlobalConfig from "../GlobalConfig";
+import {LocationState} from "../classes/LocationState";
+import {GlobalConfig} from "../GlobalConfig";
 import {querySelectorWithTimeout} from "../common/helpers/querySelectorWithTimeout";
-import APIInteractor from "../classes/ApiInteractor";
+import {APIInteractor} from "../classes/ApiInteractor";
 
 async function getCurrentProfileId(profile_redesigned: HTMLElement) {
-    let cp = LocationState.getCurrentPath();
+    let cp = LocationState.currentPath;
     if (cp.startsWith("/id")) {
         return cp.slice(3);
     }
@@ -40,7 +40,7 @@ async function getCurrentProfileId(profile_redesigned: HTMLElement) {
 
 const newsBtnId = "vkfix-newsBtn";
 
-export default async function profile_actions() {
+export async function profileActions() {
     const isNewsBtn = GlobalConfig.Config.get('newsBtn') as boolean;
     if (!isNewsBtn || document.getElementById(newsBtnId)) {
         return;

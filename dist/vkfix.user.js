@@ -94,7 +94,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 11);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -104,10 +104,45 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const GM_config_1 = __webpack_require__(12);
+exports.Logger = void 0;
+const consts_1 = __webpack_require__(6);
+class Logger {
+    static log(...args) {
+        if (consts_1.isLog) {
+            console.log(args);
+        }
+    }
+    static info(...args) {
+        if (consts_1.isLog) {
+            console.info(args);
+        }
+    }
+    static warn(...args) {
+        if (consts_1.isLog) {
+            console.warn(args);
+        }
+    }
+    static error(...args) {
+        if (consts_1.isLog) {
+            console.error(args);
+        }
+    }
+}
+exports.Logger = Logger;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GlobalConfig = void 0;
+const GM_config_1 = __webpack_require__(13);
 class GlobalConfig {
 }
-exports.default = GlobalConfig;
+exports.GlobalConfig = GlobalConfig;
 GlobalConfig.Config = new GM_config_1.default({
     'id': 'vkfix',
     'title': 'Настройка VK Fix',
@@ -166,43 +201,14 @@ GlobalConfig.Config = new GM_config_1.default({
             'label': 'Ссылка на новости в профиле пользователя',
             'type': 'checkbox',
             'default': false,
-        }
+        },
+        "messenger.photo-stickers": {
+            'label': 'Всплывающие подсказки из фотографий из альбомов с описанием',
+            'type': 'checkbox',
+            'default': false,
+        },
     }
 });
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Logger = void 0;
-const consts_1 = __webpack_require__(6);
-class Logger {
-    static log(...args) {
-        if (consts_1.isLog) {
-            console.log(args);
-        }
-    }
-    static info(...args) {
-        if (consts_1.isLog) {
-            console.info(args);
-        }
-    }
-    static warn(...args) {
-        if (consts_1.isLog) {
-            console.warn(args);
-        }
-    }
-    static error(...args) {
-        if (consts_1.isLog) {
-            console.error(args);
-        }
-    }
-}
-exports.Logger = Logger;
 
 
 /***/ }),
@@ -268,25 +274,38 @@ exports.querySelectorWithTimeout = querySelectorWithTimeout;
 
 "use strict";
 
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var _a, _LocationState_previousQuery, _LocationState_previousHref, _LocationState_query, _LocationState_href, _LocationState_locUpdScanner;
 Object.defineProperty(exports, "__esModule", { value: true });
-const VKLocation_1 = __webpack_require__(16);
-const location_mutations_1 = __webpack_require__(17);
-const lastOrDefault_1 = __webpack_require__(20);
+exports.LocationState = void 0;
+const VKLocation_1 = __webpack_require__(17);
+const locationMutations_1 = __webpack_require__(18);
 const consts_1 = __webpack_require__(6);
-const Logger_1 = __webpack_require__(1);
+const Logger_1 = __webpack_require__(0);
+const extractPath_1 = __webpack_require__(21);
 class LocationState {
     static init() {
         this.updateState();
         LocationState.locationScanner(); // Инициализируем слежение за изменениями в URL
     }
     static changeState(href, newQuery) {
-        this.previousQuery = this.query;
-        this.previousHref = this.href;
-        this.query = newQuery;
-        this.href = href;
+        __classPrivateFieldSet(this, _a, __classPrivateFieldGet(this, _a, "f", _LocationState_query), "f", _LocationState_previousQuery);
+        __classPrivateFieldSet(this, _a, __classPrivateFieldGet(this, _a, "f", _LocationState_href), "f", _LocationState_previousHref);
+        __classPrivateFieldSet(this, _a, newQuery, "f", _LocationState_query);
+        __classPrivateFieldSet(this, _a, href, "f", _LocationState_href);
     }
     static updateState() {
-        this.changeState(location.href, VKLocation_1.default.getQueryParams());
+        this.changeState(location.href, VKLocation_1.VKLocation.getQueryParams());
         const getParamsQuery = (p) => {
             if (!p) {
                 return null;
@@ -298,42 +317,41 @@ class LocationState {
         };
         if (consts_1.isLog) {
             Logger_1.Logger.warn('Updated location', {
-                previousQuery: getParamsQuery(this.previousQuery),
-                query: getParamsQuery(this.query),
+                previousQuery: getParamsQuery(__classPrivateFieldGet(this, _a, "f", _LocationState_previousQuery)),
+                query: getParamsQuery(__classPrivateFieldGet(this, _a, "f", _LocationState_query)),
             });
         }
     }
-    static getCurrentQuery() {
-        return this.query;
+    static get currentQuery() {
+        return __classPrivateFieldGet(this, _a, "f", _LocationState_query);
     }
-    static getPreviousQuery() {
-        return this.previousQuery;
+    static get previousQuery() {
+        return __classPrivateFieldGet(this, _a, "f", _LocationState_previousQuery);
     }
-    static getCurrentPath() {
-        var _a;
-        return (_a = '/' + (0, lastOrDefault_1.lastOrDefault)(this.href.split('/'))) !== null && _a !== void 0 ? _a : '';
+    static get currentPath() {
+        return (0, extractPath_1.extractPath)(__classPrivateFieldGet(this, _a, "f", _LocationState_href));
     }
-    static getPreviousPath() {
-        var _a;
-        return (_a = '/' + (0, lastOrDefault_1.lastOrDefault)(this.previousHref.split('/'))) !== null && _a !== void 0 ? _a : '';
+    static get previousPath() {
+        return (0, extractPath_1.extractPath)(__classPrivateFieldGet(this, _a, "f", _LocationState_previousHref));
     }
     static locationScanner() {
-        if (this.locUpdScanner !== null) {
-            clearInterval(this.locUpdScanner);
+        if (__classPrivateFieldGet(this, _a, "f", _LocationState_locUpdScanner) !== null) {
+            clearInterval(__classPrivateFieldGet(this, _a, "f", _LocationState_locUpdScanner));
         }
-        this.locUpdScanner = setInterval(() => {
-            if (location.href !== this.href) {
-                (0, location_mutations_1.default)();
+        __classPrivateFieldSet(this, _a, setInterval(() => {
+            if (location.href !== __classPrivateFieldGet(this, _a, "f", _LocationState_href)) {
+                (0, locationMutations_1.locationMutations)();
             }
-        }, 100);
+        }, 100), "f", _LocationState_locUpdScanner);
     }
 }
-exports.default = LocationState;
-LocationState.previousQuery = null;
-LocationState.previousHref = null;
-LocationState.query = null;
-LocationState.href = null;
-LocationState.locUpdScanner = null;
+exports.LocationState = LocationState;
+_a = LocationState;
+_LocationState_previousQuery = { value: null };
+_LocationState_previousHref = { value: null };
+_LocationState_query = { value: null };
+_LocationState_href = { value: null };
+_LocationState_locUpdScanner = { value: null };
 
 
 /***/ }),
@@ -343,10 +361,11 @@ LocationState.locUpdScanner = null;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-function default_1() {
+exports.pageScanner = void 0;
+function pageScanner() {
     // TODO обработать все изменения на странице, если требуется
 }
-exports.default = default_1;
+exports.pageScanner = pageScanner;
 
 
 /***/ }),
@@ -365,15 +384,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const GlobalConfig_1 = __webpack_require__(0);
-const Logger_1 = __webpack_require__(1);
+exports.pvAddons = void 0;
+const GlobalConfig_1 = __webpack_require__(1);
+const Logger_1 = __webpack_require__(0);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
-function pv_addons() {
+function pvAddons() {
     return __awaiter(this, void 0, void 0, function* () {
-        const isPvExpand = GlobalConfig_1.default.Config.get('pvExpand');
-        const pvPhotoSwitchWheel = GlobalConfig_1.default.Config.get('pvPhotoSwitchWheel');
-        const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.default.Config.get('pvPhotoMoreActCommunityKeeper');
-        const pvPhotoMoreActAlbum = GlobalConfig_1.default.Config.get('pvPhotoMoreActAlbum');
+        const isPvExpand = GlobalConfig_1.GlobalConfig.Config.get('pvExpand');
+        const pvPhotoSwitchWheel = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoSwitchWheel');
+        const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper');
+        const pvPhotoMoreActAlbum = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoMoreActAlbum');
         if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper && !pvPhotoMoreActAlbum) {
             return;
         }
@@ -426,7 +446,7 @@ function pv_addons() {
         }
     });
 }
-exports.default = pv_addons;
+exports.pvAddons = pvAddons;
 let pvExpandClickValue = undefined;
 function pvExpand({ pvPhoto, pvBottomInfo, }) {
     const buttonId = 'pv_expand_photo';
@@ -507,7 +527,7 @@ function pvExpand({ pvPhoto, pvBottomInfo, }) {
         switchExpand(pvExpandClickValue);
         return;
     }
-    if (!stateExpand && GlobalConfig_1.default.Config.get(window.screenLeft < 0 ? 'pvExpandLeftMonitorDefault' : 'pvExpandRightMonitorDefault')) {
+    if (!stateExpand && GlobalConfig_1.GlobalConfig.Config.get(window.screenLeft < 0 ? 'pvExpandLeftMonitorDefault' : 'pvExpandRightMonitorDefault')) {
         switchExpand(true);
         return;
     }
@@ -549,8 +569,8 @@ function photoMoreActs({ pvBox }) {
         Logger_1.Logger.info('pvActionsMore not found');
         return;
     }
-    const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.default.Config.get('pvPhotoMoreActCommunityKeeper');
-    const pvPhotoMoreActAlbum = GlobalConfig_1.default.Config.get('pvPhotoMoreActAlbum');
+    const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper');
+    const pvPhotoMoreActAlbum = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoMoreActAlbum');
     const actNames = [];
     if (pvPhotoMoreActCommunityKeeper) {
         actNames.push('pvPhotoMoreActCommunityKeeper');
@@ -618,9 +638,9 @@ function photoMoreActs({ pvBox }) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isLog = exports.isDev = void 0;
-const GlobalConfig_1 = __webpack_require__(0);
+const GlobalConfig_1 = __webpack_require__(1);
 exports.isDev = "production" === 'development';
-exports.isLog = GlobalConfig_1.default.Config.get('logging');
+exports.isLog = GlobalConfig_1.GlobalConfig.Config.get('logging');
 
 
 /***/ }),
@@ -639,20 +659,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const uiHelpers_1 = __webpack_require__(18);
-const Logger_1 = __webpack_require__(1);
+exports.profileActions = void 0;
+const uiHelpers_1 = __webpack_require__(19);
+const Logger_1 = __webpack_require__(0);
 const LocationState_1 = __webpack_require__(3);
-const GlobalConfig_1 = __webpack_require__(0);
+const GlobalConfig_1 = __webpack_require__(1);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
 const ApiInteractor_1 = __webpack_require__(8);
 function getCurrentProfileId(profile_redesigned) {
     return __awaiter(this, void 0, void 0, function* () {
-        let cp = LocationState_1.default.getCurrentPath();
+        let cp = LocationState_1.LocationState.currentPath;
         if (cp.startsWith("/id")) {
             return cp.slice(3);
         }
         const screen_name = cp.slice(1);
-        const result = yield ApiInteractor_1.default.callApi({
+        const result = yield ApiInteractor_1.APIInteractor.callApi({
             method: "utils.resolveScreenName",
             data: {
                 screen_name,
@@ -677,9 +698,9 @@ function getCurrentProfileId(profile_redesigned) {
     });
 }
 const newsBtnId = "vkfix-newsBtn";
-function profile_actions() {
+function profileActions() {
     return __awaiter(this, void 0, void 0, function* () {
-        const isNewsBtn = GlobalConfig_1.default.Config.get('newsBtn');
+        const isNewsBtn = GlobalConfig_1.GlobalConfig.Config.get('newsBtn');
         if (!isNewsBtn || document.getElementById(newsBtnId)) {
             return;
         }
@@ -714,7 +735,7 @@ function profile_actions() {
         ProfileHeaderActions__buttons.appendChild(newsBtn);
     });
 }
-exports.default = profile_actions;
+exports.profileActions = profileActions;
 
 
 /***/ }),
@@ -733,7 +754,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Logger_1 = __webpack_require__(1);
+exports.APIInteractor = void 0;
+const Logger_1 = __webpack_require__(0);
 class APIInteractor {
     static callApiRaw(endpoint, data) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -762,7 +784,7 @@ class APIInteractor {
         return APIInteractor.callApiRaw(endpoint, form);
     }
 }
-exports.default = APIInteractor;
+exports.APIInteractor = APIInteractor;
 
 
 /***/ }),
@@ -781,15 +803,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Logger_1 = __webpack_require__(1);
-const GlobalConfig_1 = __webpack_require__(0);
+exports.appActions = void 0;
+const Logger_1 = __webpack_require__(0);
+const GlobalConfig_1 = __webpack_require__(1);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
 const ApiInteractor_1 = __webpack_require__(8);
-const saveTemplateAsFile_1 = __webpack_require__(19);
+const saveTemplateAsFile_1 = __webpack_require__(20);
 const exportCommunityKeeperBtn = 'exportCommunityKeeperBtn';
-function app_actions() {
+function appActions() {
     return __awaiter(this, void 0, void 0, function* () {
-        const isNewsBtn = GlobalConfig_1.default.Config.get('exportCommunityKeeperBtn');
+        const isNewsBtn = GlobalConfig_1.GlobalConfig.Config.get('exportCommunityKeeperBtn');
         if (!isNewsBtn || !window.location.href.includes('vk.com/app51658481') || document.getElementById(exportCommunityKeeperBtn)) {
             return;
         }
@@ -810,7 +833,7 @@ function app_actions() {
         btn.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
             const ids = [];
             while (true) {
-                const list = yield ApiInteractor_1.default.callApi({
+                const list = yield ApiInteractor_1.APIInteractor.callApi({
                     'method': 'groups.get',
                     data: {
                         count: '1000',
@@ -836,11 +859,56 @@ function app_actions() {
         grCodeBtn.parentElement.prepend(btn);
     });
 }
-exports.default = app_actions;
+exports.appActions = appActions;
 
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.messenger = void 0;
+const Logger_1 = __webpack_require__(0);
+const GlobalConfig_1 = __webpack_require__(1);
+const querySelectorWithTimeout_1 = __webpack_require__(2);
+function messenger() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const isPhotoStickers = GlobalConfig_1.GlobalConfig.Config.get('messenger.photo-stickers');
+        if (!isPhotoStickers) {
+            return;
+        }
+        // const reforgedRootEl = await querySelectorWithTimeout({selectors: '#reforged-root'});
+        const reforgedRootEl = document.getElementById('reforged-root');
+        if (!reforgedRootEl) {
+            Logger_1.Logger.info('messenger: not found #reforged-root');
+            return;
+        }
+        const popupStickerEl = yield (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
+            selectors: `#popup-sticker-convo-main-history-container`
+        });
+        if (!popupStickerEl) {
+            Logger_1.Logger.info('messenger: not found #popup-sticker-convo-main-history-container');
+            return;
+        }
+        Logger_1.Logger.info('messenger sucess!', popupStickerEl);
+    });
+}
+exports.messenger = messenger;
+
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -868,16 +936,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const styles_1 = __webpack_require__(11);
-const mutation_handler_1 = __webpack_require__(15);
-const GlobalConfig_1 = __webpack_require__(0);
+const styles_1 = __webpack_require__(12);
+const mutationHandler_1 = __webpack_require__(16);
+const GlobalConfig_1 = __webpack_require__(1);
 const LocationState_1 = __webpack_require__(3);
-const page_scanner_1 = __webpack_require__(4);
-const pv_addons_1 = __webpack_require__(5);
-const Logger_1 = __webpack_require__(1);
-const profile_actions_1 = __webpack_require__(7);
+const pageScanner_1 = __webpack_require__(4);
+const pvAddons_1 = __webpack_require__(5);
+const Logger_1 = __webpack_require__(0);
+const profileActions_1 = __webpack_require__(7);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
-const app_actions_1 = __webpack_require__(9);
+const appActions_1 = __webpack_require__(9);
+const messenger_1 = __webpack_require__(10);
 (function (window) {
     return __awaiter(this, void 0, void 0, function* () {
         let w = window;
@@ -901,19 +970,20 @@ const app_actions_1 = __webpack_require__(9);
                 // настройки
                 vkfixconflink.addEventListener('click', (ev) => {
                     ev.preventDefault();
-                    GlobalConfig_1.default.Config.open();
+                    GlobalConfig_1.GlobalConfig.Config.open();
                 });
             }
             const onLoadWindow = () => {
                 (0, styles_1.default)(); // Инъекция стилей
-                (0, page_scanner_1.default)(); // Инициализируем сканер страницы
-                (0, mutation_handler_1.default)(); // Регистрируем модуль слежения за мутациями
-                (0, pv_addons_1.default)(); // Инициализируем дополнения к просмотрщику фото
-                (0, profile_actions_1.default)(); // Инициализируем дополнения к профилю пользователя
-                (0, app_actions_1.default)(); // Инициализируем дополнения к приложениям
+                (0, pageScanner_1.pageScanner)(); // Инициализируем сканер страницы
+                (0, mutationHandler_1.mutationHandler)(); // Регистрируем модуль слежения за мутациями
+                (0, pvAddons_1.pvAddons)(); // Инициализируем дополнения к просмотрщику фото
+                (0, profileActions_1.profileActions)(); // Инициализируем дополнения к профилю пользователя
+                (0, appActions_1.appActions)(); // Инициализируем дополнения к приложениям
+                (0, messenger_1.messenger)(); // Инициализируем дополнения к мессенджеру
                 window.removeEventListener("load", onLoadWindow);
                 // Слежение за изменениями в URL
-                LocationState_1.default.init();
+                LocationState_1.LocationState.init();
             };
             window.addEventListener("load", onLoadWindow);
         }
@@ -922,15 +992,15 @@ const app_actions_1 = __webpack_require__(9);
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const GlobalConfig_1 = __webpack_require__(0);
-const fix_images_zooming_1 = __webpack_require__(13);
-const fix_left_menu_overflow_1 = __webpack_require__(14);
+const GlobalConfig_1 = __webpack_require__(1);
+const fixImagesZooming_1 = __webpack_require__(14);
+const fixLeftMenuOverflow_1 = __webpack_require__(15);
 function default_1() {
     let style = document.createElement('style');
     style.innerHTML = `
@@ -947,13 +1017,13 @@ function default_1() {
     .im-mess:hover .vkfix-action{
         visibility: visible;
     }`;
-    const fixImagesZoomingEnabled = GlobalConfig_1.default.Config.get('fixImagesZooming');
+    const fixImagesZoomingEnabled = GlobalConfig_1.GlobalConfig.Config.get('fixImagesZooming');
     if (fixImagesZoomingEnabled) {
-        style.innerHTML += fix_images_zooming_1.fixImagesZoomingCss;
+        style.innerHTML += fixImagesZooming_1.fixImagesZoomingCss;
     }
-    const fixLeftMenuOverflowEnabled = GlobalConfig_1.default.Config.get('fixLeftMenuOverflow');
+    const fixLeftMenuOverflowEnabled = GlobalConfig_1.GlobalConfig.Config.get('fixLeftMenuOverflow');
     if (fixLeftMenuOverflowEnabled) {
-        style.innerHTML += fix_left_menu_overflow_1.fixLeftMenuOverflow;
+        style.innerHTML += fixLeftMenuOverflow_1.fixLeftMenuOverflow;
     }
     document.head.appendChild(style);
 }
@@ -961,7 +1031,7 @@ exports.default = default_1;
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1775,7 +1845,7 @@ GM_configField.prototype = {
 /* harmony default export */ __webpack_exports__["default"] = (GM_configStruct);
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1816,7 +1886,7 @@ exports.fixImagesZoomingCss = `
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1832,13 +1902,14 @@ exports.fixLeftMenuOverflow = `
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-function default_1() {
+exports.mutationHandler = void 0;
+function mutationHandler() {
     // Настраиваем слежение мутаций в DOM
     let observer = new MutationObserver(function (mutations) {
         mutations.forEach(function (mutation) {
@@ -1847,16 +1918,17 @@ function default_1() {
     });
     observer.observe(document.body, { childList: true, subtree: true }); // Включаем нашего следящего на body
 }
-exports.default = default_1;
+exports.mutationHandler = mutationHandler;
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.VKLocation = void 0;
 class VKLocation {
     static getQueryParams() {
         return new URLSearchParams(window.location.search);
@@ -1878,43 +1950,51 @@ class VKLocation {
         return selected.startsWith('c');
     }
 }
-exports.default = VKLocation;
+exports.VKLocation = VKLocation;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.locationMutations = void 0;
 const LocationState_1 = __webpack_require__(3);
-const page_scanner_1 = __webpack_require__(4);
-const pv_addons_1 = __webpack_require__(5);
-const profile_actions_1 = __webpack_require__(7);
-const app_actions_1 = __webpack_require__(9);
-function default_1() {
-    LocationState_1.default.updateState();
-    let cq = LocationState_1.default.getCurrentQuery();
-    let pq = LocationState_1.default.getPreviousQuery();
-    let cp = LocationState_1.default.getCurrentPath();
-    let pp = LocationState_1.default.getPreviousPath();
+const pageScanner_1 = __webpack_require__(4);
+const pvAddons_1 = __webpack_require__(5);
+const profileActions_1 = __webpack_require__(7);
+const appActions_1 = __webpack_require__(9);
+const messenger_1 = __webpack_require__(10);
+const Logger_1 = __webpack_require__(0);
+function locationMutations() {
+    LocationState_1.LocationState.updateState();
+    let cq = LocationState_1.LocationState.currentQuery;
+    let pq = LocationState_1.LocationState.previousQuery;
+    let cp = LocationState_1.LocationState.currentPath;
+    let pp = LocationState_1.LocationState.previousPath;
+    Logger_1.Logger.info('execute messenger', cp, cq);
     if (cq.get('sel') != pq.get('sel')) {
-        (0, page_scanner_1.default)();
+        (0, pageScanner_1.pageScanner)();
     }
     if (cq.get('z') != pq.get('z') || cp.startsWith('/photo') && cp !== pp) {
-        (0, pv_addons_1.default)();
+        (0, pvAddons_1.pvAddons)();
     }
     if (cp.startsWith('/app')) {
-        (0, app_actions_1.default)();
+        (0, appActions_1.appActions)();
     }
-    (0, profile_actions_1.default)();
+    if (cp.startsWith('/im/convo/')) {
+        Logger_1.Logger.info('execute messenger');
+        (0, messenger_1.messenger)();
+    }
+    (0, profileActions_1.profileActions)();
 }
-exports.default = default_1;
+exports.locationMutations = locationMutations;
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1941,7 +2021,7 @@ exports.createVkUiButton = createVkUiButton;
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1967,20 +2047,26 @@ exports.saveTemplateAsFile = saveTemplateAsFile;
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lastOrDefault = void 0;
-function lastOrDefault(array, _default = undefined) {
-    if (!array || array.length === 0) {
-        return _default;
+exports.extractPath = void 0;
+function extractPath(href) {
+    try {
+        const url = new URL(href);
+        return url.pathname + url.search + url.hash;
     }
-    return array[array.length - 1];
+    catch (_a) {
+        // На случай если передан относительный URL или некорректная строка
+        const a = document.createElement('a');
+        a.href = href;
+        return a.pathname + a.search + a.hash;
+    }
 }
-exports.lastOrDefault = lastOrDefault;
+exports.extractPath = extractPath;
 
 
 /***/ })

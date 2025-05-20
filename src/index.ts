@@ -13,15 +13,16 @@
 // ==/UserScript==
 
 import styles from './modules/styles';
-import mutation_handler from './modules/mutations/mutation_handler';
-import GlobalConfig from './GlobalConfig';
-import LocationState from './classes/LocationState';
-import page_scanner from './modules/page_scanner';
-import pv_addons from './modules/pv_addons';
+import {mutationHandler} from './modules/mutations/mutationHandler';
+import {GlobalConfig} from './GlobalConfig';
+import {LocationState} from './classes/LocationState';
+import {pageScanner} from './modules/pageScanner';
+import {pvAddons} from './modules/pvAddons';
 import {Logger} from "./classes/Logger";
-import profile_actions from "./modules/profile_actions";
+import {profileActions} from "./modules/profileActions";
 import {querySelectorWithTimeout} from "./common/helpers/querySelectorWithTimeout";
-import app_actions from "./modules/app_actions";
+import {appActions} from "./modules/appActions";
+import {messenger} from "./modules/messenger";
 
 (async function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -56,11 +57,12 @@ import app_actions from "./modules/app_actions";
 
         const onLoadWindow = () => {
             styles(); // Инъекция стилей
-            page_scanner(); // Инициализируем сканер страницы
-            mutation_handler(); // Регистрируем модуль слежения за мутациями
-            pv_addons(); // Инициализируем дополнения к просмотрщику фото
-            profile_actions(); // Инициализируем дополнения к профилю пользователя
-            app_actions(); // Инициализируем дополнения к приложениям
+            pageScanner(); // Инициализируем сканер страницы
+            mutationHandler(); // Регистрируем модуль слежения за мутациями
+            pvAddons(); // Инициализируем дополнения к просмотрщику фото
+            profileActions(); // Инициализируем дополнения к профилю пользователя
+            appActions(); // Инициализируем дополнения к приложениям
+            messenger(); // Инициализируем дополнения к мессенджеру
             window.removeEventListener("load", onLoadWindow);
             // Слежение за изменениями в URL
             LocationState.init();

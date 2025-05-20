@@ -1,13 +1,13 @@
 import {Logger} from "../classes/Logger";
-import GlobalConfig from "../GlobalConfig";
+import {GlobalConfig} from "../GlobalConfig";
 import {querySelectorWithTimeout} from "../common/helpers/querySelectorWithTimeout";
-import APIInteractor from "../classes/ApiInteractor";
+import {APIInteractor} from "../classes/ApiInteractor";
 import {saveTemplateAsFile} from "../common/helpers/saveTemplateAsFile";
 
 
 const exportCommunityKeeperBtn = 'exportCommunityKeeperBtn'
 
-export default async function app_actions() {
+export async function appActions() {
     const isNewsBtn = GlobalConfig.Config.get('exportCommunityKeeperBtn') as boolean;
     if (!isNewsBtn || !window.location.href.includes('vk.com/app51658481') || document.getElementById(exportCommunityKeeperBtn)) {
         return;

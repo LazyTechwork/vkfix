@@ -1,4 +1,4 @@
-import GlobalConfig from '../GlobalConfig';
+import {GlobalConfig} from '../GlobalConfig';
 import {Logger} from "../classes/Logger";
 import {querySelectorWithTimeout} from "../common/helpers/querySelectorWithTimeout";
 
@@ -8,7 +8,7 @@ interface PVAddonsContext {
     pvBottomInfo: HTMLDivElement;
 }
 
-export default async function pv_addons() {
+export async function pvAddons() {
     const isPvExpand = GlobalConfig.Config.get('pvExpand') as boolean;
     const pvPhotoSwitchWheel = GlobalConfig.Config.get('pvPhotoSwitchWheel') as boolean;
     const pvPhotoMoreActCommunityKeeper = GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper') as boolean;

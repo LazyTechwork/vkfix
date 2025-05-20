@@ -1,6 +1,6 @@
 import {Logger} from "./Logger";
 
-export default class APIInteractor {
+export class APIInteractor {
     static async callApiRaw(endpoint: string, data: BodyInit) {
         Logger.log('Call API Raw', data, endpoint)
         const response = await fetch(endpoint, {
