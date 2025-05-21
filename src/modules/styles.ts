@@ -3,8 +3,8 @@ import {fixImagesZoomingCss} from './fixImagesZooming';
 import {fixLeftMenuOverflow} from "./fixLeftMenuOverflow";
 
 export default function () {
-    let style = document.createElement('style');
-    style.innerHTML = `
+    let style = '';
+    style = `
     .im-mess 
     .vkfix-action{
         display: inline-block;
@@ -20,13 +20,13 @@ export default function () {
     }`;
     const fixImagesZoomingEnabled = GlobalConfig.Config.get('fixImagesZooming');
     if (fixImagesZoomingEnabled) {
-        style.innerHTML += fixImagesZoomingCss;
+        style += fixImagesZoomingCss;
     }
 
     const fixLeftMenuOverflowEnabled = GlobalConfig.Config.get('fixLeftMenuOverflow');
     if (fixLeftMenuOverflowEnabled) {
-        style.innerHTML += fixLeftMenuOverflow;
+        style += fixLeftMenuOverflow;
     }
 
-    document.head.appendChild(style);
+    GM_addStyle(style)
 }

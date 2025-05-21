@@ -3,21 +3,13 @@ export class VKLocation {
     return new URLSearchParams(window.location.search);
   }
 
-  static getConversation(): number | null {
-    const params: URLSearchParams = this.getQueryParams();
-    const selected = params.get('sel');
-    if (!selected || !selected.startsWith('c')) {
-      return null;
-    }
-    return parseInt(selected.substr(1));
+  static getPeerId(): number | undefined {
+    const match = window.location.pathname.match(/\/im\/convo\/(-?\d+)/);
+    return match ? parseInt(match[1], 10) : undefined;
   }
 
   static isConversation(): boolean {
-    const params: URLSearchParams = this.getQueryParams();
-    const selected = params.get('sel');
-    if (!selected) {
-      return false;
-    }
-    return selected.startsWith('c');
+    const peerId = this.getPeerId();
+    return peerId >= 2000000000;
   }
 }

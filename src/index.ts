@@ -22,7 +22,7 @@ import {Logger} from "./classes/Logger";
 import {profileActions} from "./modules/profileActions";
 import {querySelectorWithTimeout} from "./common/helpers/querySelectorWithTimeout";
 import {appActions} from "./modules/appActions";
-import {messenger} from "./modules/messenger";
+import {messenger} from "./modules/messenger/messenger";
 
 (async function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;

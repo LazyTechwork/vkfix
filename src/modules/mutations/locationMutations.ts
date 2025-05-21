@@ -3,17 +3,17 @@ import {pageScanner} from '../pageScanner';
 import {pvAddons} from '../pvAddons';
 import {profileActions} from "../profileActions";
 import {appActions} from "../appActions";
+import {messenger} from "../messenger/messenger";
+import {Logger} from "../../classes/Logger";
 
 export function locationMutations() {
     LocationState.updateState();
-    let cq = LocationState.getCurrentQuery();
-    let pq = LocationState.getPreviousQuery();
-    let cp = LocationState.getCurrentPath();
-    let pp = LocationState.getPreviousPath();
     let cq = LocationState.currentQuery;
     let pq = LocationState.previousQuery;
     let cp = LocationState.currentPath;
     let pp = LocationState.previousPath;
+
+    Logger.info('execute messenger', cp, cq)
     if (cq.get('sel') != pq.get('sel')) {
         pageScanner();
     }
@@ -24,6 +24,11 @@ export function locationMutations() {
 
     if (cp.startsWith('/app')) {
         appActions()
+    }
+
+    if (cp.startsWith('/im/convo/')) {
+        Logger.info('execute messenger')
+        messenger()
     }
 
     profileActions();
