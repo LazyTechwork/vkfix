@@ -59,7 +59,12 @@ export class GlobalConfig {
                 'label': 'Ссылка на новости в профиле пользователя',
                 'type': 'checkbox',
                 'default': false,
-            }
+            },
+            "messenger.photo-stickers": {
+                'label': 'Всплывающие подсказки из фотографий из альбомов с описанием',
+                'type': 'checkbox',
+                'default': false,
+            },
         }
     });
 }

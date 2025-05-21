@@ -105,7 +105,7 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
-const consts_1 = __webpack_require__(6);
+const consts_1 = __webpack_require__(7);
 class Logger {
     static log(...args) {
         if (consts_1.isLog) {
@@ -290,9 +290,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocationState = void 0;
 const VKLocation_1 = __webpack_require__(17);
 const locationMutations_1 = __webpack_require__(18);
-const consts_1 = __webpack_require__(6);
+const consts_1 = __webpack_require__(7);
 const Logger_1 = __webpack_require__(0);
-const extractPath_1 = __webpack_require__(21);
+const extractPath_1 = __webpack_require__(23);
 class LocationState {
     static init() {
         this.updateState();
@@ -360,6 +360,63 @@ _LocationState_locUpdScanner = { value: null };
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.APIInteractor = void 0;
+const Logger_1 = __webpack_require__(0);
+const sleep_1 = __webpack_require__(20);
+class APIInteractor {
+    static callApiRaw(endpoint, data) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            Logger_1.Logger.log('Call API Raw', data, endpoint);
+            const response = yield fetch(endpoint, {
+                method: 'POST',
+                body: data,
+                credentials: "same-origin"
+            });
+            const result = yield response.json();
+            Logger_1.Logger.log('Call API Raw result', result);
+            if (((_a = result.error) === null || _a === void 0 ? void 0 : _a.error_code) === 6) {
+                yield (0, sleep_1.sleep)(3000);
+                return APIInteractor.callApiRaw(endpoint, data);
+            }
+            return result;
+        });
+    }
+    static callApi(cParams) {
+        // Пример доступа к window страницы
+        const pageWindow = unsafeWindow;
+        const endpoint = `https://api.vk.com/method/${cParams.method}?v=5.251&client_id=6287487`;
+        const token = JSON.parse(pageWindow.localStorage.getItem('6287487:web_token:login:auth')).access_token;
+        const form = new FormData();
+        form.set('access_token', token);
+        if (cParams.data) {
+            const keys = Object.keys(cParams.data);
+            for (const key of keys) {
+                form.set(key, cParams.data[key].toString());
+            }
+        }
+        return APIInteractor.callApiRaw(endpoint, form);
+    }
+}
+exports.APIInteractor = APIInteractor;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pageScanner = void 0;
 function pageScanner() {
@@ -369,7 +426,7 @@ exports.pageScanner = pageScanner;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -631,7 +688,7 @@ function photoMoreActs({ pvBox }) {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -644,7 +701,7 @@ exports.isLog = GlobalConfig_1.GlobalConfig.Config.get('logging');
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -665,7 +722,7 @@ const Logger_1 = __webpack_require__(0);
 const LocationState_1 = __webpack_require__(3);
 const GlobalConfig_1 = __webpack_require__(1);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
-const ApiInteractor_1 = __webpack_require__(8);
+const ApiInteractor_1 = __webpack_require__(4);
 function getCurrentProfileId(profile_redesigned) {
     return __awaiter(this, void 0, void 0, function* () {
         let cp = LocationState_1.LocationState.currentPath;
@@ -739,55 +796,6 @@ exports.profileActions = profileActions;
 
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.APIInteractor = void 0;
-const Logger_1 = __webpack_require__(0);
-class APIInteractor {
-    static callApiRaw(endpoint, data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            Logger_1.Logger.log('Call API Raw', data, endpoint);
-            const response = yield fetch(endpoint, {
-                method: 'POST',
-                body: data,
-                credentials: "same-origin"
-            });
-            return yield response.json();
-        });
-    }
-    static callApi(cParams) {
-        // Пример доступа к window страницы
-        const pageWindow = unsafeWindow;
-        const endpoint = `https://api.vk.com/method/${cParams.method}?v=5.251&client_id=6287487`;
-        const token = JSON.parse(pageWindow.localStorage.getItem('6287487:web_token:login:auth')).access_token;
-        const form = new FormData();
-        form.set('access_token', token);
-        if (cParams.data) {
-            const keys = Object.keys(cParams.data);
-            for (const key of keys) {
-                form.set(key, cParams.data[key]);
-            }
-        }
-        return APIInteractor.callApiRaw(endpoint, form);
-    }
-}
-exports.APIInteractor = APIInteractor;
-
-
-/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -807,8 +815,8 @@ exports.appActions = void 0;
 const Logger_1 = __webpack_require__(0);
 const GlobalConfig_1 = __webpack_require__(1);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
-const ApiInteractor_1 = __webpack_require__(8);
-const saveTemplateAsFile_1 = __webpack_require__(20);
+const ApiInteractor_1 = __webpack_require__(4);
+const saveTemplateAsFile_1 = __webpack_require__(21);
 const exportCommunityKeeperBtn = 'exportCommunityKeeperBtn';
 function appActions() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -882,9 +890,13 @@ exports.messenger = void 0;
 const Logger_1 = __webpack_require__(0);
 const GlobalConfig_1 = __webpack_require__(1);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
+const ApiInteractor_1 = __webpack_require__(4);
+const extractQuotedTexts_1 = __webpack_require__(22);
+const isPhotoStickers = GlobalConfig_1.GlobalConfig.Config.get('messenger.photo-stickers');
+let _initPhotoStickers = false;
+const findPhotos = [];
 function messenger() {
     return __awaiter(this, void 0, void 0, function* () {
-        const isPhotoStickers = GlobalConfig_1.GlobalConfig.Config.get('messenger.photo-stickers');
         if (!isPhotoStickers) {
             return;
         }
@@ -901,10 +913,60 @@ function messenger() {
             Logger_1.Logger.info('messenger: not found #popup-sticker-convo-main-history-container');
             return;
         }
-        Logger_1.Logger.info('messenger sucess!', popupStickerEl);
+        const spanEditableEl = document.querySelector('.ComposerInput__input');
+        if (!spanEditableEl) {
+            Logger_1.Logger.info('messenger: not found .ComposerInput__input');
+            return;
+        }
+        spanEditableEl.addEventListener('input', (e) => {
+            initPhotoStickers();
+            Logger_1.Logger.info('messenger: spanEditableEl.textContent', spanEditableEl.textContent);
+        });
+        Logger_1.Logger.info('messenger sucess!', spanEditableEl);
     });
 }
 exports.messenger = messenger;
+function initPhotoStickers() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!isPhotoStickers || _initPhotoStickers) {
+            return;
+        }
+        _initPhotoStickers = true;
+        try {
+            const albumsResult = yield ApiInteractor_1.APIInteractor.callApi({
+                method: 'photos.getAlbums',
+                data: {
+                    need_system: 1,
+                }
+            });
+            const albums = albumsResult.response.items;
+            for (const album of albums) {
+                const photosResult = yield ApiInteractor_1.APIInteractor.callApi({
+                    method: 'photos.get',
+                    data: {
+                        album_id: album.id,
+                        count: 1000,
+                    }
+                });
+                const albumPhotos = photosResult.response.items;
+                for (const photo of albumPhotos) {
+                    if (photo.text) {
+                        const suggestions = (0, extractQuotedTexts_1.extractQuotedTexts)(photo.text);
+                        if (suggestions) {
+                            findPhotos.push({ photo, suggestions });
+                        }
+                    }
+                }
+            }
+            console.log({ findPhotos });
+        }
+        catch (ex) {
+            Logger_1.Logger.error('messenger: initPhotoStickers', ex);
+            findPhotos.length = 0;
+            _initPhotoStickers = false;
+        }
+    });
+}
 
 
 /***/ }),
@@ -940,10 +1002,10 @@ const styles_1 = __webpack_require__(12);
 const mutationHandler_1 = __webpack_require__(16);
 const GlobalConfig_1 = __webpack_require__(1);
 const LocationState_1 = __webpack_require__(3);
-const pageScanner_1 = __webpack_require__(4);
-const pvAddons_1 = __webpack_require__(5);
+const pageScanner_1 = __webpack_require__(5);
+const pvAddons_1 = __webpack_require__(6);
 const Logger_1 = __webpack_require__(0);
-const profileActions_1 = __webpack_require__(7);
+const profileActions_1 = __webpack_require__(8);
 const querySelectorWithTimeout_1 = __webpack_require__(2);
 const appActions_1 = __webpack_require__(9);
 const messenger_1 = __webpack_require__(10);
@@ -1962,9 +2024,9 @@ exports.VKLocation = VKLocation;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.locationMutations = void 0;
 const LocationState_1 = __webpack_require__(3);
-const pageScanner_1 = __webpack_require__(4);
-const pvAddons_1 = __webpack_require__(5);
-const profileActions_1 = __webpack_require__(7);
+const pageScanner_1 = __webpack_require__(5);
+const pvAddons_1 = __webpack_require__(6);
+const profileActions_1 = __webpack_require__(8);
 const appActions_1 = __webpack_require__(9);
 const messenger_1 = __webpack_require__(10);
 const Logger_1 = __webpack_require__(0);
@@ -2027,6 +2089,20 @@ exports.createVkUiButton = createVkUiButton;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.sleep = void 0;
+function sleep(timeout) {
+    return new Promise((resolve) => setTimeout(resolve, timeout));
+}
+exports.sleep = sleep;
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.saveTemplateAsFile = void 0;
 function saveTemplateAsFile(filename, dataObjToWrite) {
     const window = unsafeWindow;
@@ -2047,7 +2123,98 @@ exports.saveTemplateAsFile = saveTemplateAsFile;
 
 
 /***/ }),
-/* 21 */
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.extractQuotedTexts = void 0;
+function extractQuotedTexts(text) {
+    try {
+        // Проверяем, что текст начинается и заканчивается кавычкой
+        if (!text || typeof text !== 'string' || !text.startsWith('"') || !text.endsWith('"')) {
+            return undefined;
+        }
+        // Убедимся, что внутри строки нет ничего кроме кавычек и запятых
+        // Преобразуем наш текст к виду, совместимому с JSON
+        // "[...]", "[...]", "[...]" -> ["[...]", "[...]", "[...]"]
+        let jsonArray = '[' + text + ']';
+        // Заменяем ", " на ",
+        jsonArray = jsonArray.replace(/",\s*"/g, '", "');
+        // Заменяем первую кавычку и последнюю
+        jsonArray = jsonArray.replace(/^\["/, '["').replace(/"\]$/, '"]');
+        try {
+            // Пробуем распарсить как JSON-массив
+            const parsed = JSON.parse(jsonArray);
+            // Если успешно, возвращаем результат
+            return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+        }
+        catch (_a) {
+            // Если не получилось, пробуем сначала исправить экранирование
+            let corrected = text;
+            // Заменяем \\" на \"
+            corrected = corrected.replace(/\\\\"/g, '\\"');
+            // Теперь пробуем создать JSON массив снова
+            let correctedJsonArray = '[' + corrected + ']';
+            correctedJsonArray = correctedJsonArray.replace(/",\s*"/g, '", "');
+            correctedJsonArray = correctedJsonArray.replace(/^\["/, '["').replace(/"\]$/, '"]');
+            try {
+                const parsedCorrected = JSON.parse(correctedJsonArray);
+                return Array.isArray(parsedCorrected) && parsedCorrected.length > 0 ? parsedCorrected : null;
+            }
+            catch (_b) {
+                // Если и это не сработало, попробуем еще один метод
+                // Просто разбиваем строку на части по запятым и очищаем от кавычек
+                const parts = text.split(/",\s*"/);
+                const result = parts.map(part => {
+                    // Убираем внешние кавычки
+                    let cleaned = part.trim();
+                    if (cleaned.startsWith('"')) {
+                        cleaned = cleaned.substring(1);
+                    }
+                    if (cleaned.endsWith('"')) {
+                        cleaned = cleaned.substring(0, cleaned.length - 1);
+                    }
+                    // Заменяем экранированные кавычки
+                    cleaned = cleaned.replace(/\\"/g, '"');
+                    return cleaned;
+                });
+                return result.length > 0 ? result : null;
+            }
+        }
+    }
+    catch (error) {
+        console.error("Error in extractQuotedTexts:", error);
+        // Еще одна попытка - самый простой метод
+        try {
+            // Просто удаляем внешние кавычки и заменяем экранированные
+            let extracted = text.trim();
+            // Убираем внешние кавычки
+            if (extracted.startsWith('"') && extracted.endsWith('"')) {
+                extracted = extracted.substring(1, extracted.length - 1);
+            }
+            else {
+                return undefined;
+            }
+            // Заменяем экранированные кавычки
+            extracted = extracted.replace(/\\"/g, '"');
+            // Если есть запятые, разбиваем
+            if (extracted.includes(',')) {
+                return extracted.split(',').map(s => s.trim());
+            }
+            return [extracted];
+        }
+        catch (_c) {
+            return undefined;
+        }
+    }
+}
+exports.extractQuotedTexts = extractQuotedTexts;
+
+
+/***/ }),
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

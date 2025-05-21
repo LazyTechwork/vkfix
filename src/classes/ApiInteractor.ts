@@ -1,4 +1,5 @@
 import {Logger} from "./Logger";
+import {sleep} from "../common/helpers/sleep";
 
 export class APIInteractor {
     static async callApiRaw(endpoint: string, data: BodyInit) {
@@ -8,7 +9,14 @@ export class APIInteractor {
             body: data,
             credentials: "same-origin"
         })
-        return await response.json()
+        const result = await response.json()
+        Logger.log('Call API Raw result', result)
+        if (result.error?.error_code === 6) {
+            await sleep(3000)
+            return APIInteractor.callApiRaw(endpoint, data)
+        }
+
+        return result
     }
 
     static callApi(cParams: ICallApiParams) {
@@ -23,7 +31,7 @@ export class APIInteractor {
             const keys = Object.keys(cParams.data)
 
             for (const key of keys) {
-                form.set(key, cParams.data[key])
+                form.set(key, cParams.data[key].toString())
             }
         }
 
@@ -34,9 +42,9 @@ export class APIInteractor {
 
 export interface ICallApiParams {
     // если execute - params.code обязателен к заполнению
-    method?: 'execute' | 'messages.removeChatUser' | 'utils.resolveScreenName' | 'newsfeed.getLists' | 'groups.get' | string;
+    method?: 'execute' | 'messages.removeChatUser' | 'utils.resolveScreenName' | 'newsfeed.getLists' | 'groups.get' | 'photos.getAlbums' | string;
     data?: {
-        [U: string]: string;
+        [U: string]: string | number;
     };
     params?: {
         code?: string;
