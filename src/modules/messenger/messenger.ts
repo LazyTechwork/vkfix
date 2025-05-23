@@ -10,12 +10,13 @@ import {Album, Photo, PhotoSticker} from "./types";
 import {PriorityArray} from "../../classes/PriorityArray";
 
 
-const isPhotoStickers = GlobalConfig.Config.get('messenger.photo-stickers') as boolean;
+const isEnabledPhotoStickers = GlobalConfig.Config.get('messenger.photo-stickers') as boolean;
 let _initPhotoStickers = false
 
 const stickersStore = shallowReactive<{
     photos: PhotoSticker[]
     stickers: PhotoSticker[]
+    teleportEl?: HTMLDivElement
     onSendSticker(sticker: PhotoSticker): void
 }>({
     photos: [], stickers: [], onSendSticker: (sticker: PhotoSticker) => {
@@ -43,7 +44,7 @@ function getSpanEditableEl() {
 }
 
 export async function messenger() {
-    if (!isPhotoStickers) {
+    if (!isEnabledPhotoStickers) {
         return
     }
 
@@ -69,7 +70,7 @@ export async function messenger() {
     }
 
     spanEditableEl.addEventListener('input', initPhotoStickers)
-
+    spanEditableEl.addEventListener('focus', initPhotoStickers)
     spanEditableEl.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Shift') {
             return
@@ -82,6 +83,7 @@ export async function messenger() {
         })
     })
 
+    stickersStore.teleportEl = document.querySelector('.ConvoComposer__inputPanel')
     Logger.info('messenger sucess!', spanEditableEl)
 }
 
@@ -89,13 +91,13 @@ function getWords(str: string) {
     return str.toLocaleLowerCase().split(/[^а-яa-z0-9]/g).filter(x => x.length > 0)
 }
 
+
 async function initPhotoStickers() {
-    if (!isPhotoStickers || _initPhotoStickers) {
+    if (!isEnabledPhotoStickers || _initPhotoStickers) {
         return
     }
 
     _initPhotoStickers = true
-
     try {
         const albumsResult = await APIInteractor.callApi({
             method: 'photos.getAlbums',
@@ -130,9 +132,9 @@ async function initPhotoStickers() {
         }
 
         const stickersAppEl = document.createElement('div')
-        document.body.appendChild(stickersAppEl)
         const app = createApp({render: () => h(StickersPopup, stickersStore)});
         app.mount(stickersAppEl);
+        document.body.appendChild(stickersAppEl)
     } catch (ex: any) {
         Logger.error('messenger: initPhotoStickers', ex)
         stickersStore.photos = []

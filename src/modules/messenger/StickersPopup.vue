@@ -1,5 +1,5 @@
 <template>
-  <teleport v-if="stickers.length" to=".ConvoComposer__inputPanel">
+  <teleport v-if="stickers.length && teleportEl" :to="teleportEl">
     <div class="vkfix-stickers-popup">
       <img v-for="sticker of stickers"
            :key="sticker.photo.id"
@@ -11,19 +11,29 @@
     </div>
 
   </teleport>
+
+
+  <teleport v-if="teleportEl && isDev" :to="teleportEl">
+    <div
+        :title="`Загружено фотографий-стикеров: ${photos.length}`"
+        style="min-width: 2px; min-height: 2px; border-radius: 50%; background-color: green;"
+    />
+  </teleport>
 </template>
 <script lang="ts" setup>
 
 import {PhotoSticker} from "./types";
+import {isDev} from "../../common/consts";
 
 const props = defineProps<{
   photos: PhotoSticker[]
   stickers: PhotoSticker[]
+  teleportEl?: HTMLDivElement
 }>()
+
 const emit = defineEmits<{
   (e: 'sendSticker', sticker: PhotoSticker): void
 }>()
-
 </script>
 <style lang="scss">
 .vkfix-stickers-popup {
