@@ -11,6 +11,7 @@ import {PriorityArray} from "../../classes/PriorityArray";
 
 
 const isEnabledPhotoStickers = GlobalConfig.Config.get('messenger.photo-stickers') as boolean;
+const photoStickersAlbumIds = GlobalConfig.Config.get('messenger.photo-stickers.albums') as string;
 let _initPhotoStickers = false
 
 const stickersStore = shallowReactive<{
@@ -91,6 +92,26 @@ function getWords(str: string) {
     return str.toLocaleLowerCase().split(/[^а-яa-z0-9]/g).filter(x => x.length > 0)
 }
 
+async function getAlbumsIds(): Promise<number[]> {
+    const albumsIds: number[] = photoStickersAlbumIds
+        .split(',')
+        .map(x => x.trim())
+        .filter(x => x.length)
+        .map(x => Number(x))
+    if (albumsIds.length > 0) {
+        return albumsIds
+    }
+
+    const albumsResult = await APIInteractor.callApi({
+        method: 'photos.getAlbums',
+        data: {
+            need_system: 1,
+            album_ids: photoStickersAlbumIds,
+        }
+    })
+    const albums: Album[] = albumsResult.response.items
+    return albums.map(x => x.id)
+}
 
 async function initPhotoStickers() {
     if (!isEnabledPhotoStickers || _initPhotoStickers) {
@@ -99,19 +120,12 @@ async function initPhotoStickers() {
 
     _initPhotoStickers = true
     try {
-        const albumsResult = await APIInteractor.callApi({
-            method: 'photos.getAlbums',
-            data: {
-                need_system: 1,
-            }
-        })
-        const albums: Album[] = albumsResult.response.items
-
-        for (const album of albums) {
+        const albumIds = await getAlbumsIds()
+        for (const album_id of albumIds) {
             const photosResult = await APIInteractor.callApi({
                 method: 'photos.get',
                 data: {
-                    album_id: album.id,
+                    album_id,
                     count: 1000,
                 }
             })
