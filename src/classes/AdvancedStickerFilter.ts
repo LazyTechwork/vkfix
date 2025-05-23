@@ -15,7 +15,6 @@ interface MatchDetails {
 }
 
 interface SearchOptions {
-    fuzzyThreshold?: number;
     enableSemantic?: boolean;
     boostExactMatches?: number;
     boostStartsWith?: number;
@@ -33,7 +32,6 @@ interface SearchIndex {
 
 class OptimizedStickerFilter {
     private readonly defaultOptions: Required<SearchOptions> = {
-        fuzzyThreshold: 0.8, // Повышаем порог для скорости
         enableSemantic: true,
         boostExactMatches: 2.5,
         boostStartsWith: 1.8,
@@ -44,9 +42,6 @@ class OptimizedStickerFilter {
     private searchIndex: SearchIndex | null = null;
     private isIndexBuilt = false;
 
-    /**
-     * Построение индекса для быстрого поиска (вызывается один раз)
-     */
     public buildIndex(stickers: PhotoSticker[]): void {
         if (this.isIndexBuilt) return;
 
@@ -55,14 +50,12 @@ class OptimizedStickerFilter {
         const partialWords = new Map<string, PhotoSticker[]>();
 
         for (const sticker of stickers) {
-            // Индексируем точные совпадения слов
             for (const word of sticker.lowerWords) {
                 if (!exactWords.has(word)) {
                     exactWords.set(word, []);
                 }
                 exactWords.get(word)!.push(sticker);
 
-                // Индексируем префиксы для частичного поиска
                 for (let i = 2; i <= word.length; i++) {
                     const prefix = word.substring(0, i);
                     if (!partialWords.has(prefix)) {
@@ -74,14 +67,12 @@ class OptimizedStickerFilter {
                 }
             }
 
-            // Индексируем точные совпадения подсказок
             for (const suggestion of sticker.lowerSuggestions) {
                 if (!exactSuggestions.has(suggestion)) {
                     exactSuggestions.set(suggestion, []);
                 }
                 exactSuggestions.get(suggestion)!.push(sticker);
 
-                // Индексируем префиксы подсказок
                 for (let i = 2; i <= suggestion.length; i++) {
                     const prefix = suggestion.substring(0, i);
                     if (!partialWords.has(prefix)) {
@@ -125,15 +116,22 @@ class OptimizedStickerFilter {
             return this.getDefaultResults(stickers, opts);
         }
 
+        // Проверяем, является ли запрос одной буквой
+        const isSingleLetterQuery = queryWords.length === 1 && queryWords[0].length === 1;
+
         // Используем Set для быстрого поиска уникальных стикеров
         const candidateStickers = new Set<PhotoSticker>();
         const stickerScores = new Map<PhotoSticker, { score: number; matches: MatchDetails[] }>();
 
-        // 1. Быстрый поиск точных совпадений
+        // 1. Поиск точных совпадений
         for (const word of queryWords) {
-            // Точные совпадения в словах
             const exactWordMatches = this.searchIndex!.exactWords.get(word) || [];
             for (const sticker of exactWordMatches) {
+                if (isSingleLetterQuery) {
+                    // Для одной буквы требуем полное совпадение
+                    if (!sticker.lowerWords.includes(word)) continue;
+                }
+
                 candidateStickers.add(sticker);
                 this.addMatch(stickerScores, sticker, {
                     type: 'exact',
@@ -146,6 +144,10 @@ class OptimizedStickerFilter {
             // Точные совпадения в подсказках
             const exactSuggestionMatches = this.searchIndex!.exactSuggestions.get(word) || [];
             for (const sticker of exactSuggestionMatches) {
+                if (isSingleLetterQuery) {
+                    // Для одной буквы требуем полное совпадение
+                    if (!sticker.lowerWords.includes(word)) continue;
+                }
                 candidateStickers.add(sticker);
                 this.addMatch(stickerScores, sticker, {
                     type: 'exact',
@@ -156,15 +158,13 @@ class OptimizedStickerFilter {
             }
         }
 
-        // 2. Частичный поиск только если мало точных совпадений
-        if (candidateStickers.size < opts.maxResults * 2) {
+        // 2. Частичный поиск (только если не одна буква и мало результатов)
+        if (!isSingleLetterQuery && candidateStickers.size < opts.maxResults * 2) {
             for (const word of queryWords) {
                 if (word.length >= 3) {
-                    // Ищем по префиксам
                     for (let i = 3; i <= Math.min(word.length, 6); i++) {
                         const prefix = word.substring(0, i);
                         const partialMatches = this.searchIndex!.partialWords.get(prefix) || [];
-
                         for (const sticker of partialMatches) {
                             if (!candidateStickers.has(sticker)) {
                                 candidateStickers.add(sticker);
@@ -172,7 +172,7 @@ class OptimizedStickerFilter {
                                     type: 'partial',
                                     field: 'word',
                                     value: prefix,
-                                    score: 0.6 * (i / word.length) // Больший префикс = больший score
+                                    score: 0.6 * (i / word.length)
                                 });
                             }
                         }
@@ -181,8 +181,8 @@ class OptimizedStickerFilter {
             }
         }
 
-        // 3. Семантический поиск (только если включен и мало результатов)
-        if (opts.enableSemantic && candidateStickers.size < opts.maxResults) {
+        // 3. Семантический поиск (только если не одна буква и включен)
+        if (opts.enableSemantic && !isSingleLetterQuery && candidateStickers.size < opts.maxResults) {
             for (const word of queryWords) {
                 const synonyms = this.searchIndex!.semanticMap.get(word) || [];
                 for (const synonym of synonyms) {
@@ -202,7 +202,7 @@ class OptimizedStickerFilter {
             }
         }
 
-        // 4. Быстрое формирование результатов
+        // 4. Формирование результатов
         const results: SearchResult[] = [];
         for (const sticker of candidateStickers) {
             const stickerData = stickerScores.get(sticker);
@@ -458,9 +458,7 @@ class OptimizedStickerFilter {
             ['зависать', ['тусить', 'чилить', 'отдыхать']],
             ['базарить', ['говорить', 'болтать', 'трещать']],
         ];
-
         const semanticMap = new Map<string, string[]>();
-
         for (const [key, synonyms] of semanticPairs) {
             semanticMap.set(key, synonyms);
             for (const synonym of synonyms) {
@@ -469,17 +467,12 @@ class OptimizedStickerFilter {
                 semanticMap.set(synonym, relatedWords);
             }
         }
-
         return semanticMap;
     }
 }
 
-// Singleton instance для переиспользования
 let filterInstance: OptimizedStickerFilter | null = null;
 
-/**
- * Умный поиск стикеров (оптимизированная версия)
- */
 export function smartStickerSearch(
     stickers: PhotoSticker[],
     userMessage: string
@@ -489,7 +482,6 @@ export function smartStickerSearch(
     }
 
     const normalizedMessage = userMessage.toLowerCase().trim();
-
     if (!shouldSearchStickers(normalizedMessage)) {
         return [];
     }
@@ -499,21 +491,26 @@ export function smartStickerSearch(
         return [];
     }
 
+    const queryWords = searchQuery.trim().split(/\s+/);
+    // Если запрос — одна буква, возвращаем пустой результат
+    if (queryWords.length === 1 && queryWords[0].length === 1) {
+        return [];
+    }
+
+    const originalWordCount = userMessage.trim().split(/\s+/).length;
+    const minScore = originalWordCount > 3 ? 0.5 : 0.2;
+
     const results = filterInstance.searchStickers(stickers, searchQuery, {
-        fuzzyThreshold: 0.8,
         enableSemantic: true,
         boostExactMatches: 2.5,
         boostStartsWith: 1.8,
-        maxResults: 8,
-        minScore: 0.2
+        maxResults: 50,
+        minScore
     });
 
     return results.map(result => result.sticker);
 }
 
-/**
- * Предварительная инициализация индекса (вызывать при загрузке приложения)
- */
 export function initializeStickerSearch(stickers: PhotoSticker[]): void {
     if (!filterInstance) {
         filterInstance = new OptimizedStickerFilter();
@@ -521,19 +518,16 @@ export function initializeStickerSearch(stickers: PhotoSticker[]): void {
     filterInstance.buildIndex(stickers);
 }
 
-/**
- * Определяет, стоит ли искать стикеры
- */
 function shouldSearchStickers(message: string): boolean {
-    if (message.length < 1 || message.length > 200) return false;
-    if (message.startsWith('/') || message.includes('http')) return false;
-    if (/^\d+$/.test(message)) return false;
-    return true;
+    const normalizedMessage = message.trim();
+    if (normalizedMessage.length < 1 || normalizedMessage.length > 50) return false;
+    if (normalizedMessage.startsWith('/') || normalizedMessage.includes('http')) return false;
+    if (/^\d+$/.test(normalizedMessage)) return false;
+    const wordCount = normalizedMessage.split(/\s+/).length;
+    return wordCount <= 3;
+
 }
 
-/**
- * Извлекает ключевые слова для поиска
- */
 function extractSearchKeywords(message: string): string {
     let cleaned = message
         .replace(/[^\w\s\u0400-\u04FF]/g, ' ')
