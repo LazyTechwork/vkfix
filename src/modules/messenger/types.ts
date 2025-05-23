@@ -17,7 +17,6 @@ export interface Photo {
     owner_id: number
     album_id: number
     date: number
-    has_tags: boolean
     orig_photo: PhotoSize
     sizes: PhotoSize[]
     text: string
@@ -26,5 +25,6 @@ export interface Photo {
 export interface PhotoSticker {
     photo: Photo;
     suggestions: string[];
+    lowerSuggestions: string[];
     lowerWords: string[];
 }

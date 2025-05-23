@@ -7,7 +7,8 @@ import {createApp, h, shallowReactive} from "vue";
 import StickersPopup from "./StickersPopup.vue";
 import {VKLocation} from "../../classes/VKLocation";
 import {Album, Photo, PhotoSticker} from "./types";
-import {PriorityArray} from "../../classes/PriorityArray";
+import {smartStickerSearch} from "../../classes/AdvancedStickerFilter";
+import {debounce} from "es-toolkit";
 
 
 const isEnabledPhotoStickers = GlobalConfig.Config.get('messenger.photo-stickers') as boolean;
@@ -35,6 +36,14 @@ const stickersStore = shallowReactive<{
                 random_id: Math.round(Math.random() * 10000000),
                 attachment: `photo${sticker.photo.owner_id}_${sticker.photo.id}`,
             }
+        }).then(() => {
+            setTimeout(() => {
+                const el = document.querySelector(`.ConvoHistory__wrapper > div[data-scrollbar="scrollable"]`)
+                if (el) {
+                    el.scrollTo(0, el.scrollHeight)
+                }
+            }, 200)
+
         })
         getSpanEditableEl().textContent = ''
     }
@@ -71,22 +80,34 @@ export async function messenger() {
     }
 
     spanEditableEl.addEventListener('input', initPhotoStickers)
-    spanEditableEl.addEventListener('focus', initPhotoStickers)
+    spanEditableEl.addEventListener('focus', () => {
+        showStickers(spanEditableEl.textContent)
+    })
+
+    const debounceStickers = debounce(showStickers, 200)
+
     spanEditableEl.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Shift') {
+            return
+        }
+
+        if (e.key === 'Escape') {
+            stickersStore.stickers = []
             return
         }
 
         setTimeout(() => {
             stickersStore.stickers = []
             Logger.info(`messenger: keydown ${e.key}, text: ${spanEditableEl.textContent}`)
-            showStickers(spanEditableEl.textContent)
+            debounceStickers(spanEditableEl.textContent)
         })
     })
 
     stickersStore.teleportEl = document.querySelector('.ConvoComposer__inputPanel')
+    await showStickers(spanEditableEl.textContent)
     Logger.info('messenger sucess!', spanEditableEl)
 }
+
 
 function getWords(str: string) {
     return str.toLocaleLowerCase().split(/[^а-яa-z0-9]/g).filter(x => x.length > 0)
@@ -138,6 +159,7 @@ async function initPhotoStickers() {
                         stickersStore.photos.push({
                             photo,
                             suggestions,
+                            lowerSuggestions: suggestions.map(s => s.toLocaleLowerCase()),
                             lowerWords: suggestions.map(s => getWords(s)).flat(),
                         })
                     }
@@ -158,18 +180,17 @@ async function initPhotoStickers() {
 }
 
 async function showStickers(text: string) {
-    await initPhotoStickers()
-    const words = getWords(text)
-    Logger.info(`messenger words`, words)
-    const newStickers = new PriorityArray<PhotoSticker>()
-    for (const photo of stickersStore.photos) {
-        const foundedWords = words.filter(word => photo.lowerWords.includes(word))
-        if (foundedWords.length) {
-            newStickers.push(photo, foundedWords.length)
-        }
+    if (text === '') {
+        stickersStore.stickers = []
+        return
     }
 
-    stickersStore.stickers = newStickers.toArray()
+    await initPhotoStickers()
+    const textLower = text.toLocaleLowerCase()
+    const words = getWords(textLower)
+    Logger.info(`messenger words`, words)
+    stickersStore.stickers = smartStickerSearch(stickersStore.photos, textLower);
+    Logger.info(`messenger find stickers`, stickersStore.stickers)
     if (!stickersStore.stickers.length) {
         Logger.info('messenger: not found stickers')
         return

@@ -1,20 +1,18 @@
 <template>
-  <teleport v-if="stickers.length && teleportEl" :to="teleportEl">
-    <div class="vkfix-stickers-popup">
-      <img v-for="sticker of stickers"
-           :key="sticker.photo.id"
-           :src="sticker.photo.sizes[0].url"
-           :alt="sticker.photo.text"
-           :title="sticker.suggestions[0]"
-           @click="emit('sendSticker', sticker)"
-      />
-    </div>
-
-  </teleport>
-
-
-  <teleport v-if="teleportEl && isDev" :to="teleportEl">
+  <teleport v-if="teleportEl" :to="teleportEl">
+    <transition>
+      <div v-if="stickers.length" class="vkfix-stickers-popup">
+        <img v-for="sticker of lastStickers"
+             :key="sticker.photo.id"
+             :src="sticker.photo.sizes[0].url"
+             :alt="sticker.photo.text"
+             :title="sticker.suggestions[0]"
+             @click="emit('sendSticker', sticker)"
+        />
+      </div>
+    </transition>
     <div
+        v-if="isDev"
         :title="`Загружено фотографий-стикеров: ${photos.length}`"
         style="min-width: 2px; min-height: 2px; border-radius: 50%; background-color: green;"
     />
@@ -24,12 +22,21 @@
 
 import {PhotoSticker} from "./types";
 import {isDev} from "../../common/consts";
+import {computed} from "vue";
 
 const props = defineProps<{
   photos: PhotoSticker[]
   stickers: PhotoSticker[]
   teleportEl?: HTMLDivElement
 }>()
+
+const lastStickers = computed<PhotoSticker[]>(prev => {
+  if (props.stickers.length === 0 && prev?.length > 0) {
+    return prev
+  }
+
+  return props.stickers
+})
 
 const emit = defineEmits<{
   (e: 'sendSticker', sticker: PhotoSticker): void
@@ -56,6 +63,16 @@ const emit = defineEmits<{
     border-radius: 8px;
     object-fit: cover;
     cursor: pointer;
+  }
+
+  &.v-enter-active,
+  &.v-leave-active {
+    transition: opacity 0.3s ease;
+  }
+
+  &.v-enter-from,
+  &.v-leave-to {
+    opacity: 0;
   }
 }
 
