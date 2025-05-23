@@ -7,7 +7,7 @@ import {createApp, h, shallowReactive} from "vue";
 import StickersPopup from "./StickersPopup.vue";
 import {VKLocation} from "../../classes/VKLocation";
 import {Album, Photo, PhotoSticker} from "./types";
-import {smartStickerSearch} from "../../classes/AdvancedStickerFilter";
+import {initializeStickerSearch, smartStickerSearch} from "../../classes/AdvancedStickerFilter";
 import {debounce} from "es-toolkit";
 
 
@@ -171,6 +171,7 @@ async function initPhotoStickers() {
         const app = createApp({render: () => h(StickersPopup, stickersStore)});
         app.mount(stickersAppEl);
         document.body.appendChild(stickersAppEl)
+        initializeStickerSearch(stickersStore.photos)
     } catch (ex: any) {
         Logger.error('messenger: initPhotoStickers', ex)
         stickersStore.photos = []
