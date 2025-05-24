@@ -11,13 +11,15 @@ VK Fix - скрипт, пришедший на замену VK Opt. Мы исп�
 // @name VK Fix
 // @description Скрипт для улучшения интерфейса ВКонтакте
 // @author Ivan Petrov (LazyTechwork)
+// @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.0.0
+// @version 1.1.11
 // @include https://vk.com/*
 // @require file://C:/Work/Development/vkfix/dist/vkfix.user.js
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
+// @grant unsafeWindow
 // ==/UserScript==
 ```
 
