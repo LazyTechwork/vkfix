@@ -31,6 +31,8 @@ export class APIInteractor {
             const keys = Object.keys(cParams.data)
 
             for (const key of keys) {
+                if (cParams.data[key] === undefined) continue
+
                 form.set(key, cParams.data[key].toString())
             }
         }

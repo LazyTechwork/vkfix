@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.8
+// @version 1.1.9
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -16530,12 +16530,13 @@ exports.GlobalConfig = GlobalConfig;
 /***/ }),
 
 /***/ 7950:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.smartStickerSearch = smartStickerSearch;
 exports.initializeStickerSearch = initializeStickerSearch;
+const Logger_1 = __webpack_require__(7629);
 class OptimizedStickerFilter {
     defaultOptions = {
         enableSemantic: true,
@@ -16919,7 +16920,8 @@ class OptimizedStickerFilter {
 let filterInstance = null;
 function smartStickerSearch(stickers, userMessage) {
     if (!filterInstance) {
-        filterInstance = new OptimizedStickerFilter();
+        Logger_1.Logger.error('smartStickerSearch: sticker filter not initialized');
+        return [];
     }
     const normalizedMessage = userMessage.toLowerCase().trim();
     if (!shouldSearchStickers(normalizedMessage)) {
@@ -17012,6 +17014,8 @@ class APIInteractor {
         if (cParams.data) {
             const keys = Object.keys(cParams.data);
             for (const key of keys) {
+                if (cParams.data[key] === undefined)
+                    continue;
                 form.set(key, cParams.data[key].toString());
             }
         }
@@ -17537,9 +17541,10 @@ const AdvancedStickerFilter_1 = __webpack_require__(7950);
 const es_toolkit_1 = __webpack_require__(4611);
 const isEnabledPhotoStickers = GlobalConfig_1.GlobalConfig.Config.get('messenger.photo-stickers');
 const photoStickersAlbumIds = GlobalConfig_1.GlobalConfig.Config.get('messenger.photo-stickers.albums');
-let _initPhotoStickers = false;
+let _initPhotoStickers = (0, vue_1.ref)(false); // null - идёт инициализация
+let lastPeerId = (/* unused pure expression or super */ null && (-1));
 const stickersStore = (0, vue_1.shallowReactive)({
-    photos: [], stickers: [], onSendSticker: (sticker) => {
+    photos: [], stickers: [], onSendSticker: async (sticker) => {
         stickersStore.stickers = [];
         Logger_1.Logger.info('messenger: onSendSticker', sticker);
         const peer_id = VKLocation_1.VKLocation.getPeerId();
@@ -17547,28 +17552,59 @@ const stickersStore = (0, vue_1.shallowReactive)({
             Logger_1.Logger.info('messenger: not found peer_id', VKLocation_1.VKLocation.getQueryParams());
             return;
         }
-        ApiInteractor_1.APIInteractor.callApi({
+        const cmid = (await MECommonContext).store.getState().composerDrafts?.[peer_id]?.[0]?.reply?.cmid;
+        await ApiInteractor_1.APIInteractor.callApi({
             method: 'messages.send',
             data: {
                 peer_id,
                 random_id: Math.round(Math.random() * 10000000),
                 attachment: `photo${sticker.photo.owner_id}_${sticker.photo.id}`,
+                forward: cmid === undefined ? undefined : JSON.stringify({
+                    peer_id,
+                    conversation_message_ids: cmid,
+                    is_reply: 1,
+                })
             }
-        }).then(() => {
-            setTimeout(() => {
-                const el = document.querySelector(`.ConvoHistory__wrapper > div[data-scrollbar="scrollable"]`);
-                if (el) {
-                    el.scrollTo(0, el.scrollHeight);
-                }
-            }, 200);
         });
+        // скроллим мессенджер вниз
+        setTimeout(() => {
+            const el = document.querySelector(`.ConvoHistory__wrapper > div[data-scrollbar="scrollable"]`);
+            if (el) {
+                el.scrollTo(0, el.scrollHeight);
+            }
+        }, 200);
+        // сбрасываем текст с поля ввода
         getSpanEditableEl().textContent = '';
+        // сбрасываем ответное сообщение
+        if (cmid !== undefined) {
+            const resetEl = document.querySelector('#popup-sticker-convo-main-history-container .Composer__button.ComposerOverMessage__close');
+            Logger_1.Logger.info('messenger: resetEl', resetEl);
+            resetEl.click();
+        }
     }
 });
+const observerConfig = {
+    childList: true
+};
+const observerCallback = (mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'characterData' || mutation.type === 'childList') {
+            const text = getSpanEditableEl().textContent;
+            if (!text) {
+                Logger_1.Logger.info('messenger observer: content empty:');
+                stickersStore.stickers = [];
+                return;
+            }
+        }
+    });
+};
+const observer = new MutationObserver(observerCallback);
 function getSpanEditableEl() {
     return document.querySelector('.ComposerInput__input');
 }
 async function messenger() {
+    // при повторной инициализации сбрасываем предыдущие подсказки
+    stickersStore.stickers = [];
     if (!isEnabledPhotoStickers) {
         return;
     }
@@ -17595,11 +17631,13 @@ async function messenger() {
         showStickers(spanEditableEl.textContent);
     });
     const debounceStickers = (0, es_toolkit_1.debounce)(showStickers, 200);
+    observer.disconnect();
+    observer.observe(spanEditableEl, observerConfig);
     spanEditableEl.addEventListener('keydown', (e) => {
         if (e.key === 'Shift') {
             return;
         }
-        if (e.key === 'Escape') {
+        if (e.key === 'Escape' || e.key === 'Enter') {
             stickersStore.stickers = [];
             return;
         }
@@ -17636,10 +17674,18 @@ async function getAlbumsIds() {
     return albums.map(x => x.id);
 }
 async function initPhotoStickers() {
-    if (!isEnabledPhotoStickers || _initPhotoStickers) {
+    if (!isEnabledPhotoStickers || _initPhotoStickers.value === true) {
         return;
     }
-    _initPhotoStickers = true;
+    // если инициализация уже идёт, ждем завершения
+    if (_initPhotoStickers.value === null) {
+        return new Promise((resolve) => {
+            (0, vue_1.watch)(_initPhotoStickers, () => {
+                resolve();
+            }, { once: true });
+        });
+    }
+    _initPhotoStickers.value = null;
     try {
         const albumIds = await getAlbumsIds();
         for (const album_id of albumIds) {
@@ -17670,12 +17716,13 @@ async function initPhotoStickers() {
         app.mount(stickersAppEl);
         document.body.appendChild(stickersAppEl);
         (0, AdvancedStickerFilter_1.initializeStickerSearch)(stickersStore.photos);
+        _initPhotoStickers.value = true;
     }
     catch (ex) {
         Logger_1.Logger.error('messenger: initPhotoStickers', ex);
         stickersStore.photos = [];
         stickersStore.stickers = [];
-        _initPhotoStickers = false;
+        _initPhotoStickers.value = false;
     }
 }
 async function showStickers(text) {
@@ -17684,10 +17731,17 @@ async function showStickers(text) {
         return;
     }
     await initPhotoStickers();
+    if (_initPhotoStickers.value === false) {
+        return;
+    }
     const textLower = text.toLocaleLowerCase();
     const words = getWords(textLower);
     Logger_1.Logger.info(`messenger words`, words);
     stickersStore.stickers = (0, AdvancedStickerFilter_1.smartStickerSearch)(stickersStore.photos, textLower);
+    // предотвращаем появление стикеров после отправки сообщения
+    if (getSpanEditableEl().textContent !== text) {
+        stickersStore.stickers = [];
+    }
     Logger_1.Logger.info(`messenger find stickers`, stickersStore.stickers);
     if (!stickersStore.stickers.length) {
         Logger_1.Logger.info('messenger: not found stickers');
@@ -26254,7 +26308,7 @@ var __webpack_unused_export__;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.8
+// @version 1.1.9
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue

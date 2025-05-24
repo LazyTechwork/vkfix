@@ -248,6 +248,11 @@ async function showStickers(text: string) {
     const words = getWords(textLower)
     Logger.info(`messenger words`, words)
     stickersStore.stickers = smartStickerSearch(stickersStore.photos, textLower);
+    // предотвращаем появление стикеров после отправки сообщения
+    if (getSpanEditableEl().textContent !== text) {
+        stickersStore.stickers = []
+    }
+
     Logger.info(`messenger find stickers`, stickersStore.stickers)
     if (!stickersStore.stickers.length) {
         Logger.info('messenger: not found stickers')
