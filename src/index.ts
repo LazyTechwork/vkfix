@@ -2,7 +2,7 @@
 // @name VK Fix
 // @description Скрипт для улучшения интерфейса ВКонтакте
 // @author Ivan Petrov (LazyTechwork)
-// @contributors Ivan Mel (xeleoss)
+// @contributors Ivan Mel (ivanmem)
 // @license MIT
 // @version 1.1.11
 // @include https://vk.com/*
