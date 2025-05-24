@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.10
+// @version 1.1.11
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue

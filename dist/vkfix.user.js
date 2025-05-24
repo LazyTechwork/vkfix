@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.10
+// @version 1.1.11
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -13343,7 +13343,7 @@ const initDirectivesForSSR = () => {
 
 /***/ }),
 
-/***/ 9842:
+/***/ 8739:
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -13358,7 +13358,7 @@ const initDirectivesForSSR = () => {
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, `.vkfix-stickers-popup{position:absolute;top:-102px;left:0;height:100px;width:100%;display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:1px;z-index:2}.vkfix-stickers-popup img{height:99px;outline:1px solid #fff;outline-offset:-1px;border-radius:8px;object-fit:cover;cursor:pointer}.vkfix-stickers-popup.v-enter-active,.vkfix-stickers-popup.v-leave-active{transition:opacity .3s ease}.vkfix-stickers-popup.v-enter-from,.vkfix-stickers-popup.v-leave-to{opacity:0}.ConvoMain:has(.vkfix-stickers-popup) .ConvoComposer__stickersPanel{display:none !important}`, ""]);
+___CSS_LOADER_EXPORT___.push([module.id, `.vkfix-stickers-popup{position:absolute;top:-102px;left:0;height:100px;width:100%;display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:1px;z-index:2;pointer-events:none}.vkfix-stickers-popup>*{pointer-events:all}.vkfix-stickers-popup img{height:99px;outline:1px solid #fff;outline-offset:-1px;border-radius:8px;object-fit:cover;cursor:pointer}.vkfix-stickers-popup.v-enter-active,.vkfix-stickers-popup.v-leave-active{transition:opacity .3s ease}.vkfix-stickers-popup.v-enter-from,.vkfix-stickers-popup.v-leave-to{opacity:0}.ConvoMain:has(.vkfix-stickers-popup) .ConvoComposer__stickersPanel{display:none !important}`, ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -17797,7 +17797,7 @@ const querySelectorWithTimeout_1 = __webpack_require__(6090);
 const ApiInteractor_1 = __webpack_require__(8410);
 const extractQuotedTexts_1 = __webpack_require__(4437);
 const vue_1 = __webpack_require__(7527);
-const StickersPopup_vue_1 = __webpack_require__(2601);
+const StickersPopup_vue_1 = __webpack_require__(851);
 const VKLocation_1 = __webpack_require__(7845);
 const AdvancedStickerFilter_1 = __webpack_require__(7950);
 const es_toolkit_1 = __webpack_require__(4611);
@@ -17832,6 +17832,9 @@ const debounceShowStickers = (0, es_toolkit_1.debounce)(showStickers, 200);
 (0, core_1.useEventListener)(composerInputInput, 'focus', () => {
     showStickers(composerInputInput.value.textContent).then();
 });
+(0, core_1.useEventListener)(composerInputInput, 'blur', () => {
+    stickersStore.stickers = [];
+});
 (0, vue_1.watch)(popupStickerEl, (popupStickerEl) => {
     if (!popupStickerEl) {
         return;
@@ -17839,6 +17842,7 @@ const debounceShowStickers = (0, es_toolkit_1.debounce)(showStickers, 200);
     convoMainComposer.value = popupStickerEl.querySelector('.ConvoMain__composer');
 }, { flush: 'sync' });
 (0, vue_1.watch)(convoMainComposer, (convoMainComposer) => {
+    Logger_1.Logger.info('messenger: watch convoMainComposer', convoMainComposer);
     if (!convoMainComposer) {
         return;
     }
@@ -17847,6 +17851,7 @@ const debounceShowStickers = (0, es_toolkit_1.debounce)(showStickers, 200);
     updateComposerInputInput();
 }, { flush: 'sync' });
 (0, vue_1.watch)(composerInputInput, (composerInputInput) => {
+    Logger_1.Logger.info('messenger: watch composerInputInput', composerInputInput);
     if (!composerInputInput) {
         return;
     }
@@ -17913,6 +17918,7 @@ const observerConfig = {
     childList: true
 };
 function updateComposerInputInput() {
+    stickersStore.stickers = [];
     composerInputInput.value = convoMainComposer.value?.querySelector('.ComposerInput__input');
     if (!composerInputInput.value) {
         Logger_1.Logger.info('messenger: not found .ComposerInput__input');
@@ -18505,7 +18511,7 @@ function default_1() {
 
 /***/ }),
 
-/***/ 2601:
+/***/ 851:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 // ESM COMPAT FLAG
@@ -18539,9 +18545,9 @@ var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleE
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
 var styleTagTransform = __webpack_require__(1113);
 var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=675edbc3&lang=scss
-var StickersPopupvue_type_style_index_0_id_675edbc3_lang_scss = __webpack_require__(9842);
-;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=675edbc3&lang=scss
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=6de964ca&lang=scss
+var StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss = __webpack_require__(8739);
+;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=6de964ca&lang=scss
 
       
       
@@ -18561,14 +18567,14 @@ options.insert = insertBySelector_default().bind(null, "head");
 options.domAPI = (styleDomAPI_default());
 options.insertStyleElement = (insertStyleElement_default());
 
-var update = injectStylesIntoStyleTag_default()(StickersPopupvue_type_style_index_0_id_675edbc3_lang_scss/* default */.A, options);
+var update = injectStylesIntoStyleTag_default()(StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss/* default */.A, options);
 
 
 
 
-       /* harmony default export */ const messenger_StickersPopupvue_type_style_index_0_id_675edbc3_lang_scss = (StickersPopupvue_type_style_index_0_id_675edbc3_lang_scss/* default */.A && StickersPopupvue_type_style_index_0_id_675edbc3_lang_scss/* default */.A.locals ? StickersPopupvue_type_style_index_0_id_675edbc3_lang_scss/* default */.A.locals : undefined);
+       /* harmony default export */ const messenger_StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss = (StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss/* default */.A && StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss/* default */.A.locals ? StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss/* default */.A.locals : undefined);
 
-;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=675edbc3&lang=scss
+;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=6de964ca&lang=scss
 
 ;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue
 
@@ -36601,7 +36607,7 @@ var __webpack_unused_export__;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (xeleoss)
 // @license MIT
-// @version 1.1.10
+// @version 1.1.11
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
