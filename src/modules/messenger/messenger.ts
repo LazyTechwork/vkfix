@@ -58,6 +58,7 @@ watch(popupStickerEl, (popupStickerEl) => {
 }, {flush: 'sync'})
 
 watch(convoMainComposer, (convoMainComposer) => {
+    Logger.info('messenger: watch convoMainComposer', convoMainComposer)
     if (!convoMainComposer) {
         return
     }
@@ -68,6 +69,7 @@ watch(convoMainComposer, (convoMainComposer) => {
 }, {flush: 'sync'})
 
 watch(composerInputInput, (composerInputInput) => {
+    Logger.info('messenger: watch composerInputInput', composerInputInput)
     if (!composerInputInput) {
         return
     }

@@ -55,6 +55,11 @@ const emit = defineEmits<{
   overflow-y: hidden;
   padding: 1px;
   z-index: 2;
+  pointer-events: none;
+
+  & > * {
+    pointer-events: all;
+  }
 
   img {
     height: 99px;
