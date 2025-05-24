@@ -62,11 +62,9 @@ watch(convoMainComposer, (convoMainComposer) => {
         return
     }
 
-    composerInputInput.value = convoMainComposer.querySelector<HTMLSpanElement>('.ComposerInput__input')
-    if (!composerInputInput.value) {
-        Logger.info('messenger: not found .ComposerInput__input')
-        return
-    }
+    observer.disconnect()
+    observer.observe(convoMainComposer, observerConfig)
+    updateComposerInputInput()
 }, {flush: 'sync'})
 
 watch(composerInputInput, (composerInputInput) => {
@@ -74,14 +72,12 @@ watch(composerInputInput, (composerInputInput) => {
         return
     }
 
-    observer.disconnect()
-    observer.observe(composerInputInput, observerConfig)
     stickersStore.teleportEl = convoMainComposer.value.querySelector('.ConvoComposer__inputPanel')
     messageText.value = composerInputInput.textContent
 }, {flush: 'sync'})
 
 watch([composerInputInput, messageText], () => {
-    debounceShowStickers(messageText.value)
+    showStickers(messageText.value).then()
 })
 
 // возвращает инфу о текущем вводе сообщения (например reply)
@@ -129,7 +125,7 @@ const stickersStore = shallowReactive<{
 
         // скроллим мессенджер вниз
         setTimeout(() => {
-            const el = document.querySelector(`.ConvoHistory__wrapper > div[data-scrollbar="scrollable"]`)
+            const el = popupStickerEl.value.querySelector(`.ConvoHistory__wrapper > div[data-scrollbar="scrollable"]`)
             if (el) {
                 el.scrollTo(0, el.scrollHeight)
             }
@@ -142,7 +138,7 @@ const stickersStore = shallowReactive<{
 
         // сбрасываем ответное сообщение
         if (cmid !== undefined) {
-            const resetEl = document.querySelector<HTMLButtonElement>('#popup-sticker-convo-main-history-container .Composer__button.ComposerOverMessage__close')
+            const resetEl = popupStickerEl.value.querySelector<HTMLButtonElement>('.Composer__button.ComposerOverMessage__close')
             Logger.info('onSendSticker: resetEl', resetEl)
             resetEl.click()
         }
@@ -154,15 +150,25 @@ const observerConfig: MutationObserverInit = {
     childList: true
 };
 
+function updateComposerInputInput() {
+    composerInputInput.value = convoMainComposer.value?.querySelector<HTMLSpanElement>('.ComposerInput__input')
+    if (!composerInputInput.value) {
+        Logger.info('messenger: not found .ComposerInput__input')
+        return
+    }
+
+    messageText.value = composerInputInput.value?.textContent ?? '';
+    if (!messageText.value) {
+        Logger.info('messenger observer: messageText empty:');
+        stickersStore.stickers = []
+        return
+    }
+}
+
 const observerCallback: MutationCallback = (mutations) => {
     mutations.forEach((mutation) => {
         if (mutation.type === 'characterData' || mutation.type === 'childList') {
-            const text = composerInputInput.value?.textContent;
-            if (!text) {
-                Logger.info('messenger observer: content empty:');
-                stickersStore.stickers = []
-                return
-            }
+            updateComposerInputInput()
         }
     });
 };
