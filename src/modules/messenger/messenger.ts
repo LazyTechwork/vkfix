@@ -21,7 +21,7 @@ const stickersStore = shallowReactive<{
     teleportEl?: HTMLDivElement
     onSendSticker(sticker: PhotoSticker): void
 }>({
-    photos: [], stickers: [], onSendSticker: (sticker: PhotoSticker) => {
+    photos: [], stickers: [], onSendSticker: async (sticker: PhotoSticker) => {
         stickersStore.stickers = []
         Logger.info('messenger: onSendSticker', sticker)
         const peer_id = VKLocation.getPeerId()
@@ -29,23 +29,39 @@ const stickersStore = shallowReactive<{
             Logger.info('messenger: not found peer_id', VKLocation.getQueryParams())
             return
         }
-        APIInteractor.callApi({
+
+        const cmid: number | undefined = (await MECommonContext).store.getState().composerDrafts?.[peer_id]?.[0]?.reply?.cmid
+        await APIInteractor.callApi({
             method: 'messages.send',
             data: {
                 peer_id,
                 random_id: Math.round(Math.random() * 10000000),
                 attachment: `photo${sticker.photo.owner_id}_${sticker.photo.id}`,
+                forward: cmid === undefined ? undefined : JSON.stringify({
+                    peer_id,
+                    conversation_message_ids: cmid,
+                    is_reply: 1,
+                })
             }
-        }).then(() => {
-            setTimeout(() => {
-                const el = document.querySelector(`.ConvoHistory__wrapper > div[data-scrollbar="scrollable"]`)
-                if (el) {
-                    el.scrollTo(0, el.scrollHeight)
-                }
-            }, 200)
-
         })
+
+        // скроллим мессенджер вниз
+        setTimeout(() => {
+            const el = document.querySelector(`.ConvoHistory__wrapper > div[data-scrollbar="scrollable"]`)
+            if (el) {
+                el.scrollTo(0, el.scrollHeight)
+            }
+        }, 200)
+
+        // сбрасываем текст с поля ввода
         getSpanEditableEl().textContent = ''
+
+        // сбрасываем ответное сообщение
+        if (cmid !== undefined) {
+            const resetEl = document.querySelector<HTMLButtonElement>('#popup-sticker-convo-main-history-container .Composer__button.ComposerOverMessage__close')
+            Logger.info('messenger: resetEl', resetEl)
+            resetEl.click()
+        }
     }
 })
 
