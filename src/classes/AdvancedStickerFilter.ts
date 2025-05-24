@@ -1,4 +1,5 @@
 import {PhotoSticker} from "../modules/messenger/types";
+import {Logger} from "./Logger";
 
 interface SearchResult {
     sticker: PhotoSticker;
@@ -108,7 +109,7 @@ class OptimizedStickerFilter {
             this.buildIndex(stickers);
         }
 
-        const opts = { ...this.defaultOptions, ...options };
+        const opts = {...this.defaultOptions, ...options};
         const normalizedQuery = this.normalizeQuery(query);
         const queryWords = this.extractWords(normalizedQuery);
 
@@ -261,7 +262,7 @@ class OptimizedStickerFilter {
         match: MatchDetails
     ): void {
         if (!stickerScores.has(sticker)) {
-            stickerScores.set(sticker, { score: 0, matches: [] });
+            stickerScores.set(sticker, {score: 0, matches: []});
         }
 
         const data = stickerScores.get(sticker)!;
@@ -478,7 +479,8 @@ export function smartStickerSearch(
     userMessage: string
 ): PhotoSticker[] {
     if (!filterInstance) {
-        filterInstance = new OptimizedStickerFilter();
+        Logger.error('smartStickerSearch: sticker filter not initialized');
+        return []
     }
 
     const normalizedMessage = userMessage.toLowerCase().trim();

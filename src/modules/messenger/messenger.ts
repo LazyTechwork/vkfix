@@ -3,7 +3,7 @@ import {GlobalConfig} from "../../GlobalConfig";
 import {querySelectorWithTimeout} from "../../common/helpers/querySelectorWithTimeout";
 import {APIInteractor} from "../../classes/ApiInteractor";
 import {extractQuotedTexts} from "../../common/helpers/extractQuotedTexts";
-import {createApp, h, shallowReactive} from "vue";
+import {createApp, h, ref, shallowReactive, watch} from "vue";
 import StickersPopup from "./StickersPopup.vue";
 import {VKLocation} from "../../classes/VKLocation";
 import {Album, Photo, PhotoSticker} from "./types";
@@ -13,7 +13,8 @@ import {debounce} from "es-toolkit";
 
 const isEnabledPhotoStickers = GlobalConfig.Config.get('messenger.photo-stickers') as boolean;
 const photoStickersAlbumIds = GlobalConfig.Config.get('messenger.photo-stickers.albums') as string;
-let _initPhotoStickers = false
+let _initPhotoStickers = ref<boolean | null>(false) // null - идёт инициализация
+let lastPeerId = -1
 
 const stickersStore = shallowReactive<{
     photos: PhotoSticker[]
@@ -65,11 +66,34 @@ const stickersStore = shallowReactive<{
     }
 })
 
+
+const observerConfig: MutationObserverInit = {
+    childList: true
+};
+
+const observerCallback: MutationCallback = (mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'characterData' || mutation.type === 'childList') {
+            const text = getSpanEditableEl().textContent;
+            if (!text) {
+                Logger.info('messenger observer: content empty:');
+                stickersStore.stickers = []
+                return
+            }
+        }
+    });
+};
+
+const observer = new MutationObserver(observerCallback);
+
 function getSpanEditableEl() {
     return document.querySelector<HTMLSpanElement>('.ComposerInput__input')
 }
 
 export async function messenger() {
+    // при повторной инициализации сбрасываем предыдущие подсказки
+    stickersStore.stickers = []
+
     if (!isEnabledPhotoStickers) {
         return
     }
@@ -102,12 +126,15 @@ export async function messenger() {
 
     const debounceStickers = debounce(showStickers, 200)
 
+    observer.disconnect()
+    observer.observe(spanEditableEl, observerConfig)
+
     spanEditableEl.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Shift') {
             return
         }
 
-        if (e.key === 'Escape') {
+        if (e.key === 'Escape' || e.key === 'Enter') {
             stickersStore.stickers = []
             return
         }
@@ -150,12 +177,21 @@ async function getAlbumsIds(): Promise<number[]> {
     return albums.map(x => x.id)
 }
 
-async function initPhotoStickers() {
-    if (!isEnabledPhotoStickers || _initPhotoStickers) {
+async function initPhotoStickers(): Promise<void> {
+    if (!isEnabledPhotoStickers || _initPhotoStickers.value === true) {
         return
     }
 
-    _initPhotoStickers = true
+    // если инициализация уже идёт, ждем завершения
+    if (_initPhotoStickers.value === null) {
+        return new Promise((resolve) => {
+            watch(_initPhotoStickers, () => {
+                resolve()
+            }, {once: true})
+        })
+    }
+
+    _initPhotoStickers.value = null
     try {
         const albumIds = await getAlbumsIds()
         for (const album_id of albumIds) {
@@ -188,11 +224,12 @@ async function initPhotoStickers() {
         app.mount(stickersAppEl);
         document.body.appendChild(stickersAppEl)
         initializeStickerSearch(stickersStore.photos)
+        _initPhotoStickers.value = true
     } catch (ex: any) {
         Logger.error('messenger: initPhotoStickers', ex)
         stickersStore.photos = []
         stickersStore.stickers = []
-        _initPhotoStickers = false
+        _initPhotoStickers.value = false
     }
 }
 
@@ -203,6 +240,10 @@ async function showStickers(text: string) {
     }
 
     await initPhotoStickers()
+    if (_initPhotoStickers.value === false) {
+        return
+    }
+
     const textLower = text.toLocaleLowerCase()
     const words = getWords(textLower)
     Logger.info(`messenger words`, words)
