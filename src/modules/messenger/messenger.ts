@@ -49,6 +49,10 @@ useEventListener(composerInputInput, 'focus', () => {
     showStickers(composerInputInput.value.textContent).then()
 })
 
+useEventListener(composerInputInput, 'blur', () => {
+    stickersStore.stickers = []
+})
+
 watch(popupStickerEl, (popupStickerEl) => {
     if (!popupStickerEl) {
         return
@@ -153,6 +157,7 @@ const observerConfig: MutationObserverInit = {
 };
 
 function updateComposerInputInput() {
+    stickersStore.stickers = []
     composerInputInput.value = convoMainComposer.value?.querySelector<HTMLSpanElement>('.ComposerInput__input')
     if (!composerInputInput.value) {
         Logger.info('messenger: not found .ComposerInput__input')
