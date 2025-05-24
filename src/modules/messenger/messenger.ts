@@ -9,12 +9,91 @@ import {VKLocation} from "../../classes/VKLocation";
 import {Album, Photo, PhotoSticker} from "./types";
 import {initializeStickerSearch, smartStickerSearch} from "../../classes/AdvancedStickerFilter";
 import {debounce} from "es-toolkit";
+import {useEventListener} from "@vueuse/core";
 
 
 const isEnabledPhotoStickers = GlobalConfig.Config.get('messenger.photo-stickers') as boolean;
 const photoStickersAlbumIds = GlobalConfig.Config.get('messenger.photo-stickers.albums') as string;
 let _initPhotoStickers = ref<boolean | null>(false) // null - идёт инициализация
-let lastPeerId = -1
+const popupStickerEl = ref<HTMLDivElement | null>(null)
+const convoMainComposer = ref<HTMLDivElement | null>(null)
+const composerInputInput = ref<HTMLSpanElement | null>(null)
+const messageText = ref('')
+const debounceShowStickers = debounce(showStickers, 200)
+
+useEventListener(composerInputInput, 'keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Shift') {
+        return
+    }
+
+    if (e.key === 'Escape' || e.key === 'Enter' || !composerInputInput.value) {
+        stickersStore.stickers = []
+        return
+    }
+
+    setTimeout(() => {
+        if (!composerInputInput.value) {
+            return
+        }
+
+        stickersStore.stickers = []
+        messageText.value = composerInputInput.value.textContent
+        debounceShowStickers(composerInputInput.value.textContent)
+        Logger.info(`messenger: keydown ${e.key}, text: ${composerInputInput.value.textContent}`)
+    })
+})
+
+useEventListener(composerInputInput, 'input', initPhotoStickers)
+
+useEventListener(composerInputInput, 'focus', () => {
+    showStickers(composerInputInput.value.textContent).then()
+})
+
+watch(popupStickerEl, (popupStickerEl) => {
+    if (!popupStickerEl) {
+        return
+    }
+
+    convoMainComposer.value = popupStickerEl.querySelector('.ConvoMain__composer')
+}, {flush: 'sync'})
+
+watch(convoMainComposer, (convoMainComposer) => {
+    if (!convoMainComposer) {
+        return
+    }
+
+    composerInputInput.value = convoMainComposer.querySelector<HTMLSpanElement>('.ComposerInput__input')
+    if (!composerInputInput.value) {
+        Logger.info('messenger: not found .ComposerInput__input')
+        return
+    }
+}, {flush: 'sync'})
+
+watch(composerInputInput, (composerInputInput) => {
+    if (!composerInputInput) {
+        return
+    }
+
+    observer.disconnect()
+    observer.observe(composerInputInput, observerConfig)
+    stickersStore.teleportEl = convoMainComposer.value.querySelector('.ConvoComposer__inputPanel')
+    messageText.value = composerInputInput.textContent
+}, {flush: 'sync'})
+
+watch([composerInputInput, messageText], () => {
+    debounceShowStickers(messageText.value)
+})
+
+// возвращает инфу о текущем вводе сообщения (например reply)
+async function getComposerDrafts(): Promise<ComposerDraft[]> {
+    const peer_id = VKLocation.getPeerId()
+    if (peer_id === undefined) {
+        Logger.info('messenger: not found peer_id', VKLocation.getQueryParams())
+        return
+    }
+
+    return (await MECommonContext).store.getState().composerDrafts?.[peer_id] ?? []
+}
 
 const stickersStore = shallowReactive<{
     photos: PhotoSticker[]
@@ -24,14 +103,16 @@ const stickersStore = shallowReactive<{
 }>({
     photos: [], stickers: [], onSendSticker: async (sticker: PhotoSticker) => {
         stickersStore.stickers = []
-        Logger.info('messenger: onSendSticker', sticker)
+        Logger.info('onSendSticker: sticker', sticker)
         const peer_id = VKLocation.getPeerId()
         if (peer_id === undefined) {
-            Logger.info('messenger: not found peer_id', VKLocation.getQueryParams())
+            Logger.info('onSendSticker: not found peer_id', VKLocation.getQueryParams())
             return
         }
 
-        const cmid: number | undefined = (await MECommonContext).store.getState().composerDrafts?.[peer_id]?.[0]?.reply?.cmid
+        const composerDrafts = await getComposerDrafts()
+        Logger.info('onSendSticker: composerDrafts', composerDrafts)
+        const cmid: number | undefined = composerDrafts.length !== 1 ? undefined : composerDrafts[0]?.reply?.cmid
         await APIInteractor.callApi({
             method: 'messages.send',
             data: {
@@ -55,12 +136,14 @@ const stickersStore = shallowReactive<{
         }, 200)
 
         // сбрасываем текст с поля ввода
-        getSpanEditableEl().textContent = ''
+        if (composerInputInput.value) {
+            composerInputInput.value.textContent = ''
+        }
 
         // сбрасываем ответное сообщение
         if (cmid !== undefined) {
             const resetEl = document.querySelector<HTMLButtonElement>('#popup-sticker-convo-main-history-container .Composer__button.ComposerOverMessage__close')
-            Logger.info('messenger: resetEl', resetEl)
+            Logger.info('onSendSticker: resetEl', resetEl)
             resetEl.click()
         }
     }
@@ -74,7 +157,7 @@ const observerConfig: MutationObserverInit = {
 const observerCallback: MutationCallback = (mutations) => {
     mutations.forEach((mutation) => {
         if (mutation.type === 'characterData' || mutation.type === 'childList') {
-            const text = getSpanEditableEl().textContent;
+            const text = composerInputInput.value?.textContent;
             if (!text) {
                 Logger.info('messenger observer: content empty:');
                 stickersStore.stickers = []
@@ -86,8 +169,8 @@ const observerCallback: MutationCallback = (mutations) => {
 
 const observer = new MutationObserver(observerCallback);
 
-function getSpanEditableEl() {
-    return document.querySelector<HTMLSpanElement>('.ComposerInput__input')
+function getConvoComposerEditing() {
+    return popupStickerEl.value?.querySelector('.ConvoComposer__editing')
 }
 
 export async function messenger() {
@@ -105,50 +188,15 @@ export async function messenger() {
         return;
     }
 
-    const popupStickerEl = await querySelectorWithTimeout({
+    popupStickerEl.value = await querySelectorWithTimeout<HTMLDivElement>({
         selectors: `#popup-sticker-convo-main-history-container`
     });
-    if (!popupStickerEl) {
+    if (!popupStickerEl.value) {
         Logger.info('messenger: not found #popup-sticker-convo-main-history-container')
         return;
     }
 
-    const spanEditableEl = getSpanEditableEl()
-    if (!spanEditableEl) {
-        Logger.info('messenger: not found .ComposerInput__input')
-        return
-    }
-
-    spanEditableEl.addEventListener('input', initPhotoStickers)
-    spanEditableEl.addEventListener('focus', () => {
-        showStickers(spanEditableEl.textContent)
-    })
-
-    const debounceStickers = debounce(showStickers, 200)
-
-    observer.disconnect()
-    observer.observe(spanEditableEl, observerConfig)
-
-    spanEditableEl.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Shift') {
-            return
-        }
-
-        if (e.key === 'Escape' || e.key === 'Enter') {
-            stickersStore.stickers = []
-            return
-        }
-
-        setTimeout(() => {
-            stickersStore.stickers = []
-            Logger.info(`messenger: keydown ${e.key}, text: ${spanEditableEl.textContent}`)
-            debounceStickers(spanEditableEl.textContent)
-        })
-    })
-
-    stickersStore.teleportEl = document.querySelector('.ConvoComposer__inputPanel')
-    await showStickers(spanEditableEl.textContent)
-    Logger.info('messenger sucess!', spanEditableEl)
+    Logger.info('messenger sucess!', composerInputInput.value)
 }
 
 
@@ -234,7 +282,13 @@ async function initPhotoStickers(): Promise<void> {
 }
 
 async function showStickers(text: string) {
-    if (text === '') {
+    if (text === '' || !composerInputInput.value) {
+        stickersStore.stickers = []
+        return
+    }
+
+    // Если найден сonvoComposerEditing, значит пользователь редактирует сообщение и подсказки отображать не нужно.
+    if (getConvoComposerEditing()) {
         stickersStore.stickers = []
         return
     }
@@ -249,7 +303,7 @@ async function showStickers(text: string) {
     Logger.info(`messenger words`, words)
     stickersStore.stickers = smartStickerSearch(stickersStore.photos, textLower);
     // предотвращаем появление стикеров после отправки сообщения
-    if (getSpanEditableEl().textContent !== text) {
+    if (composerInputInput.value.textContent !== text) {
         stickersStore.stickers = []
     }
 
