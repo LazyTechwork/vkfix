@@ -21,82 +21,6 @@ const composerInputInput = ref<HTMLSpanElement | null>(null)
 const messageText = ref('')
 const debounceShowStickers = debounce(showStickers, 200)
 
-useEventListener(composerInputInput, 'keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Shift') {
-        return
-    }
-
-    if (e.key === 'Escape' || e.key === 'Enter' || !composerInputInput.value) {
-        stickersStore.stickers = []
-        return
-    }
-
-    setTimeout(() => {
-        if (!composerInputInput.value) {
-            return
-        }
-
-        stickersStore.stickers = []
-        messageText.value = composerInputInput.value.textContent
-        debounceShowStickers(composerInputInput.value.textContent)
-        Logger.info(`messenger: keydown ${e.key}, text: ${composerInputInput.value.textContent}`)
-    })
-})
-
-useEventListener(composerInputInput, 'input', initPhotoStickers)
-
-useEventListener(composerInputInput, 'focus', () => {
-    showStickers(composerInputInput.value.textContent).then()
-})
-
-useEventListener(composerInputInput, 'blur', () => {
-    stickersStore.stickers = []
-})
-
-watch(popupStickerEl, (popupStickerEl) => {
-    if (!popupStickerEl) {
-        return
-    }
-
-    convoMainComposer.value = popupStickerEl.querySelector('.ConvoMain__composer')
-}, {flush: 'sync'})
-
-watch(convoMainComposer, (convoMainComposer) => {
-    Logger.info('messenger: watch convoMainComposer', convoMainComposer)
-    if (!convoMainComposer) {
-        return
-    }
-
-    observer.disconnect()
-    observer.observe(convoMainComposer, observerConfig)
-    updateComposerInputInput()
-}, {flush: 'sync'})
-
-watch(composerInputInput, (composerInputInput) => {
-    Logger.info('messenger: watch composerInputInput', composerInputInput)
-    if (!composerInputInput) {
-        return
-    }
-
-    stickersStore.teleportEl = convoMainComposer.value.querySelector('.ConvoComposer__inputPanel')
-    messageText.value = composerInputInput.textContent
-}, {flush: 'sync'})
-
-watch([composerInputInput, messageText], () => {
-    showStickers(messageText.value).then()
-})
-
-// возвращает инфу о текущем вводе сообщения (например reply)
-async function getComposerDrafts(): Promise<ComposerDraft[]> {
-    const peer_id = VKLocation.getPeerId()
-    if (peer_id === undefined) {
-        Logger.info('messenger: not found peer_id', VKLocation.getQueryParams())
-        return
-    }
-
-    return (await MECommonContext).store.getState().composerDrafts?.[peer_id] ?? []
-}
-
 const stickersStore = shallowReactive<{
     photos: PhotoSticker[]
     stickers: PhotoSticker[]
@@ -150,6 +74,90 @@ const stickersStore = shallowReactive<{
         }
     }
 })
+
+useEventListener(composerInputInput, 'keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Shift') {
+        return
+    }
+
+    if ((e.key === 'Escape' || e.key === 'Enter' || !composerInputInput.value)) {
+        if (stickersStore.stickers.length) {
+            if (e.key === 'Escape') {
+                e.stopPropagation()
+            }
+
+            stickersStore.stickers = []
+        }
+
+        // даже если стикеров нет, всё равно дальше не обрабатываем, чтобы стикеры повторно не появились после скрытия вкшных стикеров на Escape
+        return
+    }
+
+    setTimeout(() => {
+        if (!composerInputInput.value) {
+            return
+        }
+
+        stickersStore.stickers = []
+        messageText.value = composerInputInput.value.textContent
+        debounceShowStickers(composerInputInput.value.textContent)
+        Logger.info(`messenger: keydown ${e.key}, text: ${composerInputInput.value.textContent}`)
+    })
+}, {capture: true})
+
+useEventListener(composerInputInput, 'input', initPhotoStickers)
+
+useEventListener(composerInputInput, 'focus', () => {
+    showStickers(composerInputInput.value.textContent).then()
+})
+
+useEventListener(composerInputInput, 'blur', () => {
+    stickersStore.stickers = []
+})
+
+watch(popupStickerEl, (popupStickerEl) => {
+    if (!popupStickerEl) {
+        return
+    }
+
+    convoMainComposer.value = popupStickerEl.querySelector('.ConvoMain__composer')
+}, {flush: 'sync'})
+
+watch(convoMainComposer, (convoMainComposer) => {
+    Logger.info('messenger: watch convoMainComposer', convoMainComposer)
+    if (!convoMainComposer) {
+        return
+    }
+
+    observer.disconnect()
+    observer.observe(convoMainComposer, observerConfig)
+    updateComposerInputInput()
+}, {flush: 'sync'})
+
+watch(composerInputInput, (composerInputInput) => {
+    Logger.info('messenger: watch composerInputInput', composerInputInput)
+    if (!composerInputInput) {
+        return
+    }
+
+    stickersStore.teleportEl = convoMainComposer.value.querySelector('.ConvoMain__composerContent.ConvoComposer')
+    messageText.value = composerInputInput.textContent
+}, {flush: 'sync'})
+
+watch([composerInputInput, messageText], () => {
+    showStickers(messageText.value).then()
+})
+
+// возвращает инфу о текущем вводе сообщения (например reply)
+async function getComposerDrafts(): Promise<ComposerDraft[]> {
+    const peer_id = VKLocation.getPeerId()
+    if (peer_id === undefined) {
+        Logger.info('messenger: not found peer_id', VKLocation.getQueryParams())
+        return
+    }
+
+    return (await MECommonContext).store.getState().composerDrafts?.[peer_id] ?? []
+}
 
 
 const observerConfig: MutationObserverInit = {

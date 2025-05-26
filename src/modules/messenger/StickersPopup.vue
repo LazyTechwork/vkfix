@@ -14,7 +14,7 @@
     <div
         v-if="isDev"
         :title="`Загружено фотографий-стикеров: ${photos.length}`"
-        style="min-width: 2px; min-height: 2px; border-radius: 50%; background-color: green;"
+        style="position: absolute; right: 0; bottom: 0; min-width: 2px; min-height: 2px; border-radius: 50%; background-color: green;"
     />
   </teleport>
 </template>
@@ -72,7 +72,7 @@ const emit = defineEmits<{
 
   &.v-enter-active,
   &.v-leave-active {
-    transition: opacity 0.3s ease;
+    transition: opacity 0.5s ease;
   }
 
   &.v-enter-from,
