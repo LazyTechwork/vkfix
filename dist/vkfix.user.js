@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.12
+// @version 1.1.13
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -16799,6 +16799,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.smartStickerSearch = smartStickerSearch;
 exports.initializeStickerSearch = initializeStickerSearch;
 const Logger_1 = __webpack_require__(7629);
+const switchKeyboardLayout_1 = __webpack_require__(5677);
 class OptimizedStickerFilter {
     defaultOptions = {
         enableSemantic: true,
@@ -17074,106 +17075,104 @@ class OptimizedStickerFilter {
     buildSemanticMap() {
         const semanticPairs = [
             // Животные
-            ['кот', ['котик', 'кошка', 'киса', 'мурка', 'котэ', 'котя', 'мяу', 'мурзик']],
-            ['собака', ['пес', 'щенок', 'песик', 'собачка', 'догго', 'пёсель', 'гав', 'барбос']],
-            ['птица', ['птичка', 'чирик', 'воробей', 'голубь', 'попугай']],
-            ['рыба', ['рыбка', 'золотая рыбка', 'акула', 'дельфин']],
-            ['медведь', ['мишка', 'косолапый', 'топтыгин', 'умка']],
-            ['заяц', ['зайчик', 'кролик', 'ушастик', 'косой']],
+            ['кот', 'котик', 'кошка', 'киса', 'мурка', 'котэ', 'котя', 'мяу', 'мурзик',],
+            ['собака', 'пес', 'щенок', 'песик', 'собачка', 'догго', 'пёсель', 'гав', 'барбос',],
+            ['птица', 'птичка', 'чирик', 'воробей', 'голубь', 'попугай',],
+            ['рыба', 'рыбка', 'золотая рыбка', 'акула', 'дельфин',],
+            ['медведь', 'мишка', 'косолапый', 'топтыгин', 'умка',],
+            ['заяц', 'зайчик', 'кролик', 'ушастик', 'косой',],
             // Эмоции позитивные
-            ['смех', ['смеется', 'хахаха', 'ржака', 'прикол', 'лол', 'кек', 'ржунимагу', 'угар', 'ржач', 'юмор', 'шутка', 'весело']],
-            ['радость', ['счастье', 'веселье', 'восторг', 'ура', 'йес', 'класс', 'круто', 'супер', 'отлично']],
-            ['любовь', ['сердце', 'влюблен', 'романтика', 'поцелуй', 'милый', 'дорогой', 'люблю', 'обожаю']],
-            ['кайф', ['кайфует', 'наслаждение', 'релакс', 'блаженство', 'тайм-аут', 'чилл']],
-            ['удивление', ['вау', 'ого', 'офигеть', 'ничего себе', 'блин', 'капец']],
+            ['смех', 'смеется', 'хах', 'ржака', 'прикол', 'лол', 'кек', 'ржунимагу', 'угар', 'ржач', 'юмор', 'шутка', 'весело', 'hah', 'kek', 'lol'],
+            ['радость', 'счастье', 'веселье', 'восторг', 'ура', 'йес', 'класс', 'круто', 'супер', 'отлично',],
+            ['любовь', 'сердце', 'влюблен', 'романтика', 'поцелуй', 'милый', 'дорогой', 'люблю', 'обожаю',],
+            ['кайф', 'кайфует', 'наслаждение', 'релакс', 'блаженство', 'тайм-аут', 'чилл',],
+            ['удивление', 'вау', 'ого', 'офигеть', 'ничего себе', 'блин', 'капец',],
             // Эмоции негативные
-            ['грусть', ['печаль', 'слезы', 'плачет', 'расстроен', 'тоска', 'депрессия', 'уныние']],
-            ['злость', ['бесит', 'ярость', 'гнев', 'раздражение', 'ненависть', 'достал']],
-            ['страх', ['боюсь', 'ужас', 'кошмар', 'паника', 'жуть']],
-            ['усталость', ['устал', 'сонный', 'выматывает', 'замотался', 'измотался']],
+            ['грусть', 'печаль', 'слезы', 'плачет', 'расстроен', 'тоска', 'депрессия', 'уныние',],
+            ['злость', 'бесит', 'ярость', 'гнев', 'раздражение', 'ненависть', 'достал',],
+            ['страх', 'боюсь', 'ужас', 'кошмар', 'паника', 'жуть',],
+            ['усталость', 'устал', 'сонный', 'выматывает', 'замотался', 'измотался',],
             // Мат и ругательства
-            ['бля', ['блять', 'бл', 'блин', 'блядь', 'бляха']],
-            ['хуй', ['хер', 'хрен', 'фиг', 'dick']],
-            ['пизда', ['пизд', 'п*зда', 'pussy']],
-            ['ебать', ['ебал', 'ебёт', 'ебу', 'fuck', 'ёб', 'еб']],
-            ['сука', ['сук', 'сучка', 'bitch']],
-            ['дерьмо', ['говно', 'shit', 'гавно', 'херня']],
-            ['дебил', ['идиот', 'тупой', 'дурак', 'долбоеб', 'кретин', 'мудак']],
-            ['пиздец', ['пздц', 'капец', 'пипец', 'кранты']],
-            ['нахуй', ['нах', 'нахер', 'нафиг']],
+            ['бля', 'блять', 'бл', 'блин', 'блядь', 'бляха',],
+            ['хуй', 'хер', 'хрен', 'фиг', 'dick',],
+            ['пизда', 'пизд', 'п*зда', 'pussy',],
+            ['ебать', 'ебал', 'ебёт', 'ебу', 'fuck', 'ёб', 'еб', 'fuck'],
+            ['сука', 'сук', 'сучка', 'bitch',],
+            ['дерьмо', 'говно', 'shit', 'гавно', 'херня',],
+            ['дебил', 'идиот', 'тупой', 'дурак', 'долбоеб', 'кретин', 'мудак',],
+            ['пиздец', 'пздц', 'капец', 'пипец', 'кранты',],
+            ['нахуй', 'нах', 'нахер', 'нафиг',],
             // Еда и напитки
-            ['еда', ['кушать', 'вкусно', 'голодный', 'аппетит', 'жрать', 'хавать', 'обжираться']],
-            ['чай', ['чаек', 'чаепитие', 'напиток', 'заварка']],
-            ['кофе', ['кофеек', 'эспресс', 'капучино', 'латте', 'американо']],
-            ['пиво', ['пивко', 'пивас', 'beer', 'бухло', 'алкоголь']],
-            ['водка', ['беленькая', 'горькая', 'алкашка']],
-            ['пицца', ['pizza', 'пиццерия']],
-            ['мясо', ['стейк', 'шашлык', 'барбекю', 'колбаса']],
-            ['сладкое', ['торт', 'конфеты', 'шоколад', 'мороженое', 'печенье']],
+            ['еда', 'кушать', 'вкусно', 'голодный', 'аппетит', 'жрать', 'хавать', 'обжираться',],
+            ['чай', 'чаек', 'чаепитие', 'напиток', 'заварка',],
+            ['кофе', 'кофеек', 'эспресс', 'капучино', 'латте', 'американо',],
+            ['пиво', 'пивко', 'пивас', 'beer', 'бухло', 'алкоголь',],
+            ['водка', 'беленькая', 'горькая', 'алкашка',],
+            ['пицца', 'pizza', 'пиццерия',],
+            ['мясо', 'стейк', 'шашлык', 'барбекю', 'колбаса',],
+            ['сладкое', 'торт', 'конфеты', 'шоколад', 'мороженое', 'печенье',],
             // Работа и учеба
-            ['работа', ['работать', 'job', 'офис', 'трудиться', 'пахать', 'вкалывать']],
-            ['учеба', ['учиться', 'школа', 'универ', 'экзамен', 'зачет']],
-            ['деньги', ['бабки', 'баблос', 'зарплата', 'кэш', 'лавэ', 'капуста']],
-            ['босс', ['начальник', 'шеф', 'руководитель']],
+            ['работа', 'работать', 'job', 'офис', 'трудиться', 'пахать', 'вкалывать',],
+            ['учеба', 'учиться', 'школа', 'универ', 'экзамен', 'зачет',],
+            ['деньги', 'бабки', 'баблос', 'зарплата', 'кэш', 'лавэ', 'капуста',],
+            ['босс', 'начальник', 'шеф', 'руководитель',],
             // Время и даты
-            ['утро', ['утром', 'рассвет', 'подъем']],
-            ['день', ['днем', 'обед', 'полдень']],
-            ['вечер', ['вечером', 'закат', 'ужин']],
-            ['ночь', ['ночью', 'спать', 'сон', 'кровать']],
-            ['понедельник', ['пн', 'monday', 'начало недели']],
-            ['пятница', ['пт', 'friday', 'конец', 'выходные']],
-            ['выходные', ['суббота', 'воскресенье', 'отдых', 'weekend']],
+            ['утро', 'утром', 'рассвет', 'подъем',],
+            ['день', 'днем', 'обед', 'полдень',],
+            ['вечер', 'вечером', 'закат', 'ужин',],
+            ['ночь', 'ночью', 'спать', 'сон', 'кровать',],
+            ['понедельник', 'пн', 'monday', 'начало недели',],
+            ['пятница', 'пт', 'friday', 'конец', 'выходные',],
+            ['выходные', 'суббота', 'воскресенье', 'отдых', 'weekend',],
             // Погода
-            ['дождь', ['дождик', 'ливень', 'мокро', 'зонт']],
-            ['снег', ['снежок', 'зима', 'холодно', 'мороз']],
-            ['солнце', ['солнышко', 'жара', 'лето', 'тепло']],
-            ['ветер', ['ветерок', 'дует', 'прохладно']],
+            ['дождь', 'дождик', 'ливень', 'мокро', 'зонт',],
+            ['снег', 'снежок', 'зима', 'холодно', 'мороз',],
+            ['солнце', 'солнышко', 'жара', 'лето', 'тепло',],
+            ['ветер', 'ветерок', 'дует', 'прохладно',],
             // Транспорт
-            ['машина', ['авто', 'тачка', 'car', 'автомобиль']],
-            ['автобус', ['bus', 'маршрутка', 'транспорт']],
-            ['поезд', ['train', 'электричка', 'метро']],
-            ['самолет', ['plane', 'лайнер', 'полет']],
+            ['машина', 'авто', 'тачка', 'car', 'автомобиль',],
+            ['автобус', 'bus', 'маршрутка', 'транспорт',],
+            ['поезд', 'train', 'электричка', 'метро',],
+            ['самолет', 'plane', 'лайнер', 'полет',],
             // Технологии
-            ['телефон', ['phone', 'мобила', 'смартфон', 'айфон']],
-            ['компьютер', ['computer', 'комп', 'ПК', 'ноутбук']],
-            ['интернет', ['net', 'онлайн', 'сеть', 'wifi']],
-            ['игры', ['game', 'геймер', 'играть', 'консоль']],
+            ['телефон', 'phone', 'мобила', 'смартфон', 'айфон',],
+            ['компьютер', 'computer', 'комп', 'ПК', 'ноутбук',],
+            ['интернет', 'net', 'онлайн', 'сеть', 'wifi',],
+            ['игры', 'game', 'геймер', 'играть', 'консоль',],
             // Здоровье
-            ['болеть', ['болезнь', 'больной', 'температура', 'простуда']],
-            ['врач', ['доктор', 'лечение', 'больница', 'поликлиника']],
-            ['спорт', ['тренировка', 'фитнес', 'зал', 'качалка']],
+            ['болеть', 'болезнь', 'больной', 'температура', 'простуда',],
+            ['врач', 'доктор', 'лечение', 'больница', 'поликлиника',],
+            ['спорт', 'тренировка', 'фитнес', 'зал', 'качалка',],
             // Отношения
-            ['друг', ['дружба', 'приятель', 'товарищ', 'братан', 'кореш']],
-            ['девушка', ['подруга', 'girlfriend', 'баба', 'телка', 'чикса']],
-            ['парень', ['boyfriend', 'мужик', 'пацан', 'чувак']],
-            ['семья', ['родители', 'мама', 'папа', 'дети', 'родственники']],
+            ['друг', 'дружба', 'приятель', 'товарищ', 'братан', 'кореш', 'friend'],
+            ['девушка', 'подруга', 'girlfriend', 'баба', 'телка', 'чикса', 'girl'],
+            ['парень', 'boyfriend', 'мужик', 'пацан', 'чувак',],
+            ['семья', 'родители', 'мама', 'папа', 'дети', 'родственники',],
             // Интернет-сленг
-            ['лайк', ['like', 'нравится', 'плюс', 'апвот']],
-            ['репост', ['repost', 'шара', 'поделиться']],
-            ['мем', ['meme', 'мемас', 'мемчик', 'картинка']],
-            ['тролль', ['троллинг', 'прикол', 'развод']],
-            ['хейт', ['hate', 'ненависть', 'хейтер']],
-            ['спам', ['флуд', 'навязывание', 'реклама']],
+            ['лайк', 'like', 'нравится', 'плюс', 'апвот',],
+            ['репост', 'repost', 'шара', 'поделиться',],
+            ['мем', 'meme', 'мемас', 'мемчик', 'картинка',],
+            ['тролль', 'троллинг', 'прикол', 'развод',],
+            ['хейт', 'hate', 'ненависть', 'хейтер',],
+            ['спам', 'флуд', 'навязывание', 'реклама',],
             // Повседневные дела
-            ['спать', ['сон', 'спокойной ночи', 'храп', 'дрыхнуть', 'вырубиться']],
-            ['есть', ['жрать', 'кушать', 'обедать', 'ужинать', 'завтракать']],
-            ['гулять', ['прогулка', 'улица', 'воздух', 'парк']],
-            ['дом', ['домой', 'квартира', 'хата', 'жилье']],
-            ['покупки', ['магазин', 'шоппинг', 'торговый']],
+            ['спать', 'сон', 'спокойной ночи', 'храп', 'дрыхнуть', 'вырубиться',],
+            ['есть', 'жрать', 'кушать', 'обедать', 'ужинать', 'завтракать',],
+            ['гулять', 'прогулка', 'улица', 'воздух', 'парк',],
+            ['дом', 'домой', 'квартира', 'хата', 'жилье',],
+            ['покупки', 'магазин', 'шоппинг', 'торговый',],
             // Сленг
-            ['крутой', ['кул', 'cool', 'топ', 'огонь', 'бомба']],
-            ['отстой', ['фигня', 'дрянь', 'лажа', 'шлак']],
-            ['тупить', ['тормозить', 'не понимать', 'глупить']],
-            ['зависать', ['тусить', 'чилить', 'отдыхать']],
-            ['базарить', ['говорить', 'болтать', 'трещать']],
+            ['крутой', 'кул', 'cool', 'топ', 'огонь', 'бомба',],
+            ['отстой', 'фигня', 'дрянь', 'лажа', 'шлак',],
+            ['тупить', 'тормозить', 'не понимать', 'глупить',],
+            ['зависать', 'тусить', 'чилить', 'отдыхать',],
+            ['базарить', 'говорить', 'болтать', 'трещать',],
         ];
         const semanticMap = new Map();
-        for (const [key, synonyms] of semanticPairs) {
-            semanticMap.set(key, synonyms);
+        for (const synonyms of semanticPairs) {
+            const set = new Set(synonyms);
             for (const synonym of synonyms) {
-                const relatedWords = synonyms.filter(s => s !== synonym);
-                relatedWords.push(key);
-                semanticMap.set(synonym, relatedWords);
+                semanticMap.set(synonym, set);
             }
         }
         return semanticMap;
@@ -17200,14 +17199,19 @@ function smartStickerSearch(stickers, userMessage) {
     }
     const originalWordCount = userMessage.trim().split(/\s+/).length;
     const minScore = originalWordCount > 3 ? 0.5 : 0.2;
-    const results = filterInstance.searchStickers(stickers, searchQuery, {
-        enableSemantic: true,
-        boostExactMatches: 2.5,
-        boostStartsWith: 1.8,
-        maxResults: 50,
-        minScore
-    });
-    return results.map(result => result.sticker);
+    for (const currentSearchQuery of [searchQuery, (0, switchKeyboardLayout_1.switchKeyboardLayout)(searchQuery)]) {
+        const results = filterInstance.searchStickers(stickers, currentSearchQuery, {
+            enableSemantic: true,
+            boostExactMatches: 2.5,
+            boostStartsWith: 1.8,
+            maxResults: 50,
+            minScore
+        });
+        if (results.length) {
+            return results.map(result => result.sticker);
+        }
+    }
+    return [];
 }
 function initializeStickerSearch(stickers) {
     if (!filterInstance) {
@@ -17226,6 +17230,7 @@ function shouldSearchStickers(message) {
     const wordCount = normalizedMessage.split(/\s+/).length;
     return wordCount <= 3;
 }
+const stopWords = new Set(['я', 'ты', 'он', 'она', 'и', 'а', 'но', 'что', 'как', 'в', 'на']);
 function extractSearchKeywords(message) {
     let cleaned = message
         .replace(/[^\w\s\u0400-\u04FF]/g, ' ')
@@ -17234,7 +17239,6 @@ function extractSearchKeywords(message) {
     if (!cleaned)
         return message.trim();
     const words = cleaned.split(' ').filter(word => word.length > 0);
-    const stopWords = new Set(['я', 'ты', 'он', 'она', 'и', 'а', 'но', 'что', 'как', 'в', 'на']);
     const meaningfulWords = words.filter(word => !stopWords.has(word));
     return meaningfulWords.length === 0 ? cleaned : meaningfulWords.join(' ');
 }
@@ -17392,6 +17396,109 @@ class Logger {
     }
 }
 exports.Logger = Logger;
+
+
+/***/ }),
+
+/***/ 1119:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.PhotoCache = void 0;
+const Logger_1 = __webpack_require__(7629);
+const DB_NAME = 'vkfix_photo_cache';
+const STORE_NAME = 'photos';
+const DB_VERSION = 1;
+class PhotoCache {
+    static instance;
+    db = null;
+    static getInstance() {
+        if (!PhotoCache.instance) {
+            PhotoCache.instance = new PhotoCache();
+        }
+        return PhotoCache.instance;
+    }
+    async init() {
+        if (this.db)
+            return;
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onerror = () => {
+                Logger_1.Logger.error('PhotoCache: Failed to open database');
+                reject(request.error);
+            };
+            request.onsuccess = () => {
+                this.db = request.result;
+                resolve();
+            };
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: 'albumId' });
+                }
+            };
+        });
+    }
+    async getPhotos(albumId) {
+        await this.init();
+        return new Promise((resolve, reject) => {
+            if (!this.db) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
+            const transaction = this.db.transaction(STORE_NAME, 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(albumId);
+            request.onsuccess = () => {
+                resolve(request.result?.photos || null);
+            };
+            request.onerror = () => {
+                Logger_1.Logger.error('PhotoCache: Failed to get photos');
+                reject(request.error);
+            };
+        });
+    }
+    async setPhotos(albumId, photos) {
+        await this.init();
+        return new Promise((resolve, reject) => {
+            if (!this.db) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
+            const transaction = this.db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.put({ albumId, photos });
+            request.onsuccess = () => {
+                resolve();
+            };
+            request.onerror = () => {
+                Logger_1.Logger.error('PhotoCache: Failed to set photos');
+                reject(request.error);
+            };
+        });
+    }
+    async clear() {
+        await this.init();
+        return new Promise((resolve, reject) => {
+            if (!this.db) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
+            const transaction = this.db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.clear();
+            request.onsuccess = () => {
+                resolve();
+            };
+            request.onerror = () => {
+                Logger_1.Logger.error('PhotoCache: Failed to clear cache');
+                reject(request.error);
+            };
+        });
+    }
+}
+exports.PhotoCache = PhotoCache;
 
 
 /***/ }),
@@ -17639,6 +17746,49 @@ function sleep(timeout) {
 
 /***/ }),
 
+/***/ 5677:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.switchKeyboardLayout = switchKeyboardLayout;
+const RU_TO_EN = {
+    'й': 'q', 'ц': 'w', 'у': 'e', 'к': 'r', 'е': 't', 'н': 'y', 'г': 'u', 'ш': 'i', 'щ': 'o', 'з': 'p',
+    'х': '[', 'ъ': ']', 'ф': 'a', 'ы': 's', 'в': 'd', 'а': 'f', 'п': 'g', 'р': 'h', 'о': 'j', 'л': 'k',
+    'д': 'l', 'ж': ';', 'э': "'", 'я': 'z', 'ч': 'x', 'с': 'c', 'м': 'v', 'и': 'b', 'т': 'n', 'ь': 'm',
+    'б': ',', 'ю': '.', '.': '/', ',': '?',
+    'Й': 'Q', 'Ц': 'W', 'У': 'E', 'К': 'R', 'Е': 'T', 'Н': 'Y', 'Г': 'U', 'Ш': 'I', 'Щ': 'O', 'З': 'P',
+    'Х': '{', 'Ъ': '}', 'Ф': 'A', 'Ы': 'S', 'В': 'D', 'А': 'F', 'П': 'G', 'Р': 'H', 'О': 'J', 'Л': 'K',
+    'Д': 'L', 'Ж': ':', 'Э': '"', 'Я': 'Z', 'Ч': 'X', 'С': 'C', 'М': 'V', 'И': 'B', 'Т': 'N', 'Ь': 'M',
+    'Б': '<', 'Ю': '>', '?': '|'
+};
+const EN_TO_RU = Object.fromEntries(Object.entries(RU_TO_EN).map(([ru, en]) => [en, ru]));
+/**
+ * Переключает раскладку текста между русской и английской
+ * @param text - исходный текст
+ * @returns текст с переключенной раскладкой
+ */
+function switchKeyboardLayout(text) {
+    return text
+        .split('')
+        .map(char => {
+        // Если есть соответствие в русско-английской карте
+        if (RU_TO_EN[char]) {
+            return RU_TO_EN[char];
+        }
+        // Если есть соответствие в англо-русской карте
+        if (EN_TO_RU[char]) {
+            return EN_TO_RU[char];
+        }
+        // Если символ не найден в картах, возвращаем как есть
+        return char;
+    })
+        .join('');
+}
+
+
+/***/ }),
+
 /***/ 8423:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -17802,6 +17952,7 @@ const VKLocation_1 = __webpack_require__(7845);
 const AdvancedStickerFilter_1 = __webpack_require__(7950);
 const es_toolkit_1 = __webpack_require__(4611);
 const core_1 = __webpack_require__(3115);
+const PhotoCache_1 = __webpack_require__(1119);
 const isEnabledPhotoStickers = GlobalConfig_1.GlobalConfig.Config.get('messenger.photo-stickers');
 const photoStickersAlbumIds = GlobalConfig_1.GlobalConfig.Config.get('messenger.photo-stickers.albums');
 let _initPhotoStickers = (0, vue_1.ref)(false); // null - идёт инициализация
@@ -17810,6 +17961,9 @@ const convoMainComposer = (0, vue_1.ref)(null);
 const composerInputInput = (0, vue_1.ref)(null);
 const messageText = (0, vue_1.ref)('');
 const debounceShowStickers = (0, es_toolkit_1.debounce)(showStickers, 200);
+const photoCache = PhotoCache_1.PhotoCache.getInstance();
+let albumIds;
+let needUpdatePhotos = true;
 const stickersStore = (0, vue_1.shallowReactive)({
     photos: [], stickers: [], onSendSticker: async (sticker) => {
         stickersStore.stickers = [];
@@ -17878,7 +18032,12 @@ const stickersStore = (0, vue_1.shallowReactive)({
         Logger_1.Logger.info(`messenger: keydown ${e.key}, text: ${composerInputInput.value.textContent}`);
     });
 }, { capture: true });
-(0, core_1.useEventListener)(composerInputInput, 'input', initPhotoStickers);
+(0, core_1.useEventListener)(composerInputInput, 'input', () => {
+    if (albumIds !== undefined && needUpdatePhotos) {
+        loadPhotos(albumIds).then();
+        needUpdatePhotos = false;
+    }
+});
 (0, core_1.useEventListener)(composerInputInput, 'focus', () => {
     showStickers(composerInputInput.value.textContent).then();
 });
@@ -17967,7 +18126,9 @@ async function messenger() {
         Logger_1.Logger.info('messenger: not found #popup-sticker-convo-main-history-container');
         return;
     }
-    Logger_1.Logger.info('messenger sucess!', composerInputInput.value);
+    Logger_1.Logger.info('messenger: composerInputInput success!', composerInputInput.value);
+    await initPhotoStickers();
+    Logger_1.Logger.info('messenger: success! stickersStore:', stickersStore);
 }
 function getWords(str) {
     return str.toLocaleLowerCase().split(/[^а-яa-z0-9]/g).filter(x => x.length > 0);
@@ -18005,36 +18166,23 @@ async function initPhotoStickers() {
     }
     _initPhotoStickers.value = null;
     try {
-        const albumIds = await getAlbumsIds();
+        albumIds = await getAlbumsIds();
+        const cachedPhotos = [];
         for (const album_id of albumIds) {
-            const photosResult = await ApiInteractor_1.APIInteractor.callApi({
-                method: 'photos.get',
-                data: {
-                    album_id,
-                    count: 1000,
-                }
-            });
-            const albumPhotos = photosResult.response.items;
-            for (const photo of albumPhotos) {
-                if (photo.text) {
-                    const suggestions = (0, extractQuotedTexts_1.extractQuotedTexts)(photo.text);
-                    if (suggestions) {
-                        stickersStore.photos.push({
-                            photo,
-                            suggestions,
-                            lowerSuggestions: suggestions.map(s => s.toLocaleLowerCase()),
-                            lowerWords: suggestions.map(s => getWords(s)).flat(),
-                        });
-                    }
-                }
-            }
+            cachedPhotos.push(...(await photoCache.getPhotos(album_id) ?? []));
+        }
+        if (cachedPhotos.length) {
+            setPhotos(cachedPhotos);
+        }
+        else {
+            await loadPhotos(albumIds);
         }
         const stickersAppEl = document.createElement('div');
         const app = (0, vue_1.createApp)({ render: () => (0, vue_1.h)(StickersPopup_vue_1.default, stickersStore) });
         app.mount(stickersAppEl);
         document.body.appendChild(stickersAppEl);
-        (0, AdvancedStickerFilter_1.initializeStickerSearch)(stickersStore.photos);
         _initPhotoStickers.value = true;
+        Logger_1.Logger.info('messenger: cached init', stickersStore.photos);
     }
     catch (ex) {
         Logger_1.Logger.error('messenger: initPhotoStickers', ex);
@@ -18042,6 +18190,51 @@ async function initPhotoStickers() {
         stickersStore.stickers = [];
         _initPhotoStickers.value = false;
     }
+}
+function photosToStickers(photos) {
+    const newArray = [];
+    for (const photo of photos) {
+        if (!photo.text) {
+            continue;
+        }
+        const suggestions = (0, extractQuotedTexts_1.extractQuotedTexts)(photo.text);
+        if (!suggestions) {
+            continue;
+        }
+        newArray.push({
+            photo,
+            suggestions,
+            lowerSuggestions: suggestions.map(s => s.toLocaleLowerCase()),
+            lowerWords: suggestions.map(s => getWords(s)).flat(),
+        });
+    }
+    return newArray;
+}
+function setPhotos(photos) {
+    stickersStore.photos = photos;
+    (0, AdvancedStickerFilter_1.initializeStickerSearch)(stickersStore.photos);
+}
+async function loadPhotos(albumIds) {
+    const photos = [];
+    for (const album_id of albumIds) {
+        try {
+            const photosResult = await ApiInteractor_1.APIInteractor.callApi({
+                method: 'photos.get',
+                data: {
+                    album_id,
+                    count: 1000,
+                }
+            });
+            const items = photosToStickers(photosResult.response.items);
+            photos.push(...items);
+            await photoCache.setPhotos(album_id, items);
+        }
+        catch (error) {
+            Logger_1.Logger.error(`Failed to load photos for album ${album_id}:`, error);
+        }
+    }
+    setPhotos(photos);
+    Logger_1.Logger.info('messenger: update cache photos', photos);
 }
 async function showStickers(text) {
     if (text === '' || !composerInputInput.value) {
@@ -36613,7 +36806,7 @@ var __webpack_unused_export__;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.12
+// @version 1.1.13
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
