@@ -2,9 +2,9 @@
 // @name VK Fix
 // @description Скрипт для улучшения интерфейса ВКонтакте
 // @author Ivan Petrov (LazyTechwork)
-// @contributors Ivan Mel (xeleoss)
+// @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.11
+// @version 1.1.12
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -13343,7 +13343,7 @@ const initDirectivesForSSR = () => {
 
 /***/ }),
 
-/***/ 8739:
+/***/ 8073:
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -13358,7 +13358,7 @@ const initDirectivesForSSR = () => {
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, `.vkfix-stickers-popup{position:absolute;top:-102px;left:0;height:100px;width:100%;display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:1px;z-index:2;pointer-events:none}.vkfix-stickers-popup>*{pointer-events:all}.vkfix-stickers-popup img{height:99px;outline:1px solid #fff;outline-offset:-1px;border-radius:8px;object-fit:cover;cursor:pointer}.vkfix-stickers-popup.v-enter-active,.vkfix-stickers-popup.v-leave-active{transition:opacity .3s ease}.vkfix-stickers-popup.v-enter-from,.vkfix-stickers-popup.v-leave-to{opacity:0}.ConvoMain:has(.vkfix-stickers-popup) .ConvoComposer__stickersPanel{display:none !important}`, ""]);
+___CSS_LOADER_EXPORT___.push([module.id, `.vkfix-stickers-popup{position:absolute;top:-102px;left:0;height:100px;width:100%;display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:1px;z-index:2;pointer-events:none}.vkfix-stickers-popup>*{pointer-events:all}.vkfix-stickers-popup img{height:99px;outline:1px solid #fff;outline-offset:-1px;border-radius:8px;object-fit:cover;cursor:pointer}.vkfix-stickers-popup.v-enter-active,.vkfix-stickers-popup.v-leave-active{transition:opacity .5s ease}.vkfix-stickers-popup.v-enter-from,.vkfix-stickers-popup.v-leave-to{opacity:0}.ConvoMain:has(.vkfix-stickers-popup) .ConvoComposer__stickersPanel{display:none !important}`, ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -16694,7 +16694,7 @@ exports.A = (0, vue_1.defineComponent)({
                         ? ((0, vue_2.openBlock)(), (0, vue_2.createElementBlock)("div", {
                             key: 0,
                             title: `Загружено фотографий-стикеров: ${_ctx.photos.length}`,
-                            style: { "min-width": "2px", "min-height": "2px", "border-radius": "50%", "background-color": "green" }
+                            style: { "position": "absolute", "right": "0", "bottom": "0", "min-width": "2px", "min-height": "2px", "border-radius": "50%", "background-color": "green" }
                         }, null, 8 /* PROPS */, _hoisted_3))
                         : (0, vue_2.createCommentVNode)("v-if", true)
                 ], 8 /* PROPS */, ["to"]))
@@ -17797,7 +17797,7 @@ const querySelectorWithTimeout_1 = __webpack_require__(6090);
 const ApiInteractor_1 = __webpack_require__(8410);
 const extractQuotedTexts_1 = __webpack_require__(4437);
 const vue_1 = __webpack_require__(7527);
-const StickersPopup_vue_1 = __webpack_require__(851);
+const StickersPopup_vue_1 = __webpack_require__(1529);
 const VKLocation_1 = __webpack_require__(7845);
 const AdvancedStickerFilter_1 = __webpack_require__(7950);
 const es_toolkit_1 = __webpack_require__(4611);
@@ -17810,66 +17810,6 @@ const convoMainComposer = (0, vue_1.ref)(null);
 const composerInputInput = (0, vue_1.ref)(null);
 const messageText = (0, vue_1.ref)('');
 const debounceShowStickers = (0, es_toolkit_1.debounce)(showStickers, 200);
-(0, core_1.useEventListener)(composerInputInput, 'keydown', (e) => {
-    if (e.key === 'Shift') {
-        return;
-    }
-    if (e.key === 'Escape' || e.key === 'Enter' || !composerInputInput.value) {
-        stickersStore.stickers = [];
-        return;
-    }
-    setTimeout(() => {
-        if (!composerInputInput.value) {
-            return;
-        }
-        stickersStore.stickers = [];
-        messageText.value = composerInputInput.value.textContent;
-        debounceShowStickers(composerInputInput.value.textContent);
-        Logger_1.Logger.info(`messenger: keydown ${e.key}, text: ${composerInputInput.value.textContent}`);
-    });
-});
-(0, core_1.useEventListener)(composerInputInput, 'input', initPhotoStickers);
-(0, core_1.useEventListener)(composerInputInput, 'focus', () => {
-    showStickers(composerInputInput.value.textContent).then();
-});
-(0, core_1.useEventListener)(composerInputInput, 'blur', () => {
-    stickersStore.stickers = [];
-});
-(0, vue_1.watch)(popupStickerEl, (popupStickerEl) => {
-    if (!popupStickerEl) {
-        return;
-    }
-    convoMainComposer.value = popupStickerEl.querySelector('.ConvoMain__composer');
-}, { flush: 'sync' });
-(0, vue_1.watch)(convoMainComposer, (convoMainComposer) => {
-    Logger_1.Logger.info('messenger: watch convoMainComposer', convoMainComposer);
-    if (!convoMainComposer) {
-        return;
-    }
-    observer.disconnect();
-    observer.observe(convoMainComposer, observerConfig);
-    updateComposerInputInput();
-}, { flush: 'sync' });
-(0, vue_1.watch)(composerInputInput, (composerInputInput) => {
-    Logger_1.Logger.info('messenger: watch composerInputInput', composerInputInput);
-    if (!composerInputInput) {
-        return;
-    }
-    stickersStore.teleportEl = convoMainComposer.value.querySelector('.ConvoComposer__inputPanel');
-    messageText.value = composerInputInput.textContent;
-}, { flush: 'sync' });
-(0, vue_1.watch)([composerInputInput, messageText], () => {
-    showStickers(messageText.value).then();
-});
-// возвращает инфу о текущем вводе сообщения (например reply)
-async function getComposerDrafts() {
-    const peer_id = VKLocation_1.VKLocation.getPeerId();
-    if (peer_id === undefined) {
-        Logger_1.Logger.info('messenger: not found peer_id', VKLocation_1.VKLocation.getQueryParams());
-        return;
-    }
-    return (await MECommonContext).store.getState().composerDrafts?.[peer_id] ?? [];
-}
 const stickersStore = (0, vue_1.shallowReactive)({
     photos: [], stickers: [], onSendSticker: async (sticker) => {
         stickersStore.stickers = [];
@@ -17914,6 +17854,72 @@ const stickersStore = (0, vue_1.shallowReactive)({
         }
     }
 });
+(0, core_1.useEventListener)(composerInputInput, 'keydown', (e) => {
+    if (e.key === 'Shift') {
+        return;
+    }
+    if ((e.key === 'Escape' || e.key === 'Enter' || !composerInputInput.value)) {
+        if (stickersStore.stickers.length) {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+            }
+            stickersStore.stickers = [];
+        }
+        // даже если стикеров нет, всё равно дальше не обрабатываем, чтобы стикеры повторно не появились после скрытия вкшных стикеров на Escape
+        return;
+    }
+    setTimeout(() => {
+        if (!composerInputInput.value) {
+            return;
+        }
+        stickersStore.stickers = [];
+        messageText.value = composerInputInput.value.textContent;
+        debounceShowStickers(composerInputInput.value.textContent);
+        Logger_1.Logger.info(`messenger: keydown ${e.key}, text: ${composerInputInput.value.textContent}`);
+    });
+}, { capture: true });
+(0, core_1.useEventListener)(composerInputInput, 'input', initPhotoStickers);
+(0, core_1.useEventListener)(composerInputInput, 'focus', () => {
+    showStickers(composerInputInput.value.textContent).then();
+});
+(0, core_1.useEventListener)(composerInputInput, 'blur', () => {
+    stickersStore.stickers = [];
+});
+(0, vue_1.watch)(popupStickerEl, (popupStickerEl) => {
+    if (!popupStickerEl) {
+        return;
+    }
+    convoMainComposer.value = popupStickerEl.querySelector('.ConvoMain__composer');
+}, { flush: 'sync' });
+(0, vue_1.watch)(convoMainComposer, (convoMainComposer) => {
+    Logger_1.Logger.info('messenger: watch convoMainComposer', convoMainComposer);
+    if (!convoMainComposer) {
+        return;
+    }
+    observer.disconnect();
+    observer.observe(convoMainComposer, observerConfig);
+    updateComposerInputInput();
+}, { flush: 'sync' });
+(0, vue_1.watch)(composerInputInput, (composerInputInput) => {
+    Logger_1.Logger.info('messenger: watch composerInputInput', composerInputInput);
+    if (!composerInputInput) {
+        return;
+    }
+    stickersStore.teleportEl = convoMainComposer.value.querySelector('.ConvoMain__composerContent.ConvoComposer');
+    messageText.value = composerInputInput.textContent;
+}, { flush: 'sync' });
+(0, vue_1.watch)([composerInputInput, messageText], () => {
+    showStickers(messageText.value).then();
+});
+// возвращает инфу о текущем вводе сообщения (например reply)
+async function getComposerDrafts() {
+    const peer_id = VKLocation_1.VKLocation.getPeerId();
+    if (peer_id === undefined) {
+        Logger_1.Logger.info('messenger: not found peer_id', VKLocation_1.VKLocation.getQueryParams());
+        return;
+    }
+    return (await MECommonContext).store.getState().composerDrafts?.[peer_id] ?? [];
+}
 const observerConfig = {
     childList: true
 };
@@ -18511,7 +18517,7 @@ function default_1() {
 
 /***/ }),
 
-/***/ 851:
+/***/ 1529:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 // ESM COMPAT FLAG
@@ -18545,9 +18551,9 @@ var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleE
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
 var styleTagTransform = __webpack_require__(1113);
 var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=6de964ca&lang=scss
-var StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss = __webpack_require__(8739);
-;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=6de964ca&lang=scss
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=a7f2e524&lang=scss
+var StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss = __webpack_require__(8073);
+;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=a7f2e524&lang=scss
 
       
       
@@ -18567,14 +18573,14 @@ options.insert = insertBySelector_default().bind(null, "head");
 options.domAPI = (styleDomAPI_default());
 options.insertStyleElement = (insertStyleElement_default());
 
-var update = injectStylesIntoStyleTag_default()(StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss/* default */.A, options);
+var update = injectStylesIntoStyleTag_default()(StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss/* default */.A, options);
 
 
 
 
-       /* harmony default export */ const messenger_StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss = (StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss/* default */.A && StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss/* default */.A.locals ? StickersPopupvue_type_style_index_0_id_6de964ca_lang_scss/* default */.A.locals : undefined);
+       /* harmony default export */ const messenger_StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss = (StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss/* default */.A && StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss/* default */.A.locals ? StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss/* default */.A.locals : undefined);
 
-;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=6de964ca&lang=scss
+;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=a7f2e524&lang=scss
 
 ;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue
 
@@ -36605,9 +36611,9 @@ var __webpack_unused_export__;
 // @name VK Fix
 // @description Скрипт для улучшения интерфейса ВКонтакте
 // @author Ivan Petrov (LazyTechwork)
-// @contributors Ivan Mel (xeleoss)
+// @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.11
+// @version 1.1.12
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
