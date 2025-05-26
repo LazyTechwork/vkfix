@@ -10,6 +10,7 @@ import {Album, Photo, PhotoSticker} from "./types";
 import {initializeStickerSearch, smartStickerSearch} from "../../classes/AdvancedStickerFilter";
 import {debounce} from "es-toolkit";
 import {useEventListener} from "@vueuse/core";
+import {PhotoCache} from "../../classes/PhotoCache";
 
 
 const isEnabledPhotoStickers = GlobalConfig.Config.get('messenger.photo-stickers') as boolean;
@@ -20,6 +21,9 @@ const convoMainComposer = ref<HTMLDivElement | null>(null)
 const composerInputInput = ref<HTMLSpanElement | null>(null)
 const messageText = ref('')
 const debounceShowStickers = debounce(showStickers, 200)
+const photoCache = PhotoCache.getInstance()
+let albumIds: number[] | undefined
+let needUpdatePhotos = true
 
 const stickersStore = shallowReactive<{
     photos: PhotoSticker[]
@@ -105,7 +109,12 @@ useEventListener(composerInputInput, 'keydown', (e: KeyboardEvent) => {
     })
 }, {capture: true})
 
-useEventListener(composerInputInput, 'input', initPhotoStickers)
+useEventListener(composerInputInput, 'input', () => {
+    if (albumIds !== undefined && needUpdatePhotos) {
+        loadPhotos(albumIds).then()
+        needUpdatePhotos = false
+    }
+})
 
 useEventListener(composerInputInput, 'focus', () => {
     showStickers(composerInputInput.value.textContent).then()
@@ -217,7 +226,10 @@ export async function messenger() {
         return;
     }
 
-    Logger.info('messenger sucess!', composerInputInput.value)
+
+    Logger.info('messenger: composerInputInput success!', composerInputInput.value)
+    await initPhotoStickers()
+    Logger.info('messenger: success! stickersStore:', stickersStore)
 }
 
 
@@ -262,8 +274,63 @@ async function initPhotoStickers(): Promise<void> {
 
     _initPhotoStickers.value = null
     try {
-        const albumIds = await getAlbumsIds()
+        albumIds = await getAlbumsIds()
+        const cachedPhotos: PhotoSticker[] = []
         for (const album_id of albumIds) {
+            cachedPhotos.push(...(await photoCache.getPhotos(album_id) ?? []))
+        }
+
+        if (cachedPhotos.length) {
+            setPhotos(cachedPhotos)
+        } else {
+            await loadPhotos(albumIds)
+        }
+
+        const stickersAppEl = document.createElement('div')
+        const app = createApp({render: () => h(StickersPopup, stickersStore)});
+        app.mount(stickersAppEl);
+        document.body.appendChild(stickersAppEl)
+        _initPhotoStickers.value = true
+        Logger.info('messenger: cached init', stickersStore.photos)
+    } catch (ex: any) {
+        Logger.error('messenger: initPhotoStickers', ex)
+        stickersStore.photos = []
+        stickersStore.stickers = []
+        _initPhotoStickers.value = false
+    }
+}
+
+function photosToStickers(photos: Photo[]): PhotoSticker[] {
+    const newArray: PhotoSticker[] = []
+    for (const photo of photos) {
+        if (!photo.text) {
+            continue;
+        }
+
+        const suggestions = extractQuotedTexts(photo.text)
+        if (!suggestions) {
+            continue;
+        }
+        newArray.push({
+            photo,
+            suggestions,
+            lowerSuggestions: suggestions.map(s => s.toLocaleLowerCase()),
+            lowerWords: suggestions.map(s => getWords(s)).flat(),
+        })
+    }
+
+    return newArray
+}
+
+function setPhotos(photos: PhotoSticker[]) {
+    stickersStore.photos = photos
+    initializeStickerSearch(stickersStore.photos)
+}
+
+async function loadPhotos(albumIds: number[]) {
+    const photos: PhotoSticker[] = []
+    for (const album_id of albumIds) {
+        try {
             const photosResult = await APIInteractor.callApi({
                 method: 'photos.get',
                 data: {
@@ -271,35 +338,16 @@ async function initPhotoStickers(): Promise<void> {
                     count: 1000,
                 }
             })
-            const albumPhotos: Photo[] = photosResult.response.items
-
-            for (const photo of albumPhotos) {
-                if (photo.text) {
-                    const suggestions = extractQuotedTexts(photo.text)
-                    if (suggestions) {
-                        stickersStore.photos.push({
-                            photo,
-                            suggestions,
-                            lowerSuggestions: suggestions.map(s => s.toLocaleLowerCase()),
-                            lowerWords: suggestions.map(s => getWords(s)).flat(),
-                        })
-                    }
-                }
-            }
+            const items = photosToStickers(photosResult.response.items)
+            photos.push(...items)
+            await photoCache.setPhotos(album_id, items)
+        } catch (error) {
+            Logger.error(`Failed to load photos for album ${album_id}:`, error)
         }
-
-        const stickersAppEl = document.createElement('div')
-        const app = createApp({render: () => h(StickersPopup, stickersStore)});
-        app.mount(stickersAppEl);
-        document.body.appendChild(stickersAppEl)
-        initializeStickerSearch(stickersStore.photos)
-        _initPhotoStickers.value = true
-    } catch (ex: any) {
-        Logger.error('messenger: initPhotoStickers', ex)
-        stickersStore.photos = []
-        stickersStore.stickers = []
-        _initPhotoStickers.value = false
     }
+
+    setPhotos(photos)
+    Logger.info('messenger: update cache photos', photos)
 }
 
 async function showStickers(text: string) {
