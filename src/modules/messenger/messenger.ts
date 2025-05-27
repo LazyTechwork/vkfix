@@ -165,7 +165,7 @@ async function getComposerDrafts(): Promise<ComposerDraft[]> {
         return
     }
 
-    return (await MECommonContext).store.getState().composerDrafts?.[peer_id] ?? []
+    return (await MECommonContext)?.store.getState().composerDrafts?.[peer_id] ?? []
 }
 
 

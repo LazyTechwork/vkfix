@@ -19,7 +19,12 @@ export class APIInteractor {
         return result
     }
 
-    static callApi(cParams: ICallApiParams) {
+    static async callApi(cParams: ICallApiParams) {
+        // по возможности используем ВКшный request, который умеет спрашивать капчу и обрабатывать таймаут
+        if (MECommonContext !== undefined) {
+            return {response: await (await MECommonContext).browserEnv.api.request(cParams.method, cParams.data).response}
+        }
+
         // Пример доступа к window страницы
         const pageWindow = unsafeWindow;
         const endpoint = `https://api.vk.com/method/${cParams.method}?v=5.251&client_id=6287487`
@@ -37,7 +42,7 @@ export class APIInteractor {
             }
         }
 
-        return APIInteractor.callApiRaw(endpoint, form)
+        return await APIInteractor.callApiRaw(endpoint, form)
     }
 }
 

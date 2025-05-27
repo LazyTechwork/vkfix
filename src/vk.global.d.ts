@@ -1,5 +1,12 @@
 declare const MECommonContext: Promise<{
-    browserEnv: Record<any, any>
+    browserEnv: {
+        api: {
+            request: (method: string, params: Record<string, any>, timeout?: number) => {
+                response: Promise<any>,
+                abord: () => void
+            }
+        }
+    }
     channelWSEngine: Record<any, any>
     engine: Record<any, any>
     env: Record<any, any>
@@ -9,7 +16,7 @@ declare const MECommonContext: Promise<{
         getState: () => VkState
         subscribe: (listener: (state: any) => void) => void
     }
-}>
+}> | undefined
 
 interface VkState {
     convoConn: ConvoConn;
