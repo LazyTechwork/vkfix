@@ -70,6 +70,11 @@ export class GlobalConfig {
                 'type': 'text',
                 'default': '-15,',
             }
+        },
+        events: {
+            'save': () => {
+                unsafeWindow.location.reload()
+            }
         }
     });
 }
