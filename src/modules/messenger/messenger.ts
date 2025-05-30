@@ -97,8 +97,15 @@ useEventListener(composerInputInput, 'keydown', (e: KeyboardEvent) => {
         return
     }
 
+    const currentText = composerInputInput.value.textContent
+
     setTimeout(() => {
         if (!composerInputInput.value) {
+            return
+        }
+
+        // Игнорируем, если текст не изменился
+        if (currentText === composerInputInput.value.textContent) {
             return
         }
 
