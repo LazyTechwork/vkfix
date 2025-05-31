@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.13
+// @version 1.1.14
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -16782,6 +16782,16 @@ class GlobalConfig {
                 'label': 'Показывать всплывающие подсказки только для указанных ID альбомов (Сохранённые фотографии: -15). Например у вас открыт альбом https://vk.com/album123456_123, где 123 - id альбома. Очистите поле, чтобы загружать все альбомы (это медленно и есть вероятность поймать капчу).',
                 'type': 'text',
                 'default': '-15,',
+            },
+            "switchTextLayout": {
+                'label': 'Переключение между русской и английской раскладками клавиатуры для введённого или выделенного текста на Ctrl+Q в любом редактируемом месте на сайте',
+                'type': 'checkbox',
+                'default': false,
+            }
+        },
+        events: {
+            'save': () => {
+                unsafeWindow.location.reload();
             }
         }
     });
@@ -17270,7 +17280,11 @@ class APIInteractor {
         }
         return result;
     }
-    static callApi(cParams) {
+    static async callApi(cParams) {
+        // по возможности используем ВКшный request, который умеет спрашивать капчу и обрабатывать таймаут
+        if (MECommonContext !== undefined) {
+            return { response: await (await MECommonContext).browserEnv.api.request(cParams.method, cParams.data).response };
+        }
         // Пример доступа к window страницы
         const pageWindow = unsafeWindow;
         const endpoint = `https://api.vk.com/method/${cParams.method}?v=5.251&client_id=6287487`;
@@ -17285,7 +17299,7 @@ class APIInteractor {
                 form.set(key, cParams.data[key].toString());
             }
         }
-        return APIInteractor.callApiRaw(endpoint, form);
+        return await APIInteractor.callApiRaw(endpoint, form);
     }
 }
 exports.APIInteractor = APIInteractor;
@@ -17536,6 +17550,73 @@ exports.isLog = exports.isDev = void 0;
 const GlobalConfig_1 = __webpack_require__(2057);
 exports.isDev = "production" === 'development';
 exports.isLog = GlobalConfig_1.GlobalConfig.Config.get('logging');
+
+
+/***/ }),
+
+/***/ 7414:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.switchLayout = void 0;
+const ruMapping = {
+    q: "й",
+    w: "ц",
+    e: "у",
+    r: "к",
+    t: "е",
+    y: "н",
+    u: "г",
+    i: "ш",
+    o: "щ",
+    p: "з",
+    "[": "х",
+    "{": "Х",
+    "]": "ъ",
+    "}": "Ъ",
+    "|": "/",
+    "`": "ё",
+    "~": "Ё",
+    a: "ф",
+    s: "ы",
+    d: "в",
+    f: "а",
+    g: "п",
+    h: "р",
+    j: "о",
+    k: "л",
+    l: "д",
+    ";": "ж",
+    ":": "Ж",
+    "'": "э",
+    '"': "Э",
+    z: "я",
+    x: "ч",
+    c: "с",
+    v: "м",
+    b: "и",
+    n: "т",
+    m: "ь",
+    ",": "б",
+    "<": "Б",
+    ".": "ю",
+    ">": "Ю",
+    "/": ".",
+    "?": ",",
+    "@": '"',
+    "#": "№",
+    $: ";",
+    "^": ":",
+    "&": "?",
+};
+const enMapping = Object.fromEntries(Object.entries(ruMapping).map(([key, value]) => [value, key]));
+const switchLayout = (text) => {
+    return text.replace(/./g, (ch) => {
+        return ruMapping[ch] || enMapping[ch] || ch;
+    });
+};
+exports.switchLayout = switchLayout;
 
 
 /***/ }),
@@ -18022,8 +18103,13 @@ const stickersStore = (0, vue_1.shallowReactive)({
         // даже если стикеров нет, всё равно дальше не обрабатываем, чтобы стикеры повторно не появились после скрытия вкшных стикеров на Escape
         return;
     }
+    const currentText = composerInputInput.value.textContent;
     setTimeout(() => {
         if (!composerInputInput.value) {
+            return;
+        }
+        // Игнорируем, если текст не изменился
+        if (currentText === composerInputInput.value.textContent) {
             return;
         }
         stickersStore.stickers = [];
@@ -18077,7 +18163,7 @@ async function getComposerDrafts() {
         Logger_1.Logger.info('messenger: not found peer_id', VKLocation_1.VKLocation.getQueryParams());
         return;
     }
-    return (await MECommonContext).store.getState().composerDrafts?.[peer_id] ?? [];
+    return (await MECommonContext)?.store.getState().composerDrafts?.[peer_id] ?? [];
 }
 const observerConfig = {
     childList: true
@@ -18705,6 +18791,75 @@ function default_1() {
         style += fixLeftMenuOverflow_1.fixLeftMenuOverflow;
     }
     GM_addStyle(style);
+}
+
+
+/***/ }),
+
+/***/ 5303:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.initSwitchTextLayout = initSwitchTextLayout;
+const convertTextLayout_1 = __webpack_require__(7414);
+const GlobalConfig_1 = __webpack_require__(2057);
+function handleKeyDown(e) {
+    if (e.code !== "KeyQ" || !e.ctrlKey || e.key === 'Control')
+        return;
+    const activeElement = document.activeElement;
+    if (!activeElement)
+        return;
+    // Проверяем, является ли элемент редактируемым
+    const isEditable = activeElement.isContentEditable ||
+        activeElement.tagName === "INPUT" ||
+        activeElement.tagName === "TEXTAREA";
+    if (!isEditable)
+        return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.getSelection()?.toString()) {
+        // Если есть выделенный текст
+        const selection = window.getSelection();
+        if (!selection)
+            return;
+        const range = selection.getRangeAt(0);
+        const selectedText = selection.toString();
+        const newText = (0, convertTextLayout_1.switchLayout)(selectedText);
+        range.deleteContents();
+        range.insertNode(document.createTextNode(newText));
+    }
+    else {
+        // Если нет выделенного текста, меняем весь текст
+        if (activeElement.tagName === "INPUT" ||
+            activeElement.tagName === "TEXTAREA") {
+            const input = activeElement;
+            const cursorPosition = input.selectionStart;
+            input.value = (0, convertTextLayout_1.switchLayout)(input.value);
+            // Восстанавливаем позицию курсора
+            input.setSelectionRange(cursorPosition, cursorPosition);
+        }
+        else {
+            const selection = window.getSelection();
+            if (!selection)
+                return;
+            const range = selection.getRangeAt(0);
+            const cursorPosition = range.startOffset;
+            activeElement.textContent = (0, convertTextLayout_1.switchLayout)(activeElement.textContent);
+            // Восстанавливаем позицию курсора
+            const newRange = document.createRange();
+            newRange.setStart(activeElement.firstChild || activeElement, Math.min(cursorPosition, activeElement.textContent.length));
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+        }
+    }
+}
+function initSwitchTextLayout() {
+    const switchTextLayout = GlobalConfig_1.GlobalConfig.Config.get("switchTextLayout");
+    if (!switchTextLayout)
+        return;
+    document.addEventListener("keydown", handleKeyDown, true);
 }
 
 
@@ -36806,7 +36961,7 @@ var __webpack_unused_export__;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.13
+// @version 1.1.14
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -36825,6 +36980,7 @@ const profileActions_1 = __webpack_require__(834);
 const querySelectorWithTimeout_1 = __webpack_require__(6090);
 const appActions_1 = __webpack_require__(4344);
 const messenger_1 = __webpack_require__(1827);
+const switchTextLayout_1 = __webpack_require__(5303);
 (async function (window) {
     let w = window;
     if (w.self != w.top) {
@@ -36858,6 +37014,7 @@ const messenger_1 = __webpack_require__(1827);
             (0, profileActions_1.profileActions)(); // Инициализируем дополнения к профилю пользователя
             (0, appActions_1.appActions)(); // Инициализируем дополнения к приложениям
             (0, messenger_1.messenger)(); // Инициализируем дополнения к мессенджеру
+            (0, switchTextLayout_1.initSwitchTextLayout)(); // Инициализируем функцию переключения раскладки
             window.removeEventListener("load", onLoadWindow);
             // Слежение за изменениями в URL
             LocationState_1.LocationState.init();
