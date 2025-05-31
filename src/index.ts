@@ -23,6 +23,7 @@ import {profileActions} from "./modules/profileActions";
 import {querySelectorWithTimeout} from "./common/helpers/querySelectorWithTimeout";
 import {appActions} from "./modules/appActions";
 import {messenger} from "./modules/messenger/messenger";
+import {initSwitchTextLayout} from './modules/switchTextLayout';
 
 (async function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -63,6 +64,7 @@ import {messenger} from "./modules/messenger/messenger";
             profileActions(); // Инициализируем дополнения к профилю пользователя
             appActions(); // Инициализируем дополнения к приложениям
             messenger(); // Инициализируем дополнения к мессенджеру
+            initSwitchTextLayout(); // Инициализируем функцию переключения раскладки
             window.removeEventListener("load", onLoadWindow);
             // Слежение за изменениями в URL
             LocationState.init();

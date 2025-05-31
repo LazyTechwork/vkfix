@@ -5,7 +5,8 @@
     "sourceMap": true,
     "lib": [
       "ES2023",
-      "DOM"
+      "DOM",
+      "DOM.Iterable"
     ]
   },
   "exclude": [

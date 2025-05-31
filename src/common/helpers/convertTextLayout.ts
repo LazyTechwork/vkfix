@@ -1,0 +1,60 @@
+const ruMapping: { [key: string]: string } = {
+    q: "й",
+    w: "ц",
+    e: "у",
+    r: "к",
+    t: "е",
+    y: "н",
+    u: "г",
+    i: "ш",
+    o: "щ",
+    p: "з",
+    "[": "х",
+    "{": "Х",
+    "]": "ъ",
+    "}": "Ъ",
+    "|": "/",
+    "`": "ё",
+    "~": "Ё",
+    a: "ф",
+    s: "ы",
+    d: "в",
+    f: "а",
+    g: "п",
+    h: "р",
+    j: "о",
+    k: "л",
+    l: "д",
+    ";": "ж",
+    ":": "Ж",
+    "'": "э",
+    '"': "Э",
+    z: "я",
+    x: "ч",
+    c: "с",
+    v: "м",
+    b: "и",
+    n: "т",
+    m: "ь",
+    ",": "б",
+    "<": "Б",
+    ".": "ю",
+    ">": "Ю",
+    "/": ".",
+    "?": ",",
+    "@": '"',
+    "#": "№",
+    $: ";",
+    "^": ":",
+    "&": "?",
+};
+
+const enMapping: { [key: string]: string } = Object.fromEntries(
+    Object.entries(ruMapping).map(([key, value]) => [value, key])
+);
+
+export const switchLayout = (text: string) => {
+    return text.replace(/./g, (ch) => {
+        return ruMapping[ch] || enMapping[ch] || ch;
+    });
+}
