@@ -127,8 +127,18 @@ useEventListener(composerInputInput, 'focus', () => {
     showStickers(composerInputInput.value.textContent).then()
 })
 
-useEventListener(composerInputInput, 'blur', () => {
+useEventListener('focusout', () => {
+  if (!stickersStore.stickers.length) {
+    return
+  }
+
+  setTimeout(() => {
+    if (document.activeElement === composerInputInput.value || document.activeElement.classList.contains('vkfix-sticker')) {
+      return
+    }
+
     stickersStore.stickers = []
+  })
 })
 
 watch(popupStickerEl, (popupStickerEl) => {

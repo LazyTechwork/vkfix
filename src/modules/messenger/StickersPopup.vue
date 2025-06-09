@@ -2,13 +2,22 @@
   <teleport v-if="teleportEl" :to="teleportEl">
     <transition>
       <div v-if="stickers.length" class="vkfix-stickers-popup">
-        <img v-for="sticker of lastStickers"
-             :key="sticker.photo.id"
-             :src="sticker.photo.sizes[0].url"
-             :alt="sticker.photo.text"
-             :title="sticker.suggestions[0]"
-             @click="emit('sendSticker', sticker)"
-        />
+        <a
+            v-for="sticker of lastStickers"
+            :key="sticker.photo.id"
+            tabindex="-1"
+            :href="`https://vk.com/album${sticker.photo.owner_id}_${getAlbumId(sticker)}?z=photo${sticker.photo.owner_id}_${sticker.photo.id}`"
+        >
+          <img
+              class="vkfix-sticker"
+              tabindex="0"
+              :src="sticker.photo.sizes[0].url"
+              :alt="sticker.photo.text"
+              :title="sticker.suggestions[0]"
+              @dragstart.prevent
+              @click.prevent.stop="emit('sendSticker', sticker)"
+          />
+        </a>
       </div>
     </transition>
     <div
@@ -41,6 +50,11 @@ const lastStickers = computed<PhotoSticker[]>(prev => {
 const emit = defineEmits<{
   (e: 'sendSticker', sticker: PhotoSticker): void
 }>()
+
+
+function getAlbumId(sticker: PhotoSticker) {
+  return sticker.photo.album_id === -15 ? '000' : sticker.photo.album_id.toString()
+}
 </script>
 <style lang="scss">
 .vkfix-stickers-popup {
@@ -61,13 +75,22 @@ const emit = defineEmits<{
     pointer-events: all;
   }
 
+  a {
+    display: contents;
+  }
+
   img {
     height: 99px;
-    outline: 1px solid white;
+    outline: 1px solid rgba(255, 255, 255, 0.67);
     outline-offset: -1px;
     border-radius: 8px;
     object-fit: cover;
     cursor: pointer;
+
+    &:focus {
+      outline: var(--vkui_internal--outline);
+      outline-offset: -2px;
+    }
   }
 
   &.v-enter-active,
