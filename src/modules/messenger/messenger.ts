@@ -4,7 +4,7 @@ import {querySelectorWithTimeout} from "../../common/helpers/querySelectorWithTi
 import {APIInteractor} from "../../classes/ApiInteractor";
 import {extractQuotedTexts} from "../../common/helpers/extractQuotedTexts";
 import {createApp, h, ref, shallowReactive, watch} from "vue";
-import StickersPopup from "./StickersPopup.vue";
+import VPhotoStickersPopup from "./VPhotoStickersPopup.vue";
 import {VKLocation} from "../../classes/VKLocation";
 import {Album, Photo, PhotoSticker} from "./types";
 import {initializeStickerSearch, smartStickerSearch} from "../../classes/AdvancedStickerFilter";
@@ -133,7 +133,7 @@ useEventListener('focusout', () => {
   }
 
   setTimeout(() => {
-    if (document.activeElement === composerInputInput.value || document.activeElement.classList.contains('vkfix-sticker')) {
+    if (document.activeElement === composerInputInput.value || document.activeElement.classList.contains('v-photo-sticker-img')) {
       return
     }
 
@@ -304,7 +304,7 @@ async function initPhotoStickers(): Promise<void> {
         }
 
         const stickersAppEl = document.createElement('div')
-        const app = createApp({render: () => h(StickersPopup, stickersStore)});
+        const app = createApp({render: () => h(VPhotoStickersPopup, stickersStore)});
         app.mount(stickersAppEl);
         document.body.appendChild(stickersAppEl)
         _initPhotoStickers.value = true
