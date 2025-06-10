@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.14
+// @version 1.1.15
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue
@@ -13343,7 +13343,7 @@ const initDirectivesForSSR = () => {
 
 /***/ }),
 
-/***/ 8073:
+/***/ 7760:
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -13358,7 +13358,29 @@ const initDirectivesForSSR = () => {
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, `.vkfix-stickers-popup{position:absolute;top:-102px;left:0;height:100px;width:100%;display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:1px;z-index:2;pointer-events:none}.vkfix-stickers-popup>*{pointer-events:all}.vkfix-stickers-popup img{height:99px;outline:1px solid #fff;outline-offset:-1px;border-radius:8px;object-fit:cover;cursor:pointer}.vkfix-stickers-popup.v-enter-active,.vkfix-stickers-popup.v-leave-active{transition:opacity .5s ease}.vkfix-stickers-popup.v-enter-from,.vkfix-stickers-popup.v-leave-to{opacity:0}.ConvoMain:has(.vkfix-stickers-popup) .ConvoComposer__stickersPanel{display:none !important}`, ""]);
+___CSS_LOADER_EXPORT___.push([module.id, `.v-photo-sticker{position:relative;display:flex;flex-shrink:0;flex-direction:column;justify-content:flex-end}.v-photo-sticker .v-photo-sticker-text{color:#fff;background-color:rgba(0,0,0,.7);white-space:normal;word-break:auto-phrase;padding:4px;margin-bottom:-1px;text-align:left;font-size:14px;line-height:1.3;width:var(--5dc4a259);max-height:70px;box-sizing:border-box;overflow:auto;outline:1px solid hsla(0,0%,100%,.67);border-radius:8px 8px 0 0;outline-offset:-1px}.v-photo-sticker img{position:relative;height:99px;outline:1px solid hsla(0,0%,100%,.67);outline-offset:-1px;border-radius:0 0 8px 8px;object-fit:cover;cursor:pointer}.v-photo-sticker img:focus{outline:var(--vkui_internal--outline);outline-offset:-2px}`, ""]);
+// Exports
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
+
+
+/***/ }),
+
+/***/ 168:
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1601);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+// Imports
+
+
+var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
+// Module
+___CSS_LOADER_EXPORT___.push([module.id, `.v-photo-stickers-popup{position:absolute;bottom:100%;left:0;height:max-content;width:100%;display:flex;gap:8px;overflow-x:auto;padding:1px;z-index:2;pointer-events:none;align-content:flex-end}.v-photo-stickers-popup>*{pointer-events:all}.v-photo-stickers-popup.v-enter-active,.v-photo-stickers-popup.v-leave-active{transition:opacity .5s ease}.v-photo-stickers-popup.v-enter-from,.v-photo-stickers-popup.v-leave-to{opacity:0}.ConvoMain:has(.v-photo-stickers-popup) .ConvoComposer__stickersPanel{display:none !important}`, ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -16634,7 +16656,75 @@ module.exports = styleTagTransform;
 
 /***/ }),
 
-/***/ 4060:
+/***/ 9571:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "B", ({ value: true }));
+const vue_1 = __webpack_require__(7527);
+const vue_2 = __webpack_require__(7527);
+const _hoisted_1 = ["href"];
+const _hoisted_2 = ["src", "alt", "title"];
+const vue_3 = __webpack_require__(7527);
+const core_1 = __webpack_require__(3115);
+exports.A = (0, vue_1.defineComponent)({
+    __name: 'VPhotoSticker',
+    props: {
+        sticker: {}
+    },
+    emits: ["sendSticker"],
+    setup(__props, { emit: __emit }) {
+        (0, vue_1.useCssVars)(_ctx => ({
+            "5dc4a259": (textWidth.value)
+        }));
+        const props = __props;
+        const emit = __emit;
+        const imgEl = (0, vue_3.useTemplateRef)('imgEl');
+        const { width: imgWidth } = (0, core_1.useElementSize)(imgEl);
+        const textWidth = (0, vue_3.computed)(() => {
+            return imgWidth.value + 'px';
+        });
+        function getAlbumId(sticker) {
+            return sticker.photo.album_id === -15
+                ? "000"
+                : sticker.photo.album_id.toString();
+        }
+        function getHref(sticker) {
+            const albumId = getAlbumId(sticker);
+            const ownerId = sticker.photo.owner_id;
+            const photoId = sticker.photo.id;
+            return `https://vk.com/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`;
+        }
+        return (_ctx, _cache) => {
+            return ((0, vue_2.openBlock)(), (0, vue_2.createElementBlock)("a", {
+                class: "v-photo-sticker",
+                tabindex: "-1",
+                href: getHref(_ctx.sticker)
+            }, [
+                ((0, vue_2.openBlock)(), (0, vue_2.createElementBlock)("div", {
+                    key: _ctx.sticker.photo.id,
+                    class: "v-photo-sticker-text"
+                }, (0, vue_2.toDisplayString)(_ctx.sticker.suggestions[0]), 1 /* TEXT */)),
+                (0, vue_2.createElementVNode)("img", {
+                    ref_key: "imgEl",
+                    ref: imgEl,
+                    class: "v-photo-sticker-img",
+                    tabindex: "0",
+                    src: _ctx.sticker.photo.sizes[0].url,
+                    alt: _ctx.sticker.photo.text,
+                    title: _ctx.sticker.suggestions[0],
+                    onDragstart: _cache[0] || (_cache[0] = (0, vue_2.withModifiers)(() => { }, ["prevent"])),
+                    onClick: _cache[1] || (_cache[1] = (0, vue_2.withModifiers)(($event) => (emit('sendSticker', _ctx.sticker)), ["prevent", "stop"]))
+                }, null, 40 /* PROPS, NEED_HYDRATION */, _hoisted_2)
+            ], 8 /* PROPS */, _hoisted_1));
+        };
+    }
+});
+
+
+/***/ }),
+
+/***/ 9822:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -16643,14 +16733,15 @@ const vue_1 = __webpack_require__(7527);
 const vue_2 = __webpack_require__(7527);
 const _hoisted_1 = {
     key: 0,
-    class: "vkfix-stickers-popup"
+    class: "v-photo-stickers-popup",
+    ref: "popupEl"
 };
-const _hoisted_2 = ["src", "alt", "title", "onClick"];
-const _hoisted_3 = ["title"];
+const _hoisted_2 = ["title"];
 const consts_1 = __webpack_require__(7136);
 const vue_3 = __webpack_require__(7527);
+const VPhotoSticker_vue_1 = __webpack_require__(3295);
 exports.A = (0, vue_1.defineComponent)({
-    __name: 'StickersPopup',
+    __name: 'VPhotoStickersPopup',
     props: {
         photos: {},
         stickers: {},
@@ -16659,7 +16750,7 @@ exports.A = (0, vue_1.defineComponent)({
     emits: ["sendSticker"],
     setup(__props, { emit: __emit }) {
         const props = __props;
-        const lastStickers = (0, vue_3.computed)(prev => {
+        const lastStickers = (0, vue_3.computed)((prev) => {
             if (props.stickers.length === 0 && prev?.length > 0) {
                 return prev;
             }
@@ -16677,15 +16768,13 @@ exports.A = (0, vue_1.defineComponent)({
                             (_ctx.stickers.length)
                                 ? ((0, vue_2.openBlock)(), (0, vue_2.createElementBlock)("div", _hoisted_1, [
                                     ((0, vue_2.openBlock)(true), (0, vue_2.createElementBlock)(vue_2.Fragment, null, (0, vue_2.renderList)(lastStickers.value, (sticker) => {
-                                        return ((0, vue_2.openBlock)(), (0, vue_2.createElementBlock)("img", {
+                                        return ((0, vue_2.openBlock)(), (0, vue_2.createBlock)(VPhotoSticker_vue_1.default, {
                                             key: sticker.photo.id,
-                                            src: sticker.photo.sizes[0].url,
-                                            alt: sticker.photo.text,
-                                            title: sticker.suggestions[0],
-                                            onClick: ($event) => (emit('sendSticker', sticker))
-                                        }, null, 8 /* PROPS */, _hoisted_2));
+                                            sticker: sticker,
+                                            onSendSticker: ($event) => (emit('sendSticker', sticker))
+                                        }, null, 8 /* PROPS */, ["sticker", "onSendSticker"]));
                                     }), 128 /* KEYED_FRAGMENT */))
-                                ]))
+                                ], 512 /* NEED_PATCH */))
                                 : (0, vue_2.createCommentVNode)("v-if", true)
                         ]),
                         _: 1 /* STABLE */
@@ -16694,8 +16783,16 @@ exports.A = (0, vue_1.defineComponent)({
                         ? ((0, vue_2.openBlock)(), (0, vue_2.createElementBlock)("div", {
                             key: 0,
                             title: `Загружено фотографий-стикеров: ${_ctx.photos.length}`,
-                            style: { "position": "absolute", "right": "0", "bottom": "0", "min-width": "2px", "min-height": "2px", "border-radius": "50%", "background-color": "green" }
-                        }, null, 8 /* PROPS */, _hoisted_3))
+                            style: (0, vue_2.normalizeStyle)({
+                                position: 'absolute',
+                                right: '0',
+                                bottom: '0',
+                                minWidth: '4px',
+                                minHeight: '4px',
+                                borderRadius: '50%',
+                                backgroundColor: _ctx.photos.length === 0 ? 'red' : 'green'
+                            })
+                        }, null, 12 /* STYLE, PROPS */, _hoisted_2))
                         : (0, vue_2.createCommentVNode)("v-if", true)
                 ], 8 /* PROPS */, ["to"]))
                 : (0, vue_2.createCommentVNode)("v-if", true);
@@ -18028,7 +18125,7 @@ const querySelectorWithTimeout_1 = __webpack_require__(6090);
 const ApiInteractor_1 = __webpack_require__(8410);
 const extractQuotedTexts_1 = __webpack_require__(4437);
 const vue_1 = __webpack_require__(7527);
-const StickersPopup_vue_1 = __webpack_require__(1529);
+const VPhotoStickersPopup_vue_1 = __webpack_require__(8309);
 const VKLocation_1 = __webpack_require__(7845);
 const AdvancedStickerFilter_1 = __webpack_require__(7950);
 const es_toolkit_1 = __webpack_require__(4611);
@@ -18127,8 +18224,16 @@ const stickersStore = (0, vue_1.shallowReactive)({
 (0, core_1.useEventListener)(composerInputInput, 'focus', () => {
     showStickers(composerInputInput.value.textContent).then();
 });
-(0, core_1.useEventListener)(composerInputInput, 'blur', () => {
-    stickersStore.stickers = [];
+(0, core_1.useEventListener)('focusout', () => {
+    if (!stickersStore.stickers.length) {
+        return;
+    }
+    setTimeout(() => {
+        if (document.activeElement === composerInputInput.value || document.activeElement.classList.contains('v-photo-sticker-img')) {
+            return;
+        }
+        stickersStore.stickers = [];
+    });
 });
 (0, vue_1.watch)(popupStickerEl, (popupStickerEl) => {
     if (!popupStickerEl) {
@@ -18264,7 +18369,7 @@ async function initPhotoStickers() {
             await loadPhotos(albumIds);
         }
         const stickersAppEl = document.createElement('div');
-        const app = (0, vue_1.createApp)({ render: () => (0, vue_1.h)(StickersPopup_vue_1.default, stickersStore) });
+        const app = (0, vue_1.createApp)({ render: () => (0, vue_1.h)(VPhotoStickersPopup_vue_1.default, stickersStore) });
         app.mount(stickersAppEl);
         document.body.appendChild(stickersAppEl);
         _initPhotoStickers.value = true;
@@ -18865,7 +18970,7 @@ function initSwitchTextLayout() {
 
 /***/ }),
 
-/***/ 1529:
+/***/ 3295:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 // ESM COMPAT FLAG
@@ -18873,13 +18978,13 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  __esModule: () => (/* reexport */ StickersPopupvue_type_script_lang_ts_setup_true/* __esModule */.B),
-  "default": () => (/* binding */ StickersPopup)
+  __esModule: () => (/* reexport */ VPhotoStickervue_type_script_lang_ts_setup_true/* __esModule */.B),
+  "default": () => (/* binding */ VPhotoSticker)
 });
 
-// EXTERNAL MODULE: ./node_modules/ts-loader/index.js??clonedRuleSet-1.use!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=script&lang=ts&setup=true
-var StickersPopupvue_type_script_lang_ts_setup_true = __webpack_require__(4060);
-;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue?vue&type=script&lang=ts&setup=true
+// EXTERNAL MODULE: ./node_modules/ts-loader/index.js??clonedRuleSet-1.use!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=script&lang=ts&setup=true
+var VPhotoStickervue_type_script_lang_ts_setup_true = __webpack_require__(9571);
+;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue?vue&type=script&lang=ts&setup=true
  
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
 var injectStylesIntoStyleTag = __webpack_require__(5072);
@@ -18899,9 +19004,9 @@ var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleE
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
 var styleTagTransform = __webpack_require__(1113);
 var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=a7f2e524&lang=scss
-var StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss = __webpack_require__(8073);
-;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=a7f2e524&lang=scss
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=f78ba374&lang=scss
+var VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss = __webpack_require__(7760);
+;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=f78ba374&lang=scss
 
       
       
@@ -18921,24 +19026,101 @@ options.insert = insertBySelector_default().bind(null, "head");
 options.domAPI = (styleDomAPI_default());
 options.insertStyleElement = (insertStyleElement_default());
 
-var update = injectStylesIntoStyleTag_default()(StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss/* default */.A, options);
+var update = injectStylesIntoStyleTag_default()(VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss/* default */.A, options);
 
 
 
 
-       /* harmony default export */ const messenger_StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss = (StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss/* default */.A && StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss/* default */.A.locals ? StickersPopupvue_type_style_index_0_id_a7f2e524_lang_scss/* default */.A.locals : undefined);
+       /* harmony default export */ const messenger_VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss = (VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss/* default */.A && VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss/* default */.A.locals ? VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss/* default */.A.locals : undefined);
 
-;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue?vue&type=style&index=0&id=a7f2e524&lang=scss
+;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=f78ba374&lang=scss
 
-;// CONCATENATED MODULE: ./src/modules/messenger/StickersPopup.vue
+;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue
 
 
 
 ;
 
-const __exports__ = StickersPopupvue_type_script_lang_ts_setup_true/* default */.A;
+const __exports__ = VPhotoStickervue_type_script_lang_ts_setup_true/* default */.A;
 
-/* harmony default export */ const StickersPopup = (__exports__);
+/* harmony default export */ const VPhotoSticker = (__exports__);
+
+/***/ }),
+
+/***/ 8309:
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  __esModule: () => (/* reexport */ VPhotoStickersPopupvue_type_script_lang_ts_setup_true/* __esModule */.B),
+  "default": () => (/* binding */ VPhotoStickersPopup)
+});
+
+// EXTERNAL MODULE: ./node_modules/ts-loader/index.js??clonedRuleSet-1.use!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoStickersPopup.vue?vue&type=script&lang=ts&setup=true
+var VPhotoStickersPopupvue_type_script_lang_ts_setup_true = __webpack_require__(9822);
+;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoStickersPopup.vue?vue&type=script&lang=ts&setup=true
+ 
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
+var injectStylesIntoStyleTag = __webpack_require__(5072);
+var injectStylesIntoStyleTag_default = /*#__PURE__*/__webpack_require__.n(injectStylesIntoStyleTag);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleDomAPI.js
+var styleDomAPI = __webpack_require__(7825);
+var styleDomAPI_default = /*#__PURE__*/__webpack_require__.n(styleDomAPI);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertBySelector.js
+var insertBySelector = __webpack_require__(7659);
+var insertBySelector_default = /*#__PURE__*/__webpack_require__.n(insertBySelector);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js
+var setAttributesWithoutAttributes = __webpack_require__(5056);
+var setAttributesWithoutAttributes_default = /*#__PURE__*/__webpack_require__.n(setAttributesWithoutAttributes);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertStyleElement.js
+var insertStyleElement = __webpack_require__(540);
+var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleElement);
+// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
+var styleTagTransform = __webpack_require__(1113);
+var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoStickersPopup.vue?vue&type=style&index=0&id=7f654df1&lang=scss
+var VPhotoStickersPopupvue_type_style_index_0_id_7f654df1_lang_scss = __webpack_require__(168);
+;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoStickersPopup.vue?vue&type=style&index=0&id=7f654df1&lang=scss
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+var options = {};
+
+options.styleTagTransform = (styleTagTransform_default());
+options.setAttributes = (setAttributesWithoutAttributes_default());
+options.insert = insertBySelector_default().bind(null, "head");
+options.domAPI = (styleDomAPI_default());
+options.insertStyleElement = (insertStyleElement_default());
+
+var update = injectStylesIntoStyleTag_default()(VPhotoStickersPopupvue_type_style_index_0_id_7f654df1_lang_scss/* default */.A, options);
+
+
+
+
+       /* harmony default export */ const messenger_VPhotoStickersPopupvue_type_style_index_0_id_7f654df1_lang_scss = (VPhotoStickersPopupvue_type_style_index_0_id_7f654df1_lang_scss/* default */.A && VPhotoStickersPopupvue_type_style_index_0_id_7f654df1_lang_scss/* default */.A.locals ? VPhotoStickersPopupvue_type_style_index_0_id_7f654df1_lang_scss/* default */.A.locals : undefined);
+
+;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoStickersPopup.vue?vue&type=style&index=0&id=7f654df1&lang=scss
+
+;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoStickersPopup.vue
+
+
+
+;
+
+const __exports__ = VPhotoStickersPopupvue_type_script_lang_ts_setup_true/* default */.A;
+
+/* harmony default export */ const VPhotoStickersPopup = (__exports__);
 
 /***/ }),
 
@@ -36961,7 +37143,7 @@ var __webpack_unused_export__;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.14
+// @version 1.1.15
 // @include https://vk.com/*
 // @grant GM_getValue
 // @grant GM_setValue

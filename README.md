@@ -13,7 +13,7 @@ VK Fix - скрипт, пришедший на замену VK Opt. Мы исп�
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.11
+// @version 1.1.15
 // @include https://vk.com/*
 // @require file://C:/Work/Development/vkfix/dist/vkfix.user.js
 // @grant GM_getValue
