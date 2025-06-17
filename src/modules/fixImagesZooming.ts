@@ -1,4 +1,18 @@
-document.documentElement.style.setProperty("--device-pixel-ratio", `${window.devicePixelRatio}`);
+import { useDevicePixelRatio } from "@vueuse/core";
+import { watch } from "vue";
+
+const { pixelRatio } = useDevicePixelRatio();
+
+watch(
+  pixelRatio,
+  (pixelRatio) => {
+    document.documentElement.style.setProperty(
+      "--device-pixel-ratio",
+      `${pixelRatio}`
+    );
+  },
+  { immediate: true }
+);
 
 export const fixImagesZoomingCss = `
 #pv_photo {
