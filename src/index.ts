@@ -6,6 +6,7 @@
 // @license MIT
 // @version 1.1.15
 // @include https://vk.com/*
+// @include https://vk.ru/*
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
@@ -37,7 +38,7 @@ import {initSwitchTextLayout} from './modules/switchTextLayout';
     // Инициализируем новый конфиг
 
     // [4] дополнительная проверка наряду с @include
-    if (/https:\/\/vk.com/.test(w.location.href)) {
+    if (/^https:\/\/vk\.(com|ru)\//.test(w.location.href)) {
         Logger.log('VK Fix запущен');
 
         // Добавляем кнопку настроек в верхнее меню

@@ -6,6 +6,7 @@
 // @license MIT
 // @version 1.1.15
 // @include https://vk.com/*
+// @include https://vk.ru/*
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
@@ -13343,7 +13344,7 @@ const initDirectivesForSSR = () => {
 
 /***/ }),
 
-/***/ 7760:
+/***/ 2821:
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -13358,7 +13359,7 @@ const initDirectivesForSSR = () => {
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, `.v-photo-sticker{position:relative;display:flex;flex-shrink:0;flex-direction:column;justify-content:flex-end}.v-photo-sticker .v-photo-sticker-text{color:#fff;background-color:rgba(0,0,0,.7);white-space:normal;word-break:auto-phrase;padding:4px;margin-bottom:-1px;text-align:left;font-size:14px;line-height:1.3;width:var(--5dc4a259);max-height:70px;box-sizing:border-box;overflow:auto;outline:1px solid hsla(0,0%,100%,.67);border-radius:8px 8px 0 0;outline-offset:-1px}.v-photo-sticker img{position:relative;height:99px;outline:1px solid hsla(0,0%,100%,.67);outline-offset:-1px;border-radius:0 0 8px 8px;object-fit:cover;cursor:pointer}.v-photo-sticker img:focus{outline:var(--vkui_internal--outline);outline-offset:-2px}`, ""]);
+___CSS_LOADER_EXPORT___.push([module.id, `.v-photo-sticker{position:relative;display:flex;flex-shrink:0;flex-direction:column;justify-content:flex-end}.v-photo-sticker .v-photo-sticker-text{color:#fff;background-color:rgba(0,0,0,.7);white-space:normal;word-break:auto-phrase;padding:4px;margin-bottom:-1px;text-align:left;font-size:14px;line-height:1.3;width:var(--6c9934ec);max-height:70px;box-sizing:border-box;overflow:auto;outline:1px solid hsla(0,0%,100%,.67);border-radius:8px 8px 0 0;outline-offset:-1px}.v-photo-sticker img{position:relative;height:99px;outline:1px solid hsla(0,0%,100%,.67);outline-offset:-1px;border-radius:0 0 8px 8px;object-fit:cover;cursor:pointer}.v-photo-sticker img:focus{outline:var(--vkui_internal--outline);outline-offset:-2px}`, ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -16675,7 +16676,7 @@ exports.A = (0, vue_1.defineComponent)({
     emits: ["sendSticker"],
     setup(__props, { emit: __emit }) {
         (0, vue_1.useCssVars)(_ctx => ({
-            "5dc4a259": (textWidth.value)
+            "6c9934ec": (textWidth.value)
         }));
         const props = __props;
         const emit = __emit;
@@ -16693,7 +16694,7 @@ exports.A = (0, vue_1.defineComponent)({
             const albumId = getAlbumId(sticker);
             const ownerId = sticker.photo.owner_id;
             const photoId = sticker.photo.id;
-            return `https://vk.com/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`;
+            return `https://${window.location.host}/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`;
         }
         return (_ctx, _cache) => {
             return ((0, vue_2.openBlock)(), (0, vue_2.createElementBlock)("a", {
@@ -16739,7 +16740,7 @@ const _hoisted_1 = {
 const _hoisted_2 = ["title"];
 const consts_1 = __webpack_require__(7136);
 const vue_3 = __webpack_require__(7527);
-const VPhotoSticker_vue_1 = __webpack_require__(3295);
+const VPhotoSticker_vue_1 = __webpack_require__(9000);
 exports.A = (0, vue_1.defineComponent)({
     __name: 'VPhotoStickersPopup',
     props: {
@@ -18007,7 +18008,8 @@ const saveTemplateAsFile_1 = __webpack_require__(3527);
 const exportCommunityKeeperBtn = 'exportCommunityKeeperBtn';
 async function appActions() {
     const isNewsBtn = GlobalConfig_1.GlobalConfig.Config.get('exportCommunityKeeperBtn');
-    if (!isNewsBtn || !window.location.href.includes('vk.com/app51658481') || document.getElementById(exportCommunityKeeperBtn)) {
+    const isAppPage = window.location.pathname.startsWith('/app51658481');
+    if (!isNewsBtn || !isAppPage || document.getElementById(exportCommunityKeeperBtn)) {
         return;
     }
     const grCodeBtn = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
@@ -18057,12 +18059,17 @@ async function appActions() {
 /***/ }),
 
 /***/ 4536:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fixImagesZoomingCss = void 0;
-document.documentElement.style.setProperty("--device-pixel-ratio", `${window.devicePixelRatio}`);
+const core_1 = __webpack_require__(3115);
+const vue_1 = __webpack_require__(7527);
+const { pixelRatio } = (0, core_1.useDevicePixelRatio)();
+(0, vue_1.watch)(pixelRatio, (pixelRatio) => {
+    document.documentElement.style.setProperty("--device-pixel-ratio", `${pixelRatio}`);
+}, { immediate: true });
 exports.fixImagesZoomingCss = `
 #pv_photo {
    display: flex !important;
@@ -18847,10 +18854,11 @@ function photoMoreActs({ pvBox }) {
     };
     const registerMoreActs = async () => {
         if (pvPhotoMoreActCommunityKeeper) {
-            await registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`);
+            await registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://${window.location.host}/app51658481#/photo${cur.pvCurPhoto.id}`);
         }
-        if (pvPhotoMoreActAlbum && !window.location.href.includes('vk.com/photo-')) {
-            await registerMoreAct('pvPhotoMoreActAlbum', 'Открыть в альбоме', `https://vk.com/photo${cur.pvCurPhoto.id}`);
+        const isPhotoPath = window.location.pathname.startsWith('/photo-');
+        if (pvPhotoMoreActAlbum && !isPhotoPath) {
+            await registerMoreAct('pvPhotoMoreActAlbum', 'Открыть в альбоме', `https://${window.location.host}/photo${cur.pvCurPhoto.id}`);
         }
     };
     pvActionsMore.addEventListener('mouseenter', registerMoreActs, {
@@ -18970,7 +18978,7 @@ function initSwitchTextLayout() {
 
 /***/ }),
 
-/***/ 3295:
+/***/ 9000:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 // ESM COMPAT FLAG
@@ -19004,9 +19012,9 @@ var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleE
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
 var styleTagTransform = __webpack_require__(1113);
 var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=f78ba374&lang=scss
-var VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss = __webpack_require__(7760);
-;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=f78ba374&lang=scss
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=b0c3fa22&lang=scss
+var VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss = __webpack_require__(2821);
+;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=b0c3fa22&lang=scss
 
       
       
@@ -19026,14 +19034,14 @@ options.insert = insertBySelector_default().bind(null, "head");
 options.domAPI = (styleDomAPI_default());
 options.insertStyleElement = (insertStyleElement_default());
 
-var update = injectStylesIntoStyleTag_default()(VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss/* default */.A, options);
+var update = injectStylesIntoStyleTag_default()(VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss/* default */.A, options);
 
 
 
 
-       /* harmony default export */ const messenger_VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss = (VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss/* default */.A && VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss/* default */.A.locals ? VPhotoStickervue_type_style_index_0_id_f78ba374_lang_scss/* default */.A.locals : undefined);
+       /* harmony default export */ const messenger_VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss = (VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss/* default */.A && VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss/* default */.A.locals ? VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss/* default */.A.locals : undefined);
 
-;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=f78ba374&lang=scss
+;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=b0c3fa22&lang=scss
 
 ;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue
 
@@ -37145,6 +37153,7 @@ var __webpack_unused_export__;
 // @license MIT
 // @version 1.1.15
 // @include https://vk.com/*
+// @include https://vk.ru/*
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
@@ -37171,7 +37180,7 @@ const switchTextLayout_1 = __webpack_require__(5303);
     // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
     // Инициализируем новый конфиг
     // [4] дополнительная проверка наряду с @include
-    if (/https:\/\/vk.com/.test(w.location.href)) {
+    if (/^https:\/\/vk\.(com|ru)\//.test(w.location.href)) {
         Logger_1.Logger.log('VK Fix запущен');
         // Добавляем кнопку настроек в верхнее меню
         const settings_link = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#top_settings_link', timeout: 5000 });

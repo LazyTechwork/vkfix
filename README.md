@@ -15,6 +15,7 @@ VK Fix - скрипт, пришедший на замену VK Opt. Мы исп�
 // @license MIT
 // @version 1.1.15
 // @include https://vk.com/*
+// @include https://vk.ru/*
 // @require file://C:/Work/Development/vkfix/dist/vkfix.user.js
 // @grant GM_getValue
 // @grant GM_setValue

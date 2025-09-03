@@ -51,7 +51,7 @@ function getHref(sticker: PhotoSticker) {
   const albumId = getAlbumId(sticker)
   const ownerId = sticker.photo.owner_id
   const photoId = sticker.photo.id
-  return `https://vk.com/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`
+  return `https://${window.location.host}/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`
 }
 
 </script>

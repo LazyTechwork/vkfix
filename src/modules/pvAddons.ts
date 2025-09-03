@@ -272,11 +272,12 @@ function photoMoreActs({pvBox}: PVAddonsContext) {
 
     const registerMoreActs = async () => {
         if (pvPhotoMoreActCommunityKeeper) {
-            await registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://vk.com/app51658481#/photo${cur.pvCurPhoto.id}`)
+            await registerMoreAct('pvPhotoMoreActCommunityKeeper', 'Открыть в Хранителе Групп', `https://${window.location.host}/app51658481#/photo${cur.pvCurPhoto.id}`)
         }
 
-        if (pvPhotoMoreActAlbum && !window.location.href.includes('vk.com/photo-')) {
-            await registerMoreAct('pvPhotoMoreActAlbum', 'Открыть в альбоме', `https://vk.com/photo${cur.pvCurPhoto.id}`)
+        const isPhotoPath = window.location.pathname.startsWith('/photo-')
+        if (pvPhotoMoreActAlbum && !isPhotoPath) {
+            await registerMoreAct('pvPhotoMoreActAlbum', 'Открыть в альбоме', `https://${window.location.host}/photo${cur.pvCurPhoto.id}`)
         }
     }
 
