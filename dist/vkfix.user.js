@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.15
+// @version 1.1.16
 // @include https://vk.com/*
 // @include https://vk.ru/*
 // @grant GM_getValue
@@ -16885,6 +16885,11 @@ class GlobalConfig {
                 'label': 'Переключение между русской и английской раскладками клавиатуры для введённого или выделенного текста на Ctrl+Q в любом редактируемом месте на сайте',
                 'type': 'checkbox',
                 'default': false,
+            },
+            "fixFeedPhotoNavigation": {
+                'label': 'Возвращает пролистывание фото в ленте',
+                'type': 'checkbox',
+                'default': false,
             }
         },
         events: {
@@ -18629,6 +18634,8 @@ const GlobalConfig_1 = __webpack_require__(2057);
 const Logger_1 = __webpack_require__(7629);
 const querySelectorWithTimeout_1 = __webpack_require__(6090);
 async function pvAddons() {
+    // Фикс навигации по фото в ленте - вызываем первым делом
+    fixFeedPhotoNavigation();
     const isPvExpand = GlobalConfig_1.GlobalConfig.Config.get('pvExpand');
     const pvPhotoSwitchWheel = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoSwitchWheel');
     const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper');
@@ -18865,6 +18872,68 @@ function photoMoreActs({ pvBox }) {
         capture: true,
         signal,
     });
+}
+// Флаг что мы уже в процессе фикса (чтобы не реагировать на свои же изменения URL)
+let isFixingFeedPhoto = false;
+// Флаг что фотопросмотрщик уже открыт (чтобы не реагировать на переключение фото)
+let isPhotoViewerActive = false;
+/**
+ * Фикс навигации по фото в ленте.
+ * ВК добавляет хеш в URL фото (например /feed?z=photo-123_456%2Fabc123hash),
+ * который ломает пролистывание. Мы убираем этот хеш, чтобы вернуть навигацию.
+ */
+function fixFeedPhotoNavigation() {
+    const isEnabled = GlobalConfig_1.GlobalConfig.Config.get('fixFeedPhotoNavigation');
+    if (!isEnabled) {
+        return;
+    }
+    // Если мы в процессе фикса - игнорируем
+    if (isFixingFeedPhoto) {
+        return;
+    }
+    const url = new URL(window.location.href);
+    const zParam = url.searchParams.get('z');
+    // Если z параметра нет - фотопросмотрщик закрыт
+    if (!zParam) {
+        isPhotoViewerActive = false;
+        return;
+    }
+    // Если фотопросмотрщик уже активен - не реагируем на переключение фото
+    if (isPhotoViewerActive) {
+        return;
+    }
+    // Проверяем что есть параметр z с фото
+    if (!zParam.startsWith('photo')) {
+        return;
+    }
+    // Проверяем есть ли хеш в параметре (формат: photo-123_456%2Fhash или photo-123_456/hash)
+    const decodedZ = decodeURIComponent(zParam);
+    const slashIndex = decodedZ.indexOf('/');
+    if (slashIndex === -1) {
+        // Хеша нет, ничего делать не нужно
+        return;
+    }
+    // Извлекаем только ID фото без хеша
+    const photoId = decodedZ.substring(0, slashIndex);
+    Logger_1.Logger.info('fixFeedPhotoNavigation: убираем хеш из URL фото', {
+        original: zParam,
+        photoId: photoId
+    });
+    // Устанавливаем флаги
+    isFixingFeedPhoto = true;
+    isPhotoViewerActive = true;
+    // Шаг 1: replaceState с чистым URL (без хеша)
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.set('z', photoId);
+    history.replaceState(null, "", cleanUrl.toString());
+    // Шаг 2: pushState с тем же URL чтобы создать запись в истории
+    history.pushState(null, "", cleanUrl.toString());
+    // Шаг 3: back() чтобы React среагировал на изменение
+    history.back();
+    // Сбрасываем флаг фикса после небольшой задержки
+    setTimeout(() => {
+        isFixingFeedPhoto = false;
+    }, 100);
 }
 
 
@@ -37151,7 +37220,7 @@ var __webpack_unused_export__;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.15
+// @version 1.1.16
 // @include https://vk.com/*
 // @include https://vk.ru/*
 // @grant GM_getValue

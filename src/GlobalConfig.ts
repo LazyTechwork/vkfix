@@ -74,6 +74,11 @@ export class GlobalConfig {
                 'label': 'Переключение между русской и английской раскладками клавиатуры для введённого или выделенного текста на Ctrl+Q в любом редактируемом месте на сайте',
                 'type': 'checkbox',
                 'default': false,
+            },
+            "fixFeedPhotoNavigation": {
+                'label': 'Возвращает пролистывание фото в ленте',
+                'type': 'checkbox',
+                'default': false,
             }
         },
         events: {
