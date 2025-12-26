@@ -18,7 +18,14 @@ export function locationMutations() {
         pageScanner();
     }
 
-    if (cq.get('z') != pq.get('z') || cp.startsWith('/photo') && cp !== pp) {
+    // Вызываем pvAddons если:
+    // 1. Изменился параметр z (открыли/закрыли/переключили фото в модалке)
+    // 2. Перешли на страницу /photo-... (прямая ссылка на фото в альбоме)
+    const isZChanged = cq.get('z') != pq.get('z');
+    const isPhotoPage = cp.startsWith('/photo');
+    const isPathChanged = cp !== pp;
+    
+    if (isZChanged || (isPhotoPage && isPathChanged)) {
         pvAddons();
     }
 

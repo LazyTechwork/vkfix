@@ -20,10 +20,19 @@ export async function pvAddons() {
         return;
     }
 
-    const pvBox = await querySelectorWithTimeout<HTMLDivElement>({selectors: '#pv_box'});
+    // На страницах /photo-... (прямая ссылка на фото в альбоме) просмотрщик может загружаться дольше
+    const isDirectPhotoPage = window.location.pathname.startsWith('/photo');
+    const timeout = isDirectPhotoPage ? 5000 : 2000;
+    
+    Logger.info('pvAddons: ищем pv_box', {isDirectPhotoPage, timeout, pathname: window.location.pathname});
+    
+    const pvBox = await querySelectorWithTimeout<HTMLDivElement>({selectors: '#pv_box', timeout});
     if (!pvBox) {
+        Logger.info('pv_box not found', {isDirectPhotoPage, timeout});
         return;
     }
+    
+    Logger.info('pvAddons: pv_box найден, ищем остальные элементы');
 
     const pvBottomInfo = await querySelectorWithTimeout<HTMLDivElement>({
         element: pvBox,

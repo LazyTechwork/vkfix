@@ -18495,7 +18495,13 @@ function locationMutations() {
     if (cq.get('sel') != pq.get('sel')) {
         (0, pageScanner_1.pageScanner)();
     }
-    if (cq.get('z') != pq.get('z') || cp.startsWith('/photo') && cp !== pp) {
+    // Вызываем pvAddons если:
+    // 1. Изменился параметр z (открыли/закрыли/переключили фото в модалке)
+    // 2. Перешли на страницу /photo-... (прямая ссылка на фото в альбоме)
+    const isZChanged = cq.get('z') != pq.get('z');
+    const isPhotoPage = cp.startsWith('/photo');
+    const isPathChanged = cp !== pp;
+    if (isZChanged || (isPhotoPage && isPathChanged)) {
         (0, pvAddons_1.pvAddons)();
     }
     if (cp.startsWith('/app')) {
@@ -18643,10 +18649,16 @@ async function pvAddons() {
     if (!isPvExpand && !pvPhotoSwitchWheel && !pvPhotoMoreActCommunityKeeper && !pvPhotoMoreActAlbum) {
         return;
     }
-    const pvBox = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#pv_box' });
+    // На страницах /photo-... (прямая ссылка на фото в альбоме) просмотрщик может загружаться дольше
+    const isDirectPhotoPage = window.location.pathname.startsWith('/photo');
+    const timeout = isDirectPhotoPage ? 5000 : 2000;
+    Logger_1.Logger.info('pvAddons: ищем pv_box', { isDirectPhotoPage, timeout, pathname: window.location.pathname });
+    const pvBox = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#pv_box', timeout });
     if (!pvBox) {
+        Logger_1.Logger.info('pv_box not found', { isDirectPhotoPage, timeout });
         return;
     }
+    Logger_1.Logger.info('pvAddons: pv_box найден, ищем остальные элементы');
     const pvBottomInfo = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
         element: pvBox,
         selectors: '.pv_bottom_info'
