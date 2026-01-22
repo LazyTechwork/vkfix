@@ -45,6 +45,41 @@ export interface SearchIndex {
 }
 
 /**
+ * Оптимизированный поисковый индекс с дедупликацией
+ * Хранит только ID стикеров вместо полных объектов
+ */
+export interface OptimizedSearchIndex {
+  /** Точные совпадения слов (слово -> Set<stickerId>) */
+  exactWords: Map<string, Set<number>>;
+  /** Точные совпадения подсказок (подсказка -> Set<stickerId>) */
+  exactSuggestions: Map<string, Set<number>>;
+  /** Частичные совпадения (префикс -> Set<stickerId>) */
+  partialWords: Map<string, Set<number>>;
+  /** Семантические связи (слово -> Set<синонимов>) */
+  semanticMap: Map<string, Set<string>>;
+  /** Хранилище стикеров (stickerId -> PhotoSticker) */
+  stickerStore: Map<number, PhotoSticker>;
+}
+
+/**
+ * Статистика использования памяти индексом
+ */
+export interface IndexMemoryStats {
+  /** Количество уникальных стикеров */
+  uniqueStickers: number;
+  /** Количество записей в exactWords */
+  exactWordsEntries: number;
+  /** Количество записей в exactSuggestions */
+  exactSuggestionsEntries: number;
+  /** Количество записей в partialWords */
+  partialWordsEntries: number;
+  /** Общее количество ссылок на стикеры */
+  totalStickerReferences: number;
+  /** Оценка использования памяти (байты) */
+  estimatedMemoryBytes: number;
+}
+
+/**
  * Опции поиска
  */
 export interface SearchOptions {

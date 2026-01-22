@@ -192,20 +192,20 @@ export class SearchEngine {
   ): void {
     for (const word of queryWords) {
       const synonyms = this.index!.semanticMap.get(word) || new Set();
+      
       for (const synonym of synonyms) {
         if (synonym === word) continue; // Пропускаем само слово
         
         const semanticMatches = this.index!.exactWords.get(synonym) || [];
+        
         for (const sticker of semanticMatches) {
-          if (!candidateStickers.has(sticker)) {
-            candidateStickers.add(sticker);
-            this.addMatch(stickerScores, sticker, {
-              type: 'semantic',
-              field: 'word',
-              value: synonym,
-              score: this.config.scoring.semanticMatch
-            });
-          }
+          candidateStickers.add(sticker);
+          this.addMatch(stickerScores, sticker, {
+            type: 'semantic',
+            field: 'word',
+            value: synonym,
+            score: this.config.scoring.semanticMatch
+          });
         }
       }
     }
@@ -284,16 +284,17 @@ export class SearchEngine {
     const queryWordsSet = new Set(queryWords);
 
     for (const [sticker, stickerData] of stickerScores.entries()) {
-      if (stickerData.score >= this.config.limits.minScore) {
-        // Бонус за количество совпавших слов запроса
-        const matchedQueryWords = new Set(
-          stickerData.matches.map(m => m.value.toLowerCase())
-        );
-        const matchRatio = this.calculateMatchRatio(matchedQueryWords, queryWordsSet);
-        const finalScore =
-          stickerData.score *
-          (this.config.scoring.baseWeight + matchRatio * this.config.scoring.matchRatioWeight);
+      // Бонус за количество совпавших слов запроса
+      const matchedQueryWords = new Set(
+        stickerData.matches.map(m => m.value.toLowerCase())
+      );
+      const matchRatio = this.calculateMatchRatio(matchedQueryWords, queryWordsSet);
+      
+      const finalScore =
+        stickerData.score *
+        (this.config.scoring.baseWeight + matchRatio * this.config.scoring.matchRatioWeight);
 
+      if (finalScore >= this.config.limits.minScore) {
         results.push({
           sticker,
           score: Math.min(finalScore, 10),
@@ -319,11 +320,22 @@ export class SearchEngine {
         continue;
       }
 
-      // Проверяем частичные совпадения
+      // Проверяем семантические совпадения
+      const synonyms = this.index!.semanticMap.get(queryWord) || new Set();
       for (const matchedWord of matchedWords) {
-        if (matchedWord.includes(queryWord) || queryWord.includes(matchedWord)) {
-          matches += 0.7; // Частичное совпадение
+        if (synonyms.has(matchedWord)) {
+          matches += 0.9; // Семантическое совпадение почти как точное
           break;
+        }
+      }
+
+      // Проверяем частичные совпадения
+      if (matches === 0 || matches % 1 !== 0) { // Если еще не нашли совпадение
+        for (const matchedWord of matchedWords) {
+          if (matchedWord.includes(queryWord) || queryWord.includes(matchedWord)) {
+            matches += 0.7; // Частичное совпадение
+            break;
+          }
         }
       }
     }

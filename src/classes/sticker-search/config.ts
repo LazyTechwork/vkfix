@@ -68,12 +68,12 @@ export const DEFAULT_SEARCH_CONFIG: StickerSearchConfig = {
     prefixMatch: 1.8,
     semanticMatch: 0.7,
     fuzzyMatch: 0.5,
-    baseWeight: 0.5,
-    matchRatioWeight: 0.5
+    baseWeight: 0.25,      // Баланс между base и matchRatio
+    matchRatioWeight: 0.75  // Больше веса на % совпадения слов
   },
   limits: {
     maxResults: 50,
-    minScore: 0.2,
+    minScore: 0.3,         // Понижен для точных совпадений
     maxQueryWords: 5,
     minPrefixLength: 3,
     maxPrefixLength: 6
