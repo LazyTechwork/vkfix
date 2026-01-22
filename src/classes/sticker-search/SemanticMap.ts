@@ -1,4 +1,17 @@
 /**
+ * Интерфейс для JSON файла семантической карты
+ */
+interface SemanticMapJSON {
+  version: string;
+  lastUpdated: string;
+  description: string;
+  groups: Array<{
+    category: string;
+    synonyms: string[];
+  }>;
+}
+
+/**
  * Семантическая карта синонимов (Singleton)
  */
 export class SemanticMap {
@@ -25,11 +38,34 @@ export class SemanticMap {
   }
 
   /**
+   * Загрузить семантическую карту из JSON
+   */
+  async loadFromJSON(jsonData: SemanticMapJSON): Promise<void> {
+    this.semanticMap = this.buildSemanticMapFromJSON(jsonData);
+  }
+
+  /**
    * Получить синонимы для слова
    */
   getSynonyms(word: string): Set<string> {
     const map = this.getMap();
     return map.get(word.toLowerCase()) || new Set();
+  }
+
+  /**
+   * Построение семантической карты из JSON
+   */
+  private buildSemanticMapFromJSON(jsonData: SemanticMapJSON): Map<string, Set<string>> {
+    const semanticMap = new Map<string, Set<string>>();
+    
+    for (const group of jsonData.groups) {
+      const set = new Set(group.synonyms.map(s => s.toLowerCase()));
+      for (const synonym of group.synonyms) {
+        semanticMap.set(synonym.toLowerCase(), set);
+      }
+    }
+    
+    return semanticMap;
   }
 
   /**

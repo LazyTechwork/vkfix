@@ -25,6 +25,20 @@ export class IndexBuilder {
   }
 
   /**
+   * Загружает семантическую карту из JSON (опционально)
+   */
+  async loadSemanticMapFromJSON(jsonPath: string): Promise<void> {
+    try {
+      // В браузерном окружении используем fetch
+      const response = await fetch(jsonPath);
+      const jsonData = await response.json();
+      await SemanticMap.getInstance().loadFromJSON(jsonData);
+    } catch (error) {
+      console.warn('Failed to load semantic map from JSON, using default:', error);
+    }
+  }
+
+  /**
    * Строит индекс точных совпадений слов
    */
   private buildExactWordIndex(stickers: PhotoSticker[]): Map<string, PhotoSticker[]> {

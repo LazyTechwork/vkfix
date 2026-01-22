@@ -4,6 +4,7 @@ import { StickerSearchConfig, DEFAULT_SEARCH_CONFIG } from './config';
 import { IndexBuilder } from './IndexBuilder';
 import { QueryValidator } from './QueryValidator';
 import { TextNormalizer } from './TextNormalizer';
+import { FuzzyMatcher } from './FuzzyMatcher';
 import { switchKeyboardLayout } from '../../common/helpers/switchKeyboardLayout';
 import { Logger } from '../Logger';
 
@@ -16,6 +17,7 @@ export class SearchEngine {
   private indexBuilder: IndexBuilder;
   private validator: QueryValidator;
   private normalizer: TextNormalizer;
+  private fuzzyMatcher: FuzzyMatcher;
   private config: StickerSearchConfig;
 
   constructor(config: Partial<StickerSearchConfig> = {}) {
@@ -23,6 +25,7 @@ export class SearchEngine {
     this.indexBuilder = new IndexBuilder();
     this.validator = new QueryValidator(this.config.validation);
     this.normalizer = new TextNormalizer();
+    this.fuzzyMatcher = new FuzzyMatcher();
   }
 
   /**
@@ -98,14 +101,16 @@ export class SearchEngine {
     }
 
     // 3. Семантический поиск
-    if (
-      this.config.features.enableSemantic &&
-      candidateStickers.size < this.config.limits.maxResults
-    ) {
+    if (this.config.features.enableSemantic) {
       this.searchSemanticMatches(queryWords, candidateStickers, stickerScores);
     }
 
-    // 4. Формирование результатов
+    // 4. Fuzzy поиск (если включен)
+    if (this.config.features.enableFuzzy) {
+      this.searchFuzzyMatches(queryWords, candidateStickers, stickerScores);
+    }
+
+    // 5. Формирование результатов
     return this.buildResults(stickerScores, queryWords);
   }
 
@@ -199,6 +204,51 @@ export class SearchEngine {
               field: 'word',
               value: synonym,
               score: this.config.scoring.semanticMatch
+            });
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Поиск с учетом опечаток (Fuzzy Matching)
+   */
+  private searchFuzzyMatches(
+    queryWords: string[],
+    candidateStickers: Set<PhotoSticker>,
+    stickerScores: Map<PhotoSticker, { score: number; matches: MatchDetails[] }>
+  ): void {
+    // Получаем словарь всех слов из индекса
+    const dictionary = Array.from(this.index!.exactWords.keys());
+
+    for (const queryWord of queryWords) {
+      const maxDistance = this.fuzzyMatcher.getMaxDistance(queryWord.length);
+      
+      // Пропускаем слишком короткие слова
+      if (maxDistance === 0) continue;
+
+      const similarWords = this.fuzzyMatcher.findSimilarWords(
+        queryWord,
+        dictionary,
+        maxDistance
+      );
+
+      for (const { word, distance } of similarWords) {
+        // Пропускаем точные совпадения (они уже найдены)
+        if (distance === 0) continue;
+
+        const fuzzyMatches = this.index!.exactWords.get(word) || [];
+        for (const sticker of fuzzyMatches) {
+          if (!candidateStickers.has(sticker)) {
+            candidateStickers.add(sticker);
+            
+            const fuzzyScore = this.fuzzyMatcher.calculateFuzzyScore(distance, queryWord.length);
+            this.addMatch(stickerScores, sticker, {
+              type: 'fuzzy',
+              field: 'word',
+              value: word,
+              score: fuzzyScore * this.config.scoring.fuzzyMatch
             });
           }
         }
