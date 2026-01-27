@@ -4,7 +4,7 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.16
+// @version 1.1.17
 // @include https://vk.com/*
 // @include https://vk.ru/*
 // @grant GM_getValue
@@ -57,7 +57,7 @@ import {initSwitchTextLayout} from './modules/switchTextLayout';
             });
         }
 
-        const onLoadWindow = () => {
+        const initModules = () => {
             styles(); // Инъекция стилей
             pageScanner(); // Инициализируем сканер страницы
             mutationHandler(); // Регистрируем модуль слежения за мутациями
@@ -66,11 +66,21 @@ import {initSwitchTextLayout} from './modules/switchTextLayout';
             appActions(); // Инициализируем дополнения к приложениям
             messenger(); // Инициализируем дополнения к мессенджеру
             initSwitchTextLayout(); // Инициализируем функцию переключения раскладки
-            window.removeEventListener("load", onLoadWindow);
             // Слежение за изменениями в URL
             LocationState.init();
         };
 
-        window.addEventListener("load", onLoadWindow);
+        // Проверяем текущее состояние загрузки
+        if (document.readyState === 'loading') {
+            // Документ ещё загружается - ждём load
+            const onLoad = () => {
+                initModules();
+                window.removeEventListener('load', onLoad);
+            };
+            window.addEventListener('load', onLoad);
+        } else {
+            // Документ уже загружен (interactive или complete)
+            initModules();
+        }
     }
 })(window);
