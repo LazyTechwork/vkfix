@@ -79,6 +79,11 @@ export class GlobalConfig {
                 'label': 'Возвращает пролистывание фото в ленте',
                 'type': 'checkbox',
                 'default': false,
+            },
+            "groupInfoTeleport": {
+                'label': 'В сообществах заменять кнопку "Подробная информация" на подробную информацию',
+                'type': 'checkbox',
+                'default': false,
             }
         },
         events: {

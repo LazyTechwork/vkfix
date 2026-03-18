@@ -4,9 +4,10 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.17
+// @version 1.1.18
 // @include https://vk.com/*
 // @include https://vk.ru/*
+// @include https://cargo.tau.vk.ru/*
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
@@ -16890,6 +16891,11 @@ class GlobalConfig {
                 'label': 'Возвращает пролистывание фото в ленте',
                 'type': 'checkbox',
                 'default': false,
+            },
+            "groupInfoTeleport": {
+                'label': 'В сообществах заменять кнопку "Подробная информация" на подробную информацию',
+                'type': 'checkbox',
+                'default': false,
             }
         },
         events: {
@@ -18340,16 +18346,21 @@ function querySelectorWithTimeout({ selectors, timeout = 2000, element = documen
                 resolve(result);
             }
         });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
-        setTimeout(() => {
-            if (signal?.aborted) {
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+        });
+        if (timeout !== 0) {
+            setTimeout(() => {
+                if (signal?.aborted) {
+                    observer.disconnect();
+                    reject(signal.reason);
+                    return;
+                }
                 observer.disconnect();
-                reject(signal.reason);
-                return;
-            }
-            observer.disconnect();
-            resolve(getResult());
-        }, timeout);
+                resolve(getResult());
+            }, timeout);
+        }
     });
 }
 
@@ -18594,6 +18605,155 @@ exports.fixLeftMenuOverflow = `
     max-height: calc(100vh - 20px);
 }
 `;
+
+
+/***/ }),
+
+/***/ 8384:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.initGroupInfoTeleport = initGroupInfoTeleport;
+const GlobalConfig_1 = __webpack_require__(2057);
+const Logger_1 = __webpack_require__(7629);
+const querySelectorWithTimeout_1 = __webpack_require__(6090);
+/**
+ * Модуль для телепортации модального окна "Подробная информация" группы
+ */
+async function initGroupInfoTeleport() {
+    if (!GlobalConfig_1.GlobalConfig.Config.get('groupInfoTeleport')) {
+        return;
+    }
+    injectSpinnerHidingStyles();
+    Logger_1.Logger.log('Проверка телепортации информации о группе');
+    // Проверяем, не была ли уже обработана эта страница
+    const existingTeleported = document.querySelector('.vkfix-teleported-group-info');
+    if (existingTeleported) {
+        Logger_1.Logger.log('Информация уже телепортирована на этой странице');
+        return;
+    }
+    // Ждём появления кнопки "Подробная информация"
+    const button = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
+        selectors: '[data-testid="open_full_info_modal"]',
+        timeout: 3000
+    });
+    if (button) {
+        Logger_1.Logger.log('Найдена кнопка "Подробная информация", начинаем обработку');
+        await setupButtonHandler(button);
+    }
+}
+let spinnerStyleInjected = false;
+// Инжектим стили для скрытия спиннера один раз
+function injectSpinnerHidingStyles() {
+    if (spinnerStyleInjected) {
+        return;
+    }
+    spinnerStyleInjected = true;
+    const style = document.createElement('style');
+    style.id = 'vkfix-group-info-spinner-hide';
+    style.textContent = `
+        .vkuiPopoutWrapper__host.vkuiPopoutWrapper__opened:has(.vkuiScreenSpinner__host) {
+            display: none !important;
+        }
+    `;
+    document.head.appendChild(style);
+    Logger_1.Logger.log('Стили для скрытия спиннера инжектированы');
+}
+async function setupButtonHandler(button) {
+    Logger_1.Logger.log('Найдена кнопка "Подробная информация", автоматически нажимаем');
+    // Автоматически нажимаем кнопку
+    button.click();
+    // Ждём появления модального окна
+    const modal = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
+        selectors: '[data-testid="community-info-modal"]',
+        timeout: 0,
+    });
+    if (modal) {
+        Logger_1.Logger.log('Модальное окно найдено, начинаем телепортацию');
+        await teleportModalContent(modal, button);
+    }
+    else {
+        Logger_1.Logger.log('Модальное окно не найдено за отведённое время');
+    }
+}
+async function teleportModalContent(modal, button) {
+    try {
+        // Находим контейнер с содержимым модального окна
+        const modalBody = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
+            selectors: '.vkitModalBody__container--ffWDJ',
+            element: modal,
+            timeout: 2000
+        });
+        if (!modalBody) {
+            Logger_1.Logger.log('Не найдено тело модального окна');
+            return;
+        }
+        // Создаём контейнер для телепортированного содержимого
+        const teleportedContainer = document.createElement('div');
+        teleportedContainer.className = 'vkfix-teleported-group-info';
+        teleportedContainer.style.cssText = `
+            margin: 0;
+            padding: 0;
+            background: var(--vkui--color_background_content);
+            border-radius: 8px;
+            box-shadow: 0 0 0 0.5px var(--vkui--color_separator_primary);
+        `;
+        // Клонируем содержимое модального окна
+        const clonedContent = modalBody.cloneNode(true);
+        teleportedContainer.appendChild(clonedContent);
+        // Находим блок с кнопкой "Подробная информация"
+        const moreInfoBlock = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
+            selectors: '[data-testid="group-info-more-info"]',
+            timeout: 2000
+        });
+        // Заменяем блок с кнопкой на телепортированное содержимое
+        if (moreInfoBlock && moreInfoBlock.parentElement) {
+            // Удаляем padding и border у родителя
+            const parent = moreInfoBlock.parentElement;
+            parent.style.padding = '0';
+            parent.style.borderRadius = '8px';
+            parent.replaceChild(teleportedContainer, moreInfoBlock);
+            Logger_1.Logger.log('Блок "Подробная информация" заменён на содержимое');
+            // Удаляем spacing элемент перед нашим контейнером
+            const spacingBefore = teleportedContainer.previousElementSibling;
+            if (spacingBefore &&
+                spacingBefore.className.includes('vkitSpacing__root') &&
+                spacingBefore.style.getPropertyValue('--vkit_internal--spacing_gap_size')) {
+                spacingBefore.remove();
+                Logger_1.Logger.log('Spacing элемент удалён');
+            }
+        }
+        else {
+            // Если блок не найден, вставляем после кнопки
+            button.parentElement?.insertBefore(teleportedContainer, button.nextSibling);
+            Logger_1.Logger.log('Содержимое вставлено после кнопки');
+        }
+        Logger_1.Logger.log('Содержимое телепортировано');
+        // Закрываем модальное окно
+        const closeButton = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
+            selectors: '[data-testid="modal-close-button"]',
+            element: modal,
+            timeout: 1000
+        });
+        if (closeButton) {
+            closeButton.click();
+            Logger_1.Logger.log('Модальное окно закрыто');
+        }
+        else {
+            // Если кнопка закрытия не найдена, пробуем удалить модалку напрямую
+            const modalContainer = modal.closest('[role="dialog"]')?.parentElement;
+            if (modalContainer) {
+                modalContainer.remove();
+                Logger_1.Logger.log('Модальное окно удалено напрямую');
+            }
+        }
+        // Не добавляем кнопку "Скрыть", так как содержимое статично заменяет блок
+    }
+    catch (error) {
+        Logger_1.Logger.log('Ошибка при телепортации:', error);
+    }
+}
 
 
 /***/ }),
@@ -18958,6 +19118,7 @@ const profileActions_1 = __webpack_require__(834);
 const appActions_1 = __webpack_require__(4344);
 const messenger_1 = __webpack_require__(1827);
 const Logger_1 = __webpack_require__(7629);
+const groupInfoTeleport_1 = __webpack_require__(8384);
 function locationMutations() {
     LocationState_1.LocationState.updateState();
     let cq = LocationState_1.LocationState.currentQuery;
@@ -18985,6 +19146,7 @@ function locationMutations() {
         (0, messenger_1.messenger)();
     }
     (0, profileActions_1.profileActions)();
+    (0, groupInfoTeleport_1.initGroupInfoTeleport)();
 }
 
 
@@ -19389,6 +19551,11 @@ function fixFeedPhotoNavigation() {
     }
     // Проверяем что есть параметр z с фото
     if (!zParam.startsWith('photo')) {
+        return;
+    }
+    // Проверяем что мы НЕ в мессенджере
+    const pathname = window.location.pathname;
+    if (pathname.startsWith('/im')) {
         return;
     }
     // Проверяем есть ли хеш в параметре (формат: photo-123_456%2Fhash или photo-123_456/hash)
@@ -37705,9 +37872,10 @@ var __webpack_unused_export__;
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.17
+// @version 1.1.18
 // @include https://vk.com/*
 // @include https://vk.ru/*
+// @include https://cargo.tau.vk.ru/*
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
@@ -37726,6 +37894,7 @@ const querySelectorWithTimeout_1 = __webpack_require__(6090);
 const appActions_1 = __webpack_require__(4344);
 const messenger_1 = __webpack_require__(1827);
 const switchTextLayout_1 = __webpack_require__(5303);
+const groupInfoTeleport_1 = __webpack_require__(8384);
 (async function (window) {
     let w = window;
     if (w.self != w.top) {
@@ -37734,7 +37903,7 @@ const switchTextLayout_1 = __webpack_require__(5303);
     // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
     // Инициализируем новый конфиг
     // [4] дополнительная проверка наряду с @include
-    if (/^https:\/\/vk\.(com|ru)\//.test(w.location.href)) {
+    if (/^https:\/\/(vk|cargo.tau.vk)\.(com|ru)\//.test(w.location.href)) {
         Logger_1.Logger.log('VK Fix запущен');
         // Добавляем кнопку настроек в верхнее меню
         const settings_link = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({ selectors: '#top_settings_link', timeout: 5000 });
@@ -37760,6 +37929,7 @@ const switchTextLayout_1 = __webpack_require__(5303);
             (0, appActions_1.appActions)(); // Инициализируем дополнения к приложениям
             (0, messenger_1.messenger)(); // Инициализируем дополнения к мессенджеру
             (0, switchTextLayout_1.initSwitchTextLayout)(); // Инициализируем функцию переключения раскладки
+            (0, groupInfoTeleport_1.initGroupInfoTeleport)(); // Инициализируем телепортацию информации о группе
             // Слежение за изменениями в URL
             LocationState_1.LocationState.init();
         };

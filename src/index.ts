@@ -4,9 +4,10 @@
 // @author Ivan Petrov (LazyTechwork)
 // @contributors Ivan Mel (ivanmem)
 // @license MIT
-// @version 1.1.17
+// @version 1.1.18
 // @include https://vk.com/*
 // @include https://vk.ru/*
+// @include https://cargo.tau.vk.ru/*
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_addStyle
@@ -25,6 +26,7 @@ import {querySelectorWithTimeout} from "./common/helpers/querySelectorWithTimeou
 import {appActions} from "./modules/appActions";
 import {messenger} from "./modules/messenger/messenger";
 import {initSwitchTextLayout} from './modules/switchTextLayout';
+import {initGroupInfoTeleport} from './modules/groupInfoTeleport';
 
 (async function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -38,7 +40,7 @@ import {initSwitchTextLayout} from './modules/switchTextLayout';
     // Инициализируем новый конфиг
 
     // [4] дополнительная проверка наряду с @include
-    if (/^https:\/\/vk\.(com|ru)\//.test(w.location.href)) {
+    if (/^https:\/\/(vk|cargo.tau.vk)\.(com|ru)\//.test(w.location.href)) {
         Logger.log('VK Fix запущен');
 
         // Добавляем кнопку настроек в верхнее меню
@@ -66,6 +68,7 @@ import {initSwitchTextLayout} from './modules/switchTextLayout';
             appActions(); // Инициализируем дополнения к приложениям
             messenger(); // Инициализируем дополнения к мессенджеру
             initSwitchTextLayout(); // Инициализируем функцию переключения раскладки
+            initGroupInfoTeleport(); // Инициализируем телепортацию информации о группе
             // Слежение за изменениями в URL
             LocationState.init();
         };

@@ -5,6 +5,7 @@ import {profileActions} from "../profileActions";
 import {appActions} from "../appActions";
 import {messenger} from "../messenger/messenger";
 import {Logger} from "../../classes/Logger";
+import {initGroupInfoTeleport} from "../groupInfoTeleport";
 
 export function locationMutations() {
     LocationState.updateState();
@@ -39,4 +40,5 @@ export function locationMutations() {
     }
 
     profileActions();
+    initGroupInfoTeleport();
 }

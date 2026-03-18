@@ -341,6 +341,12 @@ function fixFeedPhotoNavigation() {
         return;
     }
 
+    // Проверяем что мы НЕ в мессенджере
+    const pathname = window.location.pathname;
+    if (pathname.startsWith('/im')) {
+        return;
+    }
+
     // Проверяем есть ли хеш в параметре (формат: photo-123_456%2Fhash или photo-123_456/hash)
     const decodedZ = decodeURIComponent(zParam);
     const slashIndex = decodedZ.indexOf('/');
