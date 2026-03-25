@@ -1,62 +1,62 @@
 <template>
-  <a
-      class="v-photo-sticker"
-      tabindex="-1"
-      :href="getHref(sticker)"
-  >
+  <a class="v-photo-sticker" tabindex="-1" :href="getHref(sticker)">
     <div :key="sticker.photo.id" class="v-photo-sticker-text">
       {{ sticker.suggestions[0] }}
     </div>
     <img
-        ref="imgEl"
-        class="v-photo-sticker-img"
-        tabindex="0"
-        :src="sticker.photo.sizes[0].url"
-        :alt="sticker.photo.text"
-        :title="sticker.suggestions[0]"
-        @dragstart.prevent
-        @click.prevent.stop="emit('sendSticker', sticker)"
+      ref="imgEl"
+      class="v-photo-sticker-img"
+      tabindex="0"
+      :src="getPhotoUrl()"
+      :alt="sticker.photo.text"
+      :title="sticker.suggestions[0]"
+      @dragstart.prevent
+      @click.prevent.stop="emit('sendSticker', sticker)"
     />
   </a>
 </template>
 <script lang="ts" setup>
-
-import {PhotoSticker} from "./types";
-import {computed, useTemplateRef} from "vue";
-import {useElementSize} from "@vueuse/core";
+import { PhotoSticker } from "./types";
+import { computed, useTemplateRef } from "vue";
+import { useElementSize } from "@vueuse/core";
 
 const props = defineProps<{
-  sticker: PhotoSticker
+  sticker: PhotoSticker;
 }>();
 
 const emit = defineEmits<{
-  (e: "sendSticker", sticker: PhotoSticker): void
-}>()
+  (e: "sendSticker", sticker: PhotoSticker): void;
+}>();
 
-const imgEl = useTemplateRef('imgEl')
+const imgEl = useTemplateRef("imgEl");
 
-const {width: imgWidth} = useElementSize(imgEl)
+const { width: imgWidth } = useElementSize(imgEl);
 
 const textWidth = computed(() => {
-  return imgWidth.value + 'px'
-})
+  return imgWidth.value + "px";
+});
 
 function getAlbumId(sticker: PhotoSticker) {
   return sticker.photo.album_id === -15
-      ? "000"
-      : sticker.photo.album_id.toString()
+    ? "000"
+    : sticker.photo.album_id.toString();
 }
 
 function getHref(sticker: PhotoSticker) {
-  const albumId = getAlbumId(sticker)
-  const ownerId = sticker.photo.owner_id
-  const photoId = sticker.photo.id
-  return `https://${window.location.host}/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`
+  const albumId = getAlbumId(sticker);
+  const ownerId = sticker.photo.owner_id;
+  const photoId = sticker.photo.id;
+  return `https://${window.location.host}/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`;
 }
 
+function getPhotoUrl() {
+  return (
+    props.sticker.photo.sizes.find((s) => s.type === "x")?.url ??
+    props.sticker.photo.sizes[0].url
+  );
+}
 </script>
 <style lang="scss">
-
 .v-photo-sticker {
   position: relative;
   display: flex;

@@ -218,11 +218,15 @@ function photoMoreActs({pvBox}: PVAddonsContext) {
         return;
     }
 
+    Logger.info("photoMoreActs: pvImageWrap найден, ищем дальше");
+
     const pvActionsMore = pvBox.querySelector<HTMLButtonElement>('.pv_actions_more')
     if (!pvActionsMore) {
         Logger.info('pvActionsMore not found');
         return
     }
+
+    Logger.info("photoMoreActs: pvActionsMore найден, ищем дальше");
 
     const pvPhotoMoreActCommunityKeeper = GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper') as boolean;
     const pvPhotoMoreActAlbum = GlobalConfig.Config.get('pvPhotoMoreActAlbum') as boolean;
@@ -248,7 +252,12 @@ function photoMoreActs({pvBox}: PVAddonsContext) {
     const signal = abortControllerPhotoMoreActs.signal
 
     const registerMoreAct = async (name: 'pvPhotoMoreActCommunityKeeper' | 'pvPhotoMoreActAlbum', textContent: string, href: string) => {
-        if (pvActionsMore.querySelector(`#${name}`) || !cur.pvCurPhoto.id.startsWith('-')) {
+        if (!cur.pvCurPhoto.id.startsWith('-')) {
+            Logger.info('registerMoreAct: для юзерских фото не добавляем ничего')
+            return;
+        }
+        if (pvActionsMore.querySelector(`#${name}`)) {
+            Logger.info("registerMoreAct: уже добавлено")
             return
         }
 
@@ -260,10 +269,12 @@ function photoMoreActs({pvBox}: PVAddonsContext) {
         }).catch(() => undefined)
 
         if (!pvMoreActDownload) {
+            Logger.info('registerMoreAct: pvMoreActDownload not found');
             return
         }
 
         if (pvActionsMore.querySelector(`#${name}`)) {
+            Logger.info(`registerMoreAct: pvActionsMore > ${name} not found`);
             return
         }
 
@@ -275,6 +286,7 @@ function photoMoreActs({pvBox}: PVAddonsContext) {
         pvMoreAct.href = href
         pvMoreAct.classList.add('pv_more_act_vkfix')
         pvMoreActDownload.parentElement.append(pvMoreAct)
+        Logger.info(`registerMoreAct: ${name} добавлена`);
 
         const pvMoreActsTt = pvBox.querySelector<HTMLDivElement>('#pv_more_acts_tt')
         if (pvMoreActsTt) {

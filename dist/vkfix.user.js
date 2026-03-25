@@ -13345,7 +13345,7 @@ const initDirectivesForSSR = () => {
 
 /***/ }),
 
-/***/ 2821:
+/***/ 5449:
 /***/ ((module, __webpack_exports__, __webpack_require__) => {
 
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -13360,7 +13360,7 @@ const initDirectivesForSSR = () => {
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, `.v-photo-sticker{position:relative;display:flex;flex-shrink:0;flex-direction:column;justify-content:flex-end}.v-photo-sticker .v-photo-sticker-text{color:#fff;background-color:rgba(0,0,0,.7);white-space:normal;word-break:auto-phrase;padding:4px;margin-bottom:-1px;text-align:left;font-size:14px;line-height:1.3;width:var(--6c9934ec);max-height:70px;box-sizing:border-box;overflow:auto;outline:1px solid hsla(0,0%,100%,.67);border-radius:8px 8px 0 0;outline-offset:-1px}.v-photo-sticker img{position:relative;height:99px;outline:1px solid hsla(0,0%,100%,.67);outline-offset:-1px;border-radius:0 0 8px 8px;object-fit:cover;cursor:pointer}.v-photo-sticker img:focus{outline:var(--vkui_internal--outline);outline-offset:-2px}`, ""]);
+___CSS_LOADER_EXPORT___.push([module.id, `.v-photo-sticker{position:relative;display:flex;flex-shrink:0;flex-direction:column;justify-content:flex-end}.v-photo-sticker .v-photo-sticker-text{color:#fff;background-color:rgba(0,0,0,.7);white-space:normal;word-break:auto-phrase;padding:4px;margin-bottom:-1px;text-align:left;font-size:14px;line-height:1.3;width:var(--87f4b15c);max-height:70px;box-sizing:border-box;overflow:auto;outline:1px solid hsla(0,0%,100%,.67);border-radius:8px 8px 0 0;outline-offset:-1px}.v-photo-sticker img{position:relative;height:99px;outline:1px solid hsla(0,0%,100%,.67);outline-offset:-1px;border-radius:0 0 8px 8px;object-fit:cover;cursor:pointer}.v-photo-sticker img:focus{outline:var(--vkui_internal--outline);outline-offset:-2px}`, ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -16677,14 +16677,14 @@ exports.A = (0, vue_1.defineComponent)({
     emits: ["sendSticker"],
     setup(__props, { emit: __emit }) {
         (0, vue_1.useCssVars)(_ctx => ({
-            "6c9934ec": (textWidth.value)
+            "87f4b15c": (textWidth.value)
         }));
         const props = __props;
         const emit = __emit;
-        const imgEl = (0, vue_3.useTemplateRef)('imgEl');
+        const imgEl = (0, vue_3.useTemplateRef)("imgEl");
         const { width: imgWidth } = (0, core_1.useElementSize)(imgEl);
         const textWidth = (0, vue_3.computed)(() => {
-            return imgWidth.value + 'px';
+            return imgWidth.value + "px";
         });
         function getAlbumId(sticker) {
             return sticker.photo.album_id === -15
@@ -16696,6 +16696,10 @@ exports.A = (0, vue_1.defineComponent)({
             const ownerId = sticker.photo.owner_id;
             const photoId = sticker.photo.id;
             return `https://${window.location.host}/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`;
+        }
+        function getPhotoUrl() {
+            return (props.sticker.photo.sizes.find((s) => s.type === "x")?.url ??
+                props.sticker.photo.sizes[0].url);
         }
         return (_ctx, _cache) => {
             return ((0, vue_2.openBlock)(), (0, vue_2.createElementBlock)("a", {
@@ -16712,7 +16716,7 @@ exports.A = (0, vue_1.defineComponent)({
                     ref: imgEl,
                     class: "v-photo-sticker-img",
                     tabindex: "0",
-                    src: _ctx.sticker.photo.sizes[0].url,
+                    src: getPhotoUrl(),
                     alt: _ctx.sticker.photo.text,
                     title: _ctx.sticker.suggestions[0],
                     onDragstart: _cache[0] || (_cache[0] = (0, vue_2.withModifiers)(() => { }, ["prevent"])),
@@ -16741,7 +16745,7 @@ const _hoisted_1 = {
 const _hoisted_2 = ["title"];
 const consts_1 = __webpack_require__(7136);
 const vue_3 = __webpack_require__(7527);
-const VPhotoSticker_vue_1 = __webpack_require__(9000);
+const VPhotoSticker_vue_1 = __webpack_require__(6998);
 exports.A = (0, vue_1.defineComponent)({
     __name: 'VPhotoStickersPopup',
     props: {
@@ -19455,11 +19459,13 @@ function photoMoreActs({ pvBox }) {
         Logger_1.Logger.info('pvImageWrap not found');
         return;
     }
+    Logger_1.Logger.info("photoMoreActs: pvImageWrap найден, ищем дальше");
     const pvActionsMore = pvBox.querySelector('.pv_actions_more');
     if (!pvActionsMore) {
         Logger_1.Logger.info('pvActionsMore not found');
         return;
     }
+    Logger_1.Logger.info("photoMoreActs: pvActionsMore найден, ищем дальше");
     const pvPhotoMoreActCommunityKeeper = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoMoreActCommunityKeeper');
     const pvPhotoMoreActAlbum = GlobalConfig_1.GlobalConfig.Config.get('pvPhotoMoreActAlbum');
     const actNames = [];
@@ -19479,7 +19485,13 @@ function photoMoreActs({ pvBox }) {
     abortControllerPhotoMoreActs = new AbortController();
     const signal = abortControllerPhotoMoreActs.signal;
     const registerMoreAct = async (name, textContent, href) => {
-        if (pvActionsMore.querySelector(`#${name}`) || !cur.pvCurPhoto.id.startsWith('-')) {
+        console.log(`registerMoreAct: ${name}`);
+        if (!cur.pvCurPhoto.id.startsWith('-')) {
+            Logger_1.Logger.info('registerMoreAct: для юзерских фото не добавляем ничего');
+            return;
+        }
+        if (pvActionsMore.querySelector(`#${name}`)) {
+            Logger_1.Logger.info("registerMoreAct: уже добавлено");
             return;
         }
         const pvMoreActDownload = await (0, querySelectorWithTimeout_1.querySelectorWithTimeout)({
@@ -19489,9 +19501,11 @@ function photoMoreActs({ pvBox }) {
             signal,
         }).catch(() => undefined);
         if (!pvMoreActDownload) {
+            Logger_1.Logger.info('registerMoreAct: pvMoreActDownload not found');
             return;
         }
         if (pvActionsMore.querySelector(`#${name}`)) {
+            Logger_1.Logger.info(`registerMoreAct: pvActionsMore > ${name} not found`);
             return;
         }
         signal.throwIfAborted();
@@ -19501,6 +19515,7 @@ function photoMoreActs({ pvBox }) {
         pvMoreAct.href = href;
         pvMoreAct.classList.add('pv_more_act_vkfix');
         pvMoreActDownload.parentElement.append(pvMoreAct);
+        Logger_1.Logger.info(`registerMoreAct: ${name} добавлена`);
         const pvMoreActsTt = pvBox.querySelector('#pv_more_acts_tt');
         if (pvMoreActsTt) {
             pvMoreActsTt.style.top = `${parseInt(pvMoreActsTt.style.top, 10) - 32}px`;
@@ -19699,7 +19714,7 @@ function initSwitchTextLayout() {
 
 /***/ }),
 
-/***/ 9000:
+/***/ 6998:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 // ESM COMPAT FLAG
@@ -19733,9 +19748,9 @@ var insertStyleElement_default = /*#__PURE__*/__webpack_require__.n(insertStyleE
 // EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
 var styleTagTransform = __webpack_require__(1113);
 var styleTagTransform_default = /*#__PURE__*/__webpack_require__.n(styleTagTransform);
-// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=b0c3fa22&lang=scss
-var VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss = __webpack_require__(2821);
-;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=b0c3fa22&lang=scss
+// EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=45b5cd62&lang=scss
+var VPhotoStickervue_type_style_index_0_id_45b5cd62_lang_scss = __webpack_require__(5449);
+;// CONCATENATED MODULE: ./node_modules/style-loader/dist/cjs.js!./node_modules/css-loader/dist/cjs.js!./node_modules/vue-loader/dist/stylePostLoader.js!./node_modules/sass-loader/dist/cjs.js!./node_modules/vue-loader/dist/index.js??ruleSet[1].rules[5].use[0]!./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=45b5cd62&lang=scss
 
       
       
@@ -19755,14 +19770,14 @@ options.insert = insertBySelector_default().bind(null, "head");
 options.domAPI = (styleDomAPI_default());
 options.insertStyleElement = (insertStyleElement_default());
 
-var update = injectStylesIntoStyleTag_default()(VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss/* default */.A, options);
+var update = injectStylesIntoStyleTag_default()(VPhotoStickervue_type_style_index_0_id_45b5cd62_lang_scss/* default */.A, options);
 
 
 
 
-       /* harmony default export */ const messenger_VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss = (VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss/* default */.A && VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss/* default */.A.locals ? VPhotoStickervue_type_style_index_0_id_b0c3fa22_lang_scss/* default */.A.locals : undefined);
+       /* harmony default export */ const messenger_VPhotoStickervue_type_style_index_0_id_45b5cd62_lang_scss = (VPhotoStickervue_type_style_index_0_id_45b5cd62_lang_scss/* default */.A && VPhotoStickervue_type_style_index_0_id_45b5cd62_lang_scss/* default */.A.locals ? VPhotoStickervue_type_style_index_0_id_45b5cd62_lang_scss/* default */.A.locals : undefined);
 
-;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=b0c3fa22&lang=scss
+;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue?vue&type=style&index=0&id=45b5cd62&lang=scss
 
 ;// CONCATENATED MODULE: ./src/modules/messenger/VPhotoSticker.vue
 
