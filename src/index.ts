@@ -27,6 +27,8 @@ import {appActions} from "./modules/appActions";
 import {messenger} from "./modules/messenger/messenger";
 import {initSwitchTextLayout} from './modules/switchTextLayout';
 import {initGroupInfoTeleport} from './modules/groupInfoTeleport';
+import {createApp, h} from 'vue';
+import VConfigPopup from './modules/config/VConfigPopup.vue';
 
 (async function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -34,10 +36,6 @@ import {initGroupInfoTeleport} from './modules/groupInfoTeleport';
     if (w.self != w.top) {
         return;
     }
-
-    // TODO: Сделать свой конфигуратор, основанный на стилях ВКонтакте
-
-    // Инициализируем новый конфиг
 
     // [4] дополнительная проверка наряду с @include
     if (/^https:\/\/(vk|cargo.tau.vk)\.(com|ru)\//.test(w.location.href)) {
@@ -53,9 +51,18 @@ import {initGroupInfoTeleport} from './modules/groupInfoTeleport';
             vkfixconflink.setAttribute('href', '#');
             settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на
             // настройки
+            
+            // Создаём Vue приложение для конфига
+            const configAppContainer = document.createElement('div');
+            const configApp = createApp(VConfigPopup);
+            const configInstance = configApp.mount(configAppContainer);
+            document.body.appendChild(configAppContainer);
+
             vkfixconflink.addEventListener('click', (ev) => {
                 ev.preventDefault();
-                GlobalConfig.Config.open();
+                Logger.log('VK Fix Config: клик по кнопке');
+                // Открываем конфиг через метод компонента
+                (configInstance as any).open();
             });
         }
 

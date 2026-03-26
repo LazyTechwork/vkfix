@@ -9,6 +9,18 @@ import { switchKeyboardLayout } from '../../common/helpers/switchKeyboardLayout'
 import { Logger } from '../Logger';
 
 /**
+ * Регулярное выражение для поиска эмодзи
+ */
+const EMOJI_REGEX = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u;
+
+/**
+ * Проверяет, состоит ли строка только из эмодзи
+ */
+function isEmojiOnly(str: string): boolean {
+  return EMOJI_REGEX.test(str);
+}
+
+/**
  * Главный движок поиска стикеров
  */
 export class SearchEngine {
@@ -33,7 +45,7 @@ export class SearchEngine {
    */
   buildIndex(stickers: PhotoSticker[]): void {
     if (this.isIndexBuilt) return;
-    
+
     this.index = this.indexBuilder.buildIndex(stickers);
     this.isIndexBuilt = true;
   }
@@ -54,6 +66,16 @@ export class SearchEngine {
     }
 
     const normalizedQuery = this.normalizer.normalizeQuery(query);
+    
+    // Проверяем, является ли запрос чистым эмодзи
+    const emojiQuery = normalizedQuery.replace(/[\s\u200D]/g, '');
+    const isEmojiSearch = emojiQuery.length > 0 && isEmojiOnly(emojiQuery);
+    
+    // Для эмодзи-запросов используем упрощенную логику
+    if (isEmojiSearch) {
+      return this.searchEmoji(stickers, normalizedQuery);
+    }
+
     const queryWords = this.normalizer.extractWords(normalizedQuery);
 
     if (queryWords.length === 0) {
@@ -79,6 +101,89 @@ export class SearchEngine {
     }
 
     return results.map(r => r.sticker);
+  }
+
+  /**
+   * Поиск стикеров по эмодзи
+   */
+  private searchEmoji(stickers: PhotoSticker[], emojiQuery: string): PhotoSticker[] {
+    if (!this.index) return [];
+
+    const results: SearchResult[] = [];
+
+    // Извлекаем все эмодзи из запроса, разбивая последовательности на отдельные символы
+    const emojiBlocks = emojiQuery.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu) || [];
+    const emojiChars: string[] = [];
+
+    for (const emojiBlock of emojiBlocks) {
+      // Разбиваем каждый блок на отдельные эмодзи
+      const individualEmojis = emojiBlock.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
+      if (individualEmojis) {
+        emojiChars.push(...individualEmojis);
+      } else {
+        emojiChars.push(emojiBlock);
+      }
+    }
+
+    for (const emoji of emojiChars) {
+      // Ищем точные совпадения по эмодзи в словах
+      const exactWordMatches = this.index.exactWords.get(emoji) || [];
+      for (const sticker of exactWordMatches) {
+        const existingResult = results.find(r => r.sticker === sticker);
+        if (existingResult) {
+          existingResult.score += 3.0; // Высокий балл за точное совпадение эмодзи
+          existingResult.matches.push({
+            type: 'exact',
+            field: 'word',
+            value: emoji,
+            score: 3.0
+          });
+        } else {
+          results.push({
+            sticker,
+            score: 3.0,
+            matches: [{
+              type: 'exact',
+              field: 'word',
+              value: emoji,
+              score: 3.0
+            }]
+          });
+        }
+      }
+
+      // Ищем точные совпадения по эмодзи в подсказках
+      const exactSuggestionMatches = this.index.exactSuggestions.get(emoji) || [];
+      for (const sticker of exactSuggestionMatches) {
+        const existingResult = results.find(r => r.sticker === sticker);
+        if (existingResult) {
+          existingResult.score += 2.5; // Чуть меньший балл за совпадение в подсказках
+          existingResult.matches.push({
+            type: 'exact',
+            field: 'suggestion',
+            value: emoji,
+            score: 2.5
+          });
+        } else {
+          results.push({
+            sticker,
+            score: 2.5,
+            matches: [{
+              type: 'exact',
+              field: 'suggestion',
+              value: emoji,
+              score: 2.5
+            }]
+          });
+        }
+      }
+    }
+
+    // Сортируем и возвращаем результаты
+    return results
+      .sort((a, b) => b.score - a.score)
+      .slice(0, this.config.limits.maxResults)
+      .map(r => r.sticker);
   }
 
   /**

@@ -57,3 +57,10 @@ export function initializeStickerSearch(stickers: PhotoSticker[]): void {
     }
     searchEngine.buildIndex(stickers);
 }
+
+/**
+ * Сброс поиска стикеров (для тестов)
+ */
+export function resetStickerSearch(): void {
+    searchEngine = null;
+}
