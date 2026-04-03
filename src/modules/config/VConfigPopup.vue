@@ -121,11 +121,6 @@ import {
   Icon28SettingsOutline,
   Icon24Replay,
   Icon24DoneOutline,
-  Icon28ServicesOutline,
-  Icon20PictureOutline,
-  Icon28MessagesOutline,
-  Icon28UserOutline,
-  Icon28AdvertisingOutline,
 } from 'vue-vkontakte-icons'
 import VConfigField from './VConfigField.vue'
 import { configSections, configFieldsMeta, getConfigValue, setConfigValue } from './configData'
@@ -191,14 +186,6 @@ const isOpen = ref(false)
 const fieldValues = ref<Record<string, boolean | string>>({})
 
 const menuOptions = computed(() => {
-  const iconMap: Record<string, any> = {
-    general: Icon28ServicesOutline,
-    'photo-viewer': Icon20PictureOutline,
-    messenger: Icon28MessagesOutline,
-    profile: Icon28UserOutline,
-    other: Icon28AdvertisingOutline,
-  }
-
   return sections.map((section) => {
     return {
       label: section.title,
@@ -206,7 +193,7 @@ const menuOptions = computed(() => {
       icon: () => {
         return h(NIcon, null, {
           default: () => {
-            return h(iconMap[section.id] || Icon28SettingsOutline)
+            return h(section.icon || Icon28SettingsOutline)
           },
         })
       },

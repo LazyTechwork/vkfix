@@ -1,3 +1,11 @@
+import { Component } from 'vue'
+import {
+  Icon28ServicesOutline,
+  Icon20PictureOutline,
+  Icon28MessagesOutline,
+  Icon20Users3Outline,
+  Icon28AdvertisingOutline,
+} from 'vue-vkontakte-icons'
 import { GlobalConfig } from '../../GlobalConfig'
 
 export interface ConfigFieldInfo {
@@ -12,7 +20,7 @@ export interface ConfigFieldInfo {
 export interface ConfigSectionInfo {
   id: string
   title: string
-  icon: string
+  icon: Component
   fieldKeys: string[]
 }
 
@@ -21,13 +29,13 @@ export const configSections: ConfigSectionInfo[] = [
   {
     id: 'general',
     title: 'Общие настройки',
-    icon: '🔧',
-    fieldKeys: ['logging']
+    icon: Icon28ServicesOutline,
+    fieldKeys: ['logging'],
   },
   {
     id: 'photo-viewer',
     title: 'Просмотрщик фото',
-    icon: '📷',
+    icon: Icon20PictureOutline,
     fieldKeys: [
       'fixImagesZooming',
       'pvExpand',
@@ -35,27 +43,27 @@ export const configSections: ConfigSectionInfo[] = [
       'pvExpandLeftMonitorDefault',
       'pvPhotoSwitchWheel',
       'pvPhotoMoreActCommunityKeeper',
-      'pvPhotoMoreActAlbum'
-    ]
+      'pvPhotoMoreActAlbum',
+    ],
   },
   {
     id: 'messenger',
     title: 'Мессенджер',
-    icon: '💬',
-    fieldKeys: ['messenger.photo-stickers', 'messenger.photo-stickers.albums']
+    icon: Icon28MessagesOutline,
+    fieldKeys: ['messenger.photo-stickers', 'messenger.photo-stickers.albums'],
   },
   {
-    id: 'profile',
-    title: 'Профиль и сообщества',
-    icon: '👤',
-    fieldKeys: ['groupInfoTeleport']
+    id: 'groups',
+    title: 'Сообщества',
+    icon: Icon20Users3Outline,
+    fieldKeys: ['groupInfoTeleport'],
   },
   {
     id: 'other',
     title: 'Прочее',
-    icon: '⚡',
-    fieldKeys: ['switchTextLayout', 'fixFeedPhotoNavigation', 'exportCommunityKeeperBtn']
-  }
+    icon: Icon28AdvertisingOutline,
+    fieldKeys: ['switchTextLayout', 'fixFeedPhotoNavigation', 'exportCommunityKeeperBtn'],
+  },
 ]
 
 // Метаданные полей

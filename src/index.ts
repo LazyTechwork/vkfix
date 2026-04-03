@@ -29,6 +29,7 @@ import {initSwitchTextLayout} from './modules/switchTextLayout';
 import {initGroupInfoTeleport} from './modules/groupInfoTeleport';
 import {createApp, h} from 'vue';
 import VConfigPopup from './modules/config/VConfigPopup.vue';
+import VConfigButton from './modules/config/VConfigButton.vue';
 
 (async function (window) { // Используем замыкание для запуска нашего скрипта
     let w = window;
@@ -44,26 +45,23 @@ import VConfigPopup from './modules/config/VConfigPopup.vue';
         // Добавляем кнопку настроек в верхнее меню
         const settings_link = await querySelectorWithTimeout({selectors: '#top_settings_link', timeout: 5000});
         if (settings_link?.parentNode) {
-            const vkfixconflink = document.createElement('a');
-            vkfixconflink.innerHTML = 'VK Fix';
-            vkfixconflink.id = 'top_vkfix_settings_link';
-            vkfixconflink.className = 'top_profile_mrow';
-            vkfixconflink.setAttribute('href', '#');
-            settings_link.parentNode.insertBefore(vkfixconflink, settings_link.nextSibling); // Вставляем после ссылки на
-            // настройки
-            
             // Создаём Vue приложение для конфига
             const configAppContainer = document.createElement('div');
             const configApp = createApp(VConfigPopup);
             const configInstance = configApp.mount(configAppContainer);
             document.body.appendChild(configAppContainer);
 
-            vkfixconflink.addEventListener('click', (ev) => {
-                ev.preventDefault();
-                Logger.log('VK Fix Config: клик по кнопке');
-                // Открываем конфиг через метод компонента
-                (configInstance as any).open();
+            // Создаём кнопку через Vue
+            const buttonContainer = document.createElement('div');
+            settings_link.parentNode.insertBefore(buttonContainer, settings_link.nextSibling);
+
+            const buttonApp = createApp(VConfigButton, {
+                onOpen: () => {
+                    Logger.log('VK Fix Config: клик по кнопке');
+                    (configInstance as InstanceType<typeof VConfigPopup>).open();
+                }
             });
+            buttonApp.mount(buttonContainer);
         }
 
         const initModules = () => {
