@@ -1,95 +1,75 @@
-import GM_config from './libs/GM_config';
+const DEFAULT_VALUES: Record<string, boolean | string> = {
+  fixImagesZooming: false,
+  fixLeftMenuOverflow: false,
+  pvExpand: false,
+  pvExpandRightMonitorDefault: false,
+  pvExpandLeftMonitorDefault: false,
+  pvPhotoSwitchWheel: true,
+  pvPhotoMoreActCommunityKeeper: true,
+  pvPhotoMoreActAlbum: true,
+  exportCommunityKeeperBtn: false,
+  logging: false,
+  newsBtn: false,
+  'messenger.photo-stickers': false,
+  'messenger.photo-stickers.albums': '-15,',
+  switchTextLayout: false,
+  fixFeedPhotoNavigation: false,
+  groupInfoTeleport: false,
+}
 
 export class GlobalConfig {
-    static Config = new GM_config({
-        'id': 'vkfix',
-        'title': 'Настройка VK Fix',
-        'fields': {
-            'fixImagesZooming': {
-                'label': 'Исправить зумирование картинок при нестандартном масштабировании в операционной системе windows (может быть и других)',
-                'type': 'checkbox',
-                'default': false,
-            },
-            'fixLeftMenuOverflow': {
-                'label': 'Исправить высоту левого меню так, чтобы не создавался скролл страницы.',
-                'type': 'checkbox',
-                'default': false,
-            },
-            'pvExpand': {
-                'label': 'Кнопка "Расширить" при просмотре фото (работает только с исправленным зумированием)',
-                'type': 'checkbox',
-                'default': false,
-            },
-            'pvExpandRightMonitorDefault': {
-                'label': 'Кнопка "Расширить" будет нажиматься автоматически на (основном!) правом мониторе',
-                'type': 'checkbox',
-                'default': false,
-            },
-            'pvExpandLeftMonitorDefault': {
-                'label': 'Кнопка "Расширить" будет нажиматься автоматически на (дополнительном!) левом мониторе',
-                'type': 'checkbox',
-                'default': false,
-            },
-            'pvPhotoSwitchWheel': {
-                'label': 'Переключение фото колёсиком мыши',
-                'type': 'checkbox',
-                'default': true,
-            },
-            'pvPhotoMoreActCommunityKeeper': {
-                'label': 'Кнопка "Открыть в Хранителе Групп"',
-                'type': 'checkbox',
-                'default': true,
-            },
-            'pvPhotoMoreActAlbum': {
-                'label': 'Кнопка "Открыть в альбоме"',
-                'type': 'checkbox',
-                'default': true,
-            },
-            'exportCommunityKeeperBtn': {
-                'label': 'Кнопка "Создать бэкап из всех сообществ" возле приложения Хранитель Групп',
-                'type': 'checkbox',
-                'default': false,
-            },
-            'logging': {
-                'label': 'Логирование в консоль',
-                'type': 'checkbox',
-                'default': false,
-            },
-            "newsBtn": {
-                'label': 'Ссылка на новости в профиле пользователя',
-                'type': 'checkbox',
-                'default': false,
-            },
-            "messenger.photo-stickers": {
-                'label': 'Всплывающие подсказки из фотографий из альбомов с описанием',
-                'type': 'checkbox',
-                'default': false,
-            },
-            "messenger.photo-stickers.albums": {
-                'label': 'Показывать всплывающие подсказки только для указанных ID альбомов (Сохранённые фотографии: -15). Например у вас открыт альбом https://vk.com/album123456_123, где 123 - id альбома. Очистите поле, чтобы загружать все альбомы (это медленно и есть вероятность поймать капчу).',
-                'type': 'text',
-                'default': '-15,',
-            },
-            "switchTextLayout": {
-                'label': 'Переключение между русской и английской раскладками клавиатуры для введённого или выделенного текста на Ctrl+Q в любом редактируемом месте на сайте',
-                'type': 'checkbox',
-                'default': false,
-            },
-            "fixFeedPhotoNavigation": {
-                'label': 'Возвращает пролистывание фото в ленте',
-                'type': 'checkbox',
-                'default': false,
-            },
-            "groupInfoTeleport": {
-                'label': 'В сообществах заменять кнопку "Подробная информация" на подробную информацию',
-                'type': 'checkbox',
-                'default': false,
-            }
-        },
-        events: {
-            'save': () => {
-                unsafeWindow.location.reload()
-            }
-        }
-    });
+  private static cache: Record<string, any> | null = null
+
+  private static loadConfig(): Record<string, any> {
+    if (this.cache) {
+      return this.cache
+    }
+
+    const gmValue = GM_getValue('vkfix')
+    const rawConfig = typeof gmValue === 'string' ? gmValue : '{}'
+    
+    try {
+      this.cache = JSON.parse(rawConfig)
+    } catch {
+      this.cache = {}
+    }
+    
+    return this.cache!
+  }
+
+  private static saveConfig(): void {
+    if (this.cache) {
+      GM_setValue('vkfix', JSON.stringify(this.cache))
+    }
+  }
+
+  static Config = {
+    get(key: string): boolean | string {
+      const config = GlobalConfig.loadConfig()
+      
+      if (key in config) {
+        return config[key]
+      }
+      
+      return DEFAULT_VALUES[key] ?? false
+    },
+
+    set(key: string, value: boolean | string): void {
+      const config = GlobalConfig.loadConfig()
+      config[key] = value
+      GlobalConfig.saveConfig()
+    },
+
+    save(): void {
+      GlobalConfig.saveConfig()
+      
+      // @ts-ignore
+      if (typeof unsafeWindow !== 'undefined') {
+        // @ts-ignore
+        unsafeWindow.location.reload()
+      } else {
+        window.location.reload()
+      }
+    },
+  }
 }

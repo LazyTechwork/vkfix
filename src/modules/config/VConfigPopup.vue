@@ -1,107 +1,241 @@
 <template>
-  <Teleport to="body">
-    <Transition name="fade">
-      <div v-if="isOpen" class="v-config-overlay" @click.self="close">
-        <div class="v-config-popup" ref="popupRef">
-          <header class="v-config-popup__header">
-            <div class="v-config-popup__title">
-              <!-- Место под иконку заголовка -->
-              <span class="v-config-popup__title-icon">⚙️</span>
-              <h2 class="v-config-popup__heading">{{ title }}</h2>
-            </div>
-            <button class="v-config-popup__close" @click="close" title="Закрыть">
-              <!-- Место под иконку закрытия -->
-              <span class="v-config-popup__close-icon">✕</span>
-            </button>
-          </header>
+  <NConfigProvider
+    :theme="theme"
+    :theme-overrides="themeOverrides"
+  >
+    <NModal
+      v-model:show="isOpen"
+      preset="card"
+      class="v-config-popup"
+      style="width: 90vw; max-width: 860px;"
+      :bordered="false"
+      size="huge"
+      content-style="padding: 0;"
+      header-style="padding: 20px 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.06);"
+      footer-style="padding: 20px 32px; border-top: 1px solid rgba(255, 255, 255, 0.06);"
+      aria-modal="true"
+    >
+      <template #header>
+        <NSpace align="center" :size="16">
+          <NIcon size="28" color="var(--n-primary-color)">
+            <Icon28SettingsOutline />
+          </NIcon>
+          <NText strong style="font-size: 22px; letter-spacing: -0.02em;">
+            {{ title }}
+          </NText>
+        </NSpace>
+      </template>
 
-          <div class="v-config-popup__body">
-            <!-- Место под иконки навигации по секциям -->
-            <nav class="v-config-popup__sidebar">
-              <button
-                v-for="section in sections"
-                :key="section.id"
-                class="v-config-popup__nav-btn"
-                :class="{ 'v-config-popup__nav-btn--active': activeSection === section.id }"
-                @click="activeSection = section.id"
-              >
-                <!-- Место под иконку секции -->
-                <span class="v-config-popup__nav-icon">{{ section.icon }}</span>
-                <span class="v-config-popup__nav-text">{{ section.title }}</span>
-              </button>
-            </nav>
+      <NLayout has-sider class="v-config-popup__layout">
+        <NLayoutSider
+          bordered
+          width="240"
+          class="v-config-popup__sider"
+        >
+          <NScrollbar>
+            <NMenu
+              v-model:value="activeSection"
+              :options="menuOptions"
+              class="v-config-popup__menu"
+            />
+          </NScrollbar>
+        </NLayoutSider>
 
-            <main class="v-config-popup__content">
-              <div
-                v-for="section in sections"
-                v-show="activeSection === section.id"
-                :key="section.id"
-                class="v-config-popup__section"
-              >
-                <h3 class="v-config-popup__section-title">
-                  <!-- Место под иконку секции -->
-                  <span class="v-config-popup__section-icon">{{ section.icon }}</span>
-                  {{ section.title }}
-                </h3>
+        <NLayoutContent content-style="padding: 24px 32px;">
+          <NScrollbar>
+            <transition name="fade-slide" mode="out-in">
+              <div :key="activeSection">
+                <NSpace v-if="currentSection" vertical :size="24">
+                  <NText strong depth="1" style="font-size: 20px;">
+                    {{ currentSection.title }}
+                  </NText>
 
-                <!-- Поля настроек -->
-                <div class="v-config-popup__fields">
-                  <VConfigField
-                    v-for="field in getSectionFields(section.id)"
-                    :key="field.key"
-                    :field="field"
-                    :value="getFieldValue(field.key)"
-                    @update="handleUpdate"
-                  />
-                </div>
+                  <NSpace vertical :size="16">
+                    <VConfigField
+                      v-for="field in currentFields"
+                      :key="field.key"
+                      :field="field"
+                      :value="getFieldValue(field.key)"
+                      @update="handleUpdate"
+                    />
+                  </NSpace>
+                </NSpace>
               </div>
-            </main>
-          </div>
+            </transition>
+          </NScrollbar>
+        </NLayoutContent>
+      </NLayout>
 
-          <footer class="v-config-popup__footer">
-            <!-- Место под иконку сброса -->
-            <button class="v-config-popup__btn v-config-popup__btn--secondary" @click="resetDefaults">
-              <span class="v-config-popup__btn-icon">🔄</span>
-              Сбросить настройки
-            </button>
-            <button class="v-config-popup__btn v-config-popup__btn--primary" @click="saveAndClose">
-              <!-- Место под иконку сохранения -->
-              <span class="v-config-popup__btn-icon">💾</span>
-              Сохранить и перезагрузить
-            </button>
-          </footer>
+      <template #footer>
+        <div class="v-config-popup__footer">
+          <NButton
+            secondary
+            strong
+            size="large"
+            @click="resetDefaults"
+          >
+            <template #icon>
+              <NIcon><Icon24Replay /></NIcon>
+            </template>
+            Сбросить
+          </NButton>
+
+          <NButton
+            type="primary"
+            strong
+            size="large"
+            class="v-config-popup__save-btn"
+            @click="saveAndClose"
+          >
+            <template #icon>
+              <NIcon><Icon24DoneOutline /></NIcon>
+            </template>
+            Сохранить и применить
+          </NButton>
         </div>
-      </div>
-    </Transition>
-  </Teleport>
+      </template>
+    </NModal>
+  </NConfigProvider>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useMagicKeys, useToggle } from '@vueuse/core'
-import { GlobalConfig } from '../../GlobalConfig'
+import { ref, watch, computed, h } from 'vue'
+import { useMagicKeys } from '@vueuse/core'
+import {
+  NConfigProvider,
+  NModal,
+  NLayout,
+  NLayoutSider,
+  NLayoutContent,
+  NMenu,
+  NButton,
+  NIcon,
+  NSpace,
+  NText,
+  NScrollbar,
+  darkTheme,
+  useOsTheme,
+} from 'naive-ui'
+import type { GlobalThemeOverrides } from 'naive-ui'
+import {
+  Icon28SettingsOutline,
+  Icon24Replay,
+  Icon24DoneOutline,
+  Icon28ServicesOutline,
+  Icon20PictureOutline,
+  Icon28MessagesOutline,
+  Icon28UserOutline,
+  Icon28AdvertisingOutline,
+} from 'vue-vkontakte-icons'
 import VConfigField from './VConfigField.vue'
 import { configSections, configFieldsMeta, getConfigValue, setConfigValue } from './configData'
 import type { ConfigFieldInfo } from './configData'
 
+const osTheme = useOsTheme()
+
+const theme = computed(() => {
+  return osTheme.value === 'dark' ? darkTheme : null
+})
+
+const themeOverrides = computed<GlobalThemeOverrides>(() => {
+  const isDark = osTheme.value === 'dark'
+  
+  return {
+    common: {
+      primaryColor: '#42d392',
+      primaryColorHover: '#5ee4a8',
+      primaryColorPressed: '#35a072',
+      primaryColorSuppl: 'rgba(66, 211, 146, 0.15)',
+      borderRadius: '14px',
+    },
+    Modal: {
+      color: isDark ? '#18181c' : '#fff',
+      borderRadius: '20px',
+      boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.8)',
+      headerPadding: '20px 28px',
+      footerPadding: '20px 28px',
+      textColor: isDark ? '#fff' : '#000',
+    },
+    Card: {
+      borderColor: 'rgba(255, 255, 255, 0.08)',
+      footerBackground: 'transparent',
+      headerBackground: 'transparent',
+    },
+    Menu: {
+      itemBorderRadius: '12px',
+      itemHeight: '48px',
+      itemColorActive: 'rgba(66, 211, 146, 0.12)',
+      itemTextColorActive: '#74eeb3',
+      itemTextColorHover: isDark ? '#fff' : '#000',
+      itemIconColorActive: '#74eeb3',
+      itemMargin: '4px 12px',
+    },
+    Button: {
+      borderRadiusMedium: '14px',
+      borderRadiusLarge: '14px',
+      fontWeightStrong: '700',
+    },
+    Layout: {
+      siderColor: 'rgba(255, 255, 255, 0.015)',
+      color: 'transparent',
+    },
+  }
+})
+
 const sections = configSections
-const title = 'Настройка VK Fix'
+const title = 'Настройки VK Fix'
 
-const popupRef = ref<HTMLDivElement | null>(null)
 const activeSection = ref<string>('general')
-
 const { Escape } = useMagicKeys()
-const [isOpen, toggleOpen] = useToggle(false)
-
-// Хранилище локальных значений полей
+const isOpen = ref(false)
 const fieldValues = ref<Record<string, boolean | string>>({})
 
-// Инициализация значений при открытии
+const menuOptions = computed(() => {
+  const iconMap: Record<string, any> = {
+    general: Icon28ServicesOutline,
+    'photo-viewer': Icon20PictureOutline,
+    messenger: Icon28MessagesOutline,
+    profile: Icon28UserOutline,
+    other: Icon28AdvertisingOutline,
+  }
+
+  return sections.map((section) => {
+    return {
+      label: section.title,
+      key: section.id,
+      icon: () => {
+        return h(NIcon, null, {
+          default: () => {
+            return h(iconMap[section.id] || Icon28SettingsOutline)
+          },
+        })
+      },
+    }
+  })
+})
+
+const currentSection = computed(() => {
+  return sections.find((s) => {
+    return s.id === activeSection.value
+  })
+})
+
+const currentFields = computed<ConfigFieldInfo[]>(() => {
+  if (!currentSection.value) {
+    return []
+  }
+  
+  return currentSection.value.fieldKeys
+    .map((key) => {
+      return configFieldsMeta[key]
+    })
+    .filter(Boolean)
+})
+
 watch(
   () => isOpen.value,
-  (v) => {
-    if (v) {
-      // Загружаем текущие значения всех полей
+  (visible) => {
+    if (visible) {
       for (const section of sections) {
         for (const key of section.fieldKeys) {
           fieldValues.value[key] = getConfigValue(key)
@@ -109,13 +243,18 @@ watch(
       }
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
-watch(Escape, (v) => {
-  if (v && isOpen.value) {
+watch(Escape, (pressed) => {
+  if (pressed && isOpen.value) {
     close()
   }
+})
+
+defineExpose({
+  open,
+  close,
 })
 
 function open() {
@@ -130,15 +269,6 @@ function getFieldValue(key: string): boolean | string {
   return fieldValues.value[key] ?? getConfigValue(key)
 }
 
-function getSectionFields(sectionId: string): ConfigFieldInfo[] {
-  const section = sections.find(s => s.id === sectionId)
-  if (!section) return []
-  
-  return section.fieldKeys
-    .map(key => configFieldsMeta[key])
-    .filter(Boolean)
-}
-
 function handleUpdate(fieldKey: string, value: boolean | string) {
   fieldValues.value[fieldKey] = value
 }
@@ -147,319 +277,79 @@ function resetDefaults() {
   for (const section of sections) {
     for (const key of section.fieldKeys) {
       const meta = configFieldsMeta[key]
+
       if (meta) {
-        fieldValues.value[key] = meta.type === 'checkbox' ? false : (meta as any).default ?? ''
+        fieldValues.value[key] = meta.default ?? (meta.type === 'checkbox' ? false : '')
       }
     }
   }
 }
 
 function saveAndClose() {
-  // Сохраняем все значения в GM_config
   for (const [key, value] of Object.entries(fieldValues.value)) {
     setConfigValue(key, value)
   }
-  // Перезагружаем страницу
-  unsafeWindow.location.reload()
-}
 
-defineExpose({ open, close })
+  // @ts-ignore
+  if (typeof unsafeWindow !== 'undefined') {
+    // @ts-ignore
+    unsafeWindow.location.reload()
+  } else {
+    window.location.reload()
+  }
+}
 </script>
 
 <style lang="scss">
-.v-config-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
 .v-config-popup {
-  display: flex;
-  flex-direction: column;
-  width: 90%;
-  max-width: 700px;
-  max-height: 80vh;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid #e1e3e6;
-    background-color: #f5f5f5;
+  &__layout {
+    height: 65vh;
+    max-height: 560px;
   }
 
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  &__menu {
+    padding: 12px 0;
 
-    &-icon {
-      font-size: 24px;
-      line-height: 1;
+    :deep(.n-menu-item-content) {
+      &::before {
+        display: none !important;
+      }
     }
-  }
-
-  &__heading {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #000;
-  }
-
-  &__close {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border: none;
-    border-radius: 8px;
-    background-color: transparent;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  &__close-icon {
-    font-size: 20px;
-    line-height: 1;
-    color: #666;
-  }
-
-  &__body {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  &__sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 16px;
-    border-right: 1px solid #e1e3e6;
-    background-color: #f9f9f9;
-    overflow-y: auto;
-    min-width: 200px;
-  }
-
-  &__nav-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    border: none;
-    border-radius: 8px;
-    background-color: transparent;
-    cursor: pointer;
-    text-align: left;
-    font-size: 14px;
-    color: #333;
-    transition:
-      background-color 0.2s ease,
-      color 0.2s ease;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    &--active {
-      background-color: #e5ebf1;
-      color: #2a5885;
-      font-weight: 500;
-    }
-  }
-
-  &__nav-icon {
-    font-size: 18px;
-    line-height: 1;
-  }
-
-  &__nav-text {
-    flex: 1;
-  }
-
-  &__content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-  }
-
-  &__section {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  &__section-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #000;
-  }
-
-  &__section-icon {
-    font-size: 20px;
-    line-height: 1;
-  }
-
-  &__fields {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
   }
 
   &__footer {
     display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 16px 20px;
-    border-top: 1px solid #e1e3e6;
-    background-color: #f5f5f5;
-  }
-
-  &__btn {
-    display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 20px;
+    justify-content: space-between;
+    width: 100%;
+    gap: 16px;
+  }
+
+  &__save-btn {
+    background: linear-gradient(135deg, #42d392 0%, #328f65 100%);
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition:
-      background-color 0.2s ease,
-      transform 0.1s ease;
+    box-shadow: 0 4px 14px rgba(43, 148, 101, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    &:active {
-      transform: scale(0.98);
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(43, 148, 101, 0.4);
     }
-
-    &--secondary {
-      background-color: #e5ebf1;
-      color: #2a5885;
-
-      &:hover {
-        background-color: #d5dde5;
-      }
-    }
-
-    &--primary {
-      background-color: #2a5885;
-      color: #fff;
-
-      &:hover {
-        background-color: #1f456b;
-      }
-    }
-  }
-
-  &__btn-icon {
-    font-size: 16px;
-    line-height: 1;
   }
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.2s ease;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.fade-slide-enter-from {
   opacity: 0;
+  transform: translateX(12px);
 }
 
-// Тёмная тема
-body[scheme='vkcom_dark'] {
-  .v-config-overlay {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
-
-  .v-config-popup {
-    background-color: #191919;
-
-    &__header {
-      border-bottom-color: #333;
-      background-color: #222;
-    }
-
-    &__heading {
-      color: #e1e1e1;
-    }
-
-    &__close-icon {
-      color: #999;
-    }
-
-    &__close:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    &__sidebar {
-      border-right-color: #333;
-      background-color: #1f1f1f;
-    }
-
-    &__nav-btn {
-      color: #e1e1e1;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-      }
-
-      &--active {
-        background-color: #2d3a4a;
-        color: #4a76a8;
-      }
-    }
-
-    &__section-title {
-      color: #e1e1e1;
-    }
-
-    &__footer {
-      border-top-color: #333;
-      background-color: #222;
-    }
-
-    &__btn {
-      &--secondary {
-        background-color: #2d3a4a;
-        color: #4a76a8;
-
-        &:hover {
-          background-color: #3d4a5a;
-        }
-      }
-
-      &--primary {
-        background-color: #4a76a8;
-        color: #fff;
-
-        &:hover {
-          background-color: #5a86b8;
-        }
-      }
-    }
-  }
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-12px);
 }
 </style>

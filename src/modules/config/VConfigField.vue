@@ -1,49 +1,60 @@
 <template>
-  <div class="v-config-field" :class="`v-config-field--${field.type}`">
-    <div class="v-config-field__header">
-      <div class="v-config-field__label-wrapper">
-        <!-- Место под иконку поля -->
-        <span v-if="field.icon" class="v-config-field__icon">{{ field.icon }}</span>
-        <label class="v-config-field__label" :for="field.key">
-          {{ field.label }}
-        </label>
+  <div
+    class="v-config-field"
+    :class="`v-config-field--${field.type}`"
+    @click="handleContainerClick"
+  >
+    <div class="v-config-field__container">
+      <div class="v-config-field__info">
+        <div class="v-config-field__header-row">
+          <span v-if="field.icon" class="v-config-field__icon">
+            {{ field.icon }}
+          </span>
+          <NText strong class="v-config-field__label">
+            {{ field.label }}
+          </NText>
+        </div>
+        
+        <NText
+          v-if="field.description"
+          depth="3"
+          class="v-config-field__description"
+        >
+          {{ field.description }}
+        </NText>
       </div>
-    </div>
 
-    <div v-if="field.description" class="v-config-field__description">
-      {{ field.description }}
-    </div>
-
-    <div class="v-config-field__control">
-      <!-- Checkbox -->
-      <div v-if="field.type === 'checkbox'" class="v-config-field__checkbox-wrapper">
-        <input
+      <div class="v-config-field__control">
+        <NSwitch
+          v-if="field.type === 'checkbox'"
           :id="field.key"
-          v-model="localValue"
-          type="checkbox"
-          class="v-config-field__checkbox"
-          @change="emitChange"
-        />
-        <span class="v-config-field__checkbox-indicator"></span>
-      </div>
+          :value="Boolean(localValue)"
+          @update:value="updateValue"
+        >
+          <template #checked-icon>
+            <NIcon><Icon16Done /></NIcon>
+          </template>
+        </NSwitch>
 
-      <!-- Text -->
-      <input
-        v-else-if="field.type === 'text'"
-        :id="field.key"
-        v-model="localValue"
-        type="text"
-        class="v-config-field__input"
-        @input="emitChange"
-        :placeholder="field.default as string"
-      />
+        <NInput
+          v-else-if="field.type === 'text'"
+          :id="field.key"
+          :value="String(localValue)"
+          type="text"
+          class="v-config-field__input"
+          :placeholder="String(field.default || '')"
+          @update:value="updateValue"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+import { NSwitch, NInput, NIcon, NText } from 'naive-ui'
+import { Icon16Done } from 'vue-vkontakte-icons'
 import type { ConfigFieldInfo } from './configData'
-import { computed, ref, watch } from 'vue'
 
 interface Props {
   field: ConfigFieldInfo
@@ -62,204 +73,111 @@ watch(
   () => props.value,
   (newValue) => {
     localValue.value = newValue
-  }
+  },
 )
 
-function emitChange() {
-  emit('update', props.field.key, localValue.value)
+function updateValue(val: boolean | string) {
+  localValue.value = val
+  emit('update', props.field.key, val)
+}
+
+function handleContainerClick(event: MouseEvent) {
+  if (props.field.type !== 'checkbox') {
+    return
+  }
+
+  const target = event.target as HTMLElement
+
+  if (target.closest('.n-switch')) {
+    return
+  }
+
+  updateValue(!localValue.value)
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .v-config-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  transition: background-color 0.2s ease;
+  padding: 16px 20px;
+  border-radius: var(--n-border-radius);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.25s ease;
 
   &:hover {
-    background-color: #f0f0f0;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  &__label-wrapper {
+  &__container {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  &__info {
     flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
   &__icon {
     font-size: 20px;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
   }
 
   &__label {
     font-size: 15px;
-    font-weight: 500;
-    color: #000;
-    cursor: pointer;
+    line-height: 1.3;
+    color: var(--n-text-color);
+    word-break: break-word;
   }
 
   &__description {
+    padding-left: 36px;
     font-size: 13px;
-    color: #666;
-    line-height: 1.5;
+    line-height: 1.4;
+    display: block;
   }
 
   &__control {
-    display: flex;
-    align-items: center;
-  }
-
-  &__checkbox-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  &__checkbox {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-
-    &:checked + .v-config-field__checkbox-indicator {
-      background-color: #2a5885;
-      border-color: #2a5885;
-
-      &::after {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    &:focus + .v-config-field__checkbox-indicator {
-      box-shadow: 0 0 0 2px rgba(42, 88, 133, 0.3);
-    }
-  }
-
-  &__checkbox-indicator {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
-
-    &::after {
-      content: '✓';
-      position: absolute;
-      color: #fff;
-      font-size: 14px;
-      font-weight: bold;
-      opacity: 0;
-      transform: scale(0.5);
-      transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-    }
+    flex-shrink: 0;
   }
 
   &__input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #fff;
-    font-size: 14px;
-    color: #000;
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
+    :deep(.n-input) {
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
 
-    &:focus {
-      outline: none;
-      border-color: #2a5885;
-      box-shadow: 0 0 0 2px rgba(42, 88, 133, 0.2);
+  &--text {
+    .v-config-field__container {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
     }
 
-    &::placeholder {
-      color: #999;
+    .v-config-field__control {
+      width: 100%;
     }
   }
 
   &--checkbox {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-
-    .v-config-field__control {
-      flex-shrink: 0;
-    }
-
-    .v-config-field__header {
-      flex: 1;
-    }
-  }
-
-  // Тёмная тема
-  body[scheme='vkcom_dark'] & {
-    background-color: #191919;
-
-    &:hover {
-      background-color: #222;
-    }
-
-    .v-config-field__label {
-      color: #e1e1e1;
-    }
-
-    .v-config-field__description {
-      color: #999;
-    }
-
-    .v-config-field__checkbox-indicator {
-      border-color: #555;
-      background-color: #191919;
-    }
-
-    .v-config-field__checkbox {
-      &:checked + .v-config-field__checkbox-indicator {
-        background-color: #4a76a8;
-        border-color: #4a76a8;
-      }
-
-      &:focus + .v-config-field__checkbox-indicator {
-        box-shadow: 0 0 0 2px rgba(74, 118, 168, 0.3);
-      }
-    }
-
-    .v-config-field__input {
-      border-color: #444;
-      background-color: #222;
-      color: #e1e1e1;
-
-      &:focus {
-        border-color: #4a76a8;
-        box-shadow: 0 0 0 2px rgba(74, 118, 168, 0.2);
-      }
-
-      &::placeholder {
-        color: #666;
-      }
-    }
+    cursor: pointer;
   }
 }
 </style>
