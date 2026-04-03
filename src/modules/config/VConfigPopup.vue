@@ -41,8 +41,8 @@
           </NScrollbar>
         </NLayoutSider>
 
-        <NLayoutContent content-style="padding: 24px 32px;">
-          <NScrollbar>
+        <NLayoutContent>
+          <NScrollbar style="height: 100%;" content-style="padding: 24px 32px;">
             <transition name="fade-slide" mode="out-in">
               <div :key="activeSection">
                 <NSpace v-if="currentSection" vertical :size="24">

@@ -22,13 +22,14 @@ export const configSections: ConfigSectionInfo[] = [
     id: 'general',
     title: 'Общие настройки',
     icon: '🔧',
-    fieldKeys: ['logging', 'fixImagesZooming']
+    fieldKeys: ['logging']
   },
   {
     id: 'photo-viewer',
     title: 'Просмотрщик фото',
     icon: '📷',
     fieldKeys: [
+      'fixImagesZooming',
       'pvExpand',
       'pvExpandRightMonitorDefault',
       'pvExpandLeftMonitorDefault',
@@ -47,13 +48,13 @@ export const configSections: ConfigSectionInfo[] = [
     id: 'profile',
     title: 'Профиль и сообщества',
     icon: '👤',
-    fieldKeys: ['exportCommunityKeeperBtn', 'groupInfoTeleport']
+    fieldKeys: ['groupInfoTeleport']
   },
   {
     id: 'other',
     title: 'Прочее',
     icon: '⚡',
-    fieldKeys: ['switchTextLayout', 'fixFeedPhotoNavigation']
+    fieldKeys: ['switchTextLayout', 'fixFeedPhotoNavigation', 'exportCommunityKeeperBtn']
   }
 ]
 
