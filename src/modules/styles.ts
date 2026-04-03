@@ -1,6 +1,6 @@
 import {GlobalConfig} from '../GlobalConfig';
 import {fixImagesZoomingCss} from './fixImagesZooming';
-import {fixLeftMenuOverflow} from "./fixLeftMenuOverflow";
+
 
 export default function () {
     let style = '';
@@ -23,10 +23,7 @@ export default function () {
         style += fixImagesZoomingCss;
     }
 
-    const fixLeftMenuOverflowEnabled = GlobalConfig.Config.get('fixLeftMenuOverflow');
-    if (fixLeftMenuOverflowEnabled) {
-        style += fixLeftMenuOverflow;
-    }
+
 
     GM_addStyle(style)
 }

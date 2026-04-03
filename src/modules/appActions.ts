@@ -8,9 +8,9 @@ import {saveTemplateAsFile} from "../common/helpers/saveTemplateAsFile";
 const exportCommunityKeeperBtn = 'exportCommunityKeeperBtn'
 
 export async function appActions() {
-    const isNewsBtn = GlobalConfig.Config.get('exportCommunityKeeperBtn') as boolean;
+    const isExportBtn = GlobalConfig.Config.get('exportCommunityKeeperBtn') as boolean;
     const isAppPage = window.location.pathname.startsWith('/app51658481')
-    if (!isNewsBtn || !isAppPage || document.getElementById(exportCommunityKeeperBtn)) {
+    if (!isExportBtn || !isAppPage || document.getElementById(exportCommunityKeeperBtn)) {
         return;
     }
 

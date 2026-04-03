@@ -21,7 +21,7 @@ import {LocationState} from './classes/LocationState';
 import {pageScanner} from './modules/pageScanner';
 import {pvAddons} from './modules/pvAddons';
 import {Logger} from "./classes/Logger";
-import {profileActions} from "./modules/profileActions";
+
 import {querySelectorWithTimeout} from "./common/helpers/querySelectorWithTimeout";
 import {appActions} from "./modules/appActions";
 import {messenger} from "./modules/messenger/messenger";
@@ -71,7 +71,7 @@ import VConfigPopup from './modules/config/VConfigPopup.vue';
             pageScanner(); // Инициализируем сканер страницы
             mutationHandler(); // Регистрируем модуль слежения за мутациями
             pvAddons(); // Инициализируем дополнения к просмотрщику фото
-            profileActions(); // Инициализируем дополнения к профилю пользователя
+
             appActions(); // Инициализируем дополнения к приложениям
             messenger(); // Инициализируем дополнения к мессенджеру
             initSwitchTextLayout(); // Инициализируем функцию переключения раскладки

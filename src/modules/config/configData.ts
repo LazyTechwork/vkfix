@@ -22,7 +22,7 @@ export const configSections: ConfigSectionInfo[] = [
     id: 'general',
     title: 'Общие настройки',
     icon: '🔧',
-    fieldKeys: ['logging', 'fixImagesZooming', 'fixLeftMenuOverflow']
+    fieldKeys: ['logging', 'fixImagesZooming']
   },
   {
     id: 'photo-viewer',
@@ -47,7 +47,7 @@ export const configSections: ConfigSectionInfo[] = [
     id: 'profile',
     title: 'Профиль и сообщества',
     icon: '👤',
-    fieldKeys: ['newsBtn', 'exportCommunityKeeperBtn', 'groupInfoTeleport']
+    fieldKeys: ['exportCommunityKeeperBtn', 'groupInfoTeleport']
   },
   {
     id: 'other',
@@ -71,12 +71,7 @@ export const configFieldsMeta: Record<string, ConfigFieldInfo> = {
     type: 'checkbox',
     icon: '🖼️'
   },
-  fixLeftMenuOverflow: {
-    key: 'fixLeftMenuOverflow',
-    label: 'Исправить высоту левого меню (убрать скролл страницы)',
-    type: 'checkbox',
-    icon: '📋'
-  },
+
   pvExpand: {
     key: 'pvExpand',
     label: 'Кнопка "Расширить" при просмотре фото',
@@ -114,12 +109,7 @@ export const configFieldsMeta: Record<string, ConfigFieldInfo> = {
     type: 'checkbox',
     icon: '📁'
   },
-  newsBtn: {
-    key: 'newsBtn',
-    label: 'Ссылка на новости в профиле пользователя',
-    type: 'checkbox',
-    icon: '📰'
-  },
+
   exportCommunityKeeperBtn: {
     key: 'exportCommunityKeeperBtn',
     label: 'Кнопка "Создать бэкап из всех сообществ"',

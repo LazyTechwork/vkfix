@@ -1,7 +1,7 @@
 import {LocationState} from '../../classes/LocationState';
 import {pageScanner} from '../pageScanner';
 import {pvAddons} from '../pvAddons';
-import {profileActions} from "../profileActions";
+
 import {appActions} from "../appActions";
 import {messenger} from "../messenger/messenger";
 import {Logger} from "../../classes/Logger";
@@ -39,6 +39,6 @@ export function locationMutations() {
         messenger()
     }
 
-    profileActions();
+
     initGroupInfoTeleport();
 }

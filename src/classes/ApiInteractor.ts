@@ -48,7 +48,7 @@ export class APIInteractor {
 
 
 export interface ICallApiParams {
-    method?: 'execute' | 'messages.removeChatUser' | 'utils.resolveScreenName' | 'newsfeed.getLists' | 'groups.get' | 'photos.getAlbums' | string;
+    method?: 'execute' | 'messages.removeChatUser' | 'groups.get' | 'photos.getAlbums' | string;
     data?: {
         [U: string]: string | number;
     };

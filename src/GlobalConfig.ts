@@ -1,6 +1,5 @@
 const DEFAULT_VALUES: Record<string, boolean | string> = {
   fixImagesZooming: false,
-  fixLeftMenuOverflow: false,
   pvExpand: false,
   pvExpandRightMonitorDefault: false,
   pvExpandLeftMonitorDefault: false,
@@ -9,7 +8,6 @@ const DEFAULT_VALUES: Record<string, boolean | string> = {
   pvPhotoMoreActAlbum: true,
   exportCommunityKeeperBtn: false,
   logging: false,
-  newsBtn: false,
   'messenger.photo-stickers': false,
   'messenger.photo-stickers.albums': '-15,',
   switchTextLayout: false,
