@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import monkey from 'vite-plugin-monkey'
+import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [
@@ -13,6 +14,11 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      '#src': resolve(__dirname, 'src'),
+    },
+  },
   build: {
     outDir: 'dist',
     cssCodeSplit: false,

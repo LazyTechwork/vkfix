@@ -9,13 +9,16 @@
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "types": ["vitest/globals"]
   },
   "exclude": [
     "node_modules"
   ],
   "include": [
     "src/**/*.ts",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "vitest.setup.ts",
+    "vitest.config.ts"
   ]
 }
