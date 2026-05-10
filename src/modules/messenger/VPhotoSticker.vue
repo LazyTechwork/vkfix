@@ -4,21 +4,23 @@
       {{ sticker.suggestions[0] }}
     </div>
     <img
-      ref="imgEl"
-      class="v-photo-sticker-img"
-      tabindex="0"
-      :src="getPhotoUrl()"
-      :alt="sticker.photo.text"
-      :title="sticker.suggestions[0]"
-      @dragstart.prevent
-      @click.prevent.stop="emit('sendSticker', sticker)"
+        ref="imgEl"
+        class="v-photo-sticker-img"
+        tabindex="0"
+        :src="photoUrl"
+        :alt="sticker.photo.text"
+        :title="sticker.suggestions[0]"
+        @dragstart.prevent
+        @click.prevent.stop="emit('sendSticker', sticker)"
+        @load="isLoading = false"
+        @error="isError = true; isLoading = false;"
     />
   </a>
 </template>
 <script lang="ts" setup>
-import { PhotoSticker } from "./types";
-import { computed, useTemplateRef } from "vue";
-import { useElementSize } from "@vueuse/core";
+import {PhotoSticker} from "./types";
+import {computed, ref, useTemplateRef, watch} from "vue";
+import {useElementSize} from "@vueuse/core";
 
 const props = defineProps<{
   sticker: PhotoSticker;
@@ -30,16 +32,26 @@ const emit = defineEmits<{
 
 const imgEl = useTemplateRef("imgEl");
 
-const { width: imgWidth } = useElementSize(imgEl);
+const photoUrl = computed(getPhotoUrl);
+
+const isLoading = ref(true);
+const isError = ref(false);
+
+const {width: imgWidth} = useElementSize(imgEl);
 
 const textWidth = computed(() => {
-  return imgWidth.value + "px";
+  return isError.value || isLoading.value ? '100px' : imgWidth.value + "px";
 });
+
+watch(photoUrl, () => {
+  isLoading.value = true;
+  isError.value = false;
+})
 
 function getAlbumId(sticker: PhotoSticker) {
   return sticker.photo.album_id === -15
-    ? "000"
-    : sticker.photo.album_id.toString();
+      ? "000"
+      : sticker.photo.album_id.toString();
 }
 
 function getHref(sticker: PhotoSticker) {
@@ -51,18 +63,20 @@ function getHref(sticker: PhotoSticker) {
 
 function getPhotoUrl() {
   return (
-    props.sticker.photo.sizes.find((s) => s.type === "x")?.url ??
-    props.sticker.photo.sizes[0].url
+      props.sticker.photo.sizes.find((s) => s.type === "x")?.url ??
+      props.sticker.photo.sizes[0].url
   );
 }
 </script>
 <style lang="scss">
 .v-photo-sticker {
   position: relative;
+  opacity: v-bind('isLoading ? 0 : 1');
   display: flex;
   flex-shrink: 0;
   flex-direction: column;
   justify-content: flex-end;
+  transition: all 0.2s ease;
 
   .v-photo-sticker-text {
     color: #fff;
@@ -83,7 +97,7 @@ function getPhotoUrl() {
     outline-offset: -1px;
   }
 
-  img {
+  .v-photo-sticker-img {
     position: relative;
     height: 99px;
     outline: 1px solid rgba(255, 255, 255, 0.67);
