@@ -75,7 +75,7 @@ export const DEFAULT_SEARCH_CONFIG: StickerSearchConfig = {
     maxResults: 50,
     minScore: 0.3,         // Понижен для точных совпадений
     maxQueryWords: 5,
-    minPrefixLength: 3,
+    minPrefixLength: 2,
     maxPrefixLength: 6
   },
   features: {

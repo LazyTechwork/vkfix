@@ -130,7 +130,8 @@ export const configFieldsMeta: Record<string, ConfigFieldInfo> = {
     key: 'messenger.photo-stickers',
     label: 'Всплывающие подсказки из фотографий с описанием',
     type: 'checkbox',
-    icon: '🎭'
+    icon: '🎭',
+    description: "Дополнительно: в чате по нажатию на Ctrl+Space открывается модальное окно со всеми доступными фотографиями."
   },
   'messenger.photo-stickers.albums': {
     key: 'messenger.photo-stickers.albums',

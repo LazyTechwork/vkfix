@@ -5,6 +5,7 @@ import {APIInteractor} from "../../classes/ApiInteractor";
 import {extractQuotedTexts} from "../../common/helpers/extractQuotedTexts";
 import {createApp, h, ref, shallowReactive, watch} from "vue";
 import VPhotoStickersPopup from "./VPhotoStickersPopup.vue";
+import VPhotoStickersGallery from "./VPhotoStickersGallery.vue";
 import {VKLocation} from "../../classes/VKLocation";
 import {Album, Photo, PhotoSticker} from "./types";
 import {initializeStickerSearch, smartStickerSearch} from "../../classes/AdvancedStickerFilter";
@@ -79,6 +80,16 @@ const stickersStore = shallowReactive<{
     }
 })
 
+const galleryState = shallowReactive<{
+    visible: boolean
+    onSendSticker(sticker: PhotoSticker): void
+}>({
+    visible: false,
+    onSendSticker: async (sticker: PhotoSticker) => {
+        stickersStore.onSendSticker(sticker)
+    }
+})
+
 useEventListener(composerInputInput, 'keydown', (e: KeyboardEvent) => {
     if (e.key === 'Shift') {
         return
@@ -115,6 +126,22 @@ useEventListener(composerInputInput, 'keydown', (e: KeyboardEvent) => {
         debounceShowStickers(newText)
         Logger.info(`messenger: keydown ${e.key}, text: ${getComposerText(composerInputInput.value)}`)
     })
+}, {capture: true})
+
+useEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.ctrlKey && e.code === 'Space') {
+        e.preventDefault()
+        e.stopPropagation()
+        galleryState.visible = !galleryState.visible
+    }
+}, {capture: true})
+
+useEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && galleryState.visible) {
+        e.preventDefault()
+        e.stopPropagation()
+        galleryState.visible = false
+    }
 }, {capture: true})
 
 useEventListener(composerInputInput, 'input', () => {
@@ -327,6 +354,19 @@ async function initPhotoStickers(): Promise<void> {
         const app = createApp({render: () => h(VPhotoStickersPopup, stickersStore)});
         app.mount(stickersAppEl);
         document.body.appendChild(stickersAppEl)
+
+        const galleryAppEl = document.createElement('div')
+        const galleryApp = createApp({
+            render: () => h(VPhotoStickersGallery, {
+                visible: galleryState.visible,
+                photos: stickersStore.photos,
+                onSendSticker: galleryState.onSendSticker,
+                onClose: () => { galleryState.visible = false }
+            })
+        });
+        galleryApp.mount(galleryAppEl);
+        document.body.appendChild(galleryAppEl)
+
         _initPhotoStickers.value = true
         Logger.info('messenger: cached init', stickersStore.photos)
     } catch (ex: any) {
