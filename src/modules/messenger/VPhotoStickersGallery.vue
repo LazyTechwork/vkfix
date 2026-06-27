@@ -16,20 +16,22 @@
           <span class="v-photo-stickers-gallery__count">{{ filteredStickers.length }}</span>
         </div>
         <div class="v-photo-stickers-gallery__grid">
-          <div
+          <a
             v-for="sticker in filteredStickers"
             :key="sticker.photo.id"
             class="v-photo-stickers-gallery__item"
-            @click="onSend(sticker)"
+            :href="getPhotoStickerHref(sticker)"
+            @click.prevent.stop="onSend(sticker)"
           >
             <img
               class="v-photo-stickers-gallery__img"
-              :src="getPhotoUrl(sticker)"
+            :src="getPhotoStickerUrl(sticker)"
               :alt="sticker.photo.text"
               loading="lazy"
+              @dragstart.prevent
             />
             <div class="v-photo-stickers-gallery__label">{{ sticker.suggestions[0] }}</div>
-          </div>
+          </a>
           <div v-if="filteredStickers.length === 0" class="v-photo-stickers-gallery__empty">
             Нет стикеров
           </div>
@@ -42,6 +44,7 @@
 import {computed, nextTick, ref, watch} from "vue";
 import {PhotoSticker} from "./types";
 import {smartStickerSearch} from "../../classes/AdvancedStickerFilter";
+import {getPhotoStickerHref, getPhotoStickerUrl} from "./photoStickerUtils";
 
 const props = defineProps<{
   visible: boolean;
@@ -71,13 +74,6 @@ watch(() => props.visible, async (v) => {
     searchInputEl.value?.focus();
   }
 });
-
-function getPhotoUrl(sticker: PhotoSticker) {
-  return (
-    sticker.photo.sizes.find((s) => s.type === "x")?.url ??
-    sticker.photo.sizes[0].url
-  );
-}
 
 function onSend(sticker: PhotoSticker) {
   emit("sendSticker", sticker);

@@ -1,5 +1,5 @@
 <template>
-  <a class="v-photo-sticker" tabindex="-1" :href="getHref(sticker)">
+    <a class="v-photo-sticker" tabindex="-1" :href="getPhotoStickerHref(sticker)">
     <div :key="sticker.photo.id" class="v-photo-sticker-text">
       {{ sticker.suggestions[0] }}
     </div>
@@ -21,6 +21,7 @@
 import {PhotoSticker} from "./types";
 import {computed, ref, useTemplateRef, watch} from "vue";
 import {useElementSize} from "@vueuse/core";
+import {getPhotoStickerHref, getPhotoStickerUrl} from "./photoStickerUtils";
 
 const props = defineProps<{
   sticker: PhotoSticker;
@@ -32,7 +33,7 @@ const emit = defineEmits<{
 
 const imgEl = useTemplateRef("imgEl");
 
-const photoUrl = computed(getPhotoUrl);
+const photoUrl = computed(() => getPhotoStickerUrl(props.sticker));
 
 const isLoading = ref(true);
 const isError = ref(false);
@@ -48,25 +49,6 @@ watch(photoUrl, () => {
   isError.value = false;
 })
 
-function getAlbumId(sticker: PhotoSticker) {
-  return sticker.photo.album_id === -15
-      ? "000"
-      : sticker.photo.album_id.toString();
-}
-
-function getHref(sticker: PhotoSticker) {
-  const albumId = getAlbumId(sticker);
-  const ownerId = sticker.photo.owner_id;
-  const photoId = sticker.photo.id;
-  return `https://${window.location.host}/album${ownerId}_${albumId}?z=photo${ownerId}_${photoId}`;
-}
-
-function getPhotoUrl() {
-  return (
-      props.sticker.photo.sizes.find((s) => s.type === "x")?.url ??
-      props.sticker.photo.sizes[0].url
-  );
-}
 </script>
 <style lang="scss">
 .v-photo-sticker {
