@@ -233,7 +233,14 @@ describe('AdvancedStickerFilter - Baseline Tests', () => {
       expect(results.length).toBe(0)
     })
 
-    it('НЕ должен находить стикеры для сообщений с >3 словами', () => {
+    it('должен искать по сообщениям длиннее трёх слов', () => {
+      // Ограничение в три слова снято: обычное предложение не должно
+      // отключать подсказки целиком
+      const results = smartStickerSearch(testStickers, 'доброе утро всем друзья')
+      expect(results.some(s => s.photo.id === 14)).toBe(true)
+    })
+
+    it('НЕ должен находить стикеры, если ни одно слово сообщения не подошло', () => {
       const results = smartStickerSearch(testStickers, 'один два три четыре')
       expect(results.length).toBe(0)
     })

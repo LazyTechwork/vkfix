@@ -1,3 +1,4 @@
+import { uniq } from 'es-toolkit';
 import { STOP_WORDS } from './config';
 
 /**
@@ -14,29 +15,79 @@ function isEmoji(str: string): boolean {
 }
 
 /**
+ * Приводит буквы к единому виду: нижний регистр и «ё» → «е».
+ *
+ * «ё» нужна и в индексе, и в запросе: без приведения «ёжик» и «ежик»
+ * оказываются разными словами и стикер не находится по одному из написаний.
+ */
+export function normalizeLetters(text: string): string {
+  return text.toLowerCase().replaceAll('ё', 'е');
+}
+
+/**
+ * Приводит текст к виду, в котором он сравнивается при поиске:
+ * без пунктуации, без двойных пробелов, с сохранением эмодзи.
+ * Одной функцией пользуются и индекс, и запрос — иначе подсказка
+ * «Как дела?» никогда не совпала бы с запросом «как дела».
+ */
+export function normalizeText(text: string): string {
+  // Проверяем, является ли текст чистым эмодзи (или последовательностью эмодзи с пробелами)
+  const trimmed = text.trim();
+  const emojiOnly = trimmed.replace(/[\s\u200D]/g, '');
+
+  // Если текст состоит только из эмодзи, возвращаем его как есть
+  if (emojiOnly.length > 0 && /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u.test(emojiOnly)) {
+    return trimmed;
+  }
+
+  // Для смешанного текста сохраняем буквы, цифры, пробелы и эмодзи
+  return normalizeLetters(text)
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/[^\w\s\u0400-\u04FF\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
+}
+
+/**
  * Нормализатор текста для поиска
  */
 export class TextNormalizer {
   /**
    * Нормализует запрос для поиска
-   * Сохраняет эмодзи, удаляет лишние пробелы и спецсимволы
    */
   normalizeQuery(query: string): string {
-    // Проверяем, является ли запрос чистым эмодзи (или последовательностью эмодзи с пробелами)
-    const trimmedQuery = query.trim();
-    const emojiOnlyQuery = trimmedQuery.replace(/[\s\u200D]/g, '');
-    
-    // Если запрос состоит только из эмодзи, возвращаем его как есть
-    if (emojiOnlyQuery.length > 0 && /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u.test(emojiOnlyQuery)) {
-      return trimmedQuery;
+    return normalizeText(query);
+  }
+
+  /**
+   * Выбирает слова запроса, по которым идёт поиск.
+   *
+   * Стоп-слова отбрасываются, но если запрос состоит из них целиком
+   * («это», «как дела»), возвращаем его как есть — иначе поиск молча
+   * вернул бы пустоту. Длинные сообщения урезаем до самых значимых слов:
+   * чем слово длиннее, тем оно информативнее.
+   */
+  selectQueryWords(words: string[], maxWords: number): string[] {
+    const unique = uniq(words);
+    const meaningful = unique.filter(word => !this.isStopWord(word));
+    const selected = meaningful.length > 0 ? meaningful : unique;
+
+    if (selected.length <= maxWords) {
+      return selected;
     }
 
-    // Для смешанных запросов сохраняем буквы, цифры, пробелы и эмодзи
-    return query
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, ' ')
-      .replace(/[^\w\s\u0400-\u04FF\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
+    const significant = new Set(
+      [...selected].sort((a, b) => b.length - a.length).slice(0, maxWords)
+    );
+
+    // Сохраняем исходный порядок слов
+    return selected.filter(word => significant.has(word));
+  }
+
+  /**
+   * Проверяет, состоит ли набор слов только из стоп-слов
+   */
+  isStopWordsOnly(words: string[]): boolean {
+    return words.length > 0 && words.every(word => this.isStopWord(word));
   }
 
   /**
@@ -61,8 +112,7 @@ export class TextNormalizer {
           result.push(...emojiMatches);
         }
         return result;
-      })
-      .filter(word => !this.isStopWord(word));
+      });
   }
 
   /**
@@ -110,7 +160,7 @@ export class TextNormalizer {
     const result: string[] = [];
     for (const token of tokens) {
       // Извлекаем буквы/цифры
-      const letterMatches = token.match(/[а-яa-z0-9]+/g);
+      const letterMatches = token.match(/[а-яёa-z0-9]+/g);
       if (letterMatches) {
         result.push(...letterMatches);
       }

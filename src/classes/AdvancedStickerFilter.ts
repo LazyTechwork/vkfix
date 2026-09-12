@@ -2,38 +2,23 @@ import { PhotoSticker } from "../modules/messenger/types";
 import { Logger } from "./Logger";
 import { SearchEngine } from "./sticker-search/SearchEngine";
 
-// Экспортируем типы для обратной совместимости
-export interface SearchResult {
-    sticker: PhotoSticker;
-    score: number;
-    matches: MatchDetails[];
-}
-
-export interface MatchDetails {
-    type: 'exact' | 'partial' | 'fuzzy' | 'semantic';
-    field: 'word' | 'suggestion';
-    value: string;
-    score: number;
-    position?: number;
-}
-
-export interface SearchOptions {
-    enableSemantic?: boolean;
-    boostExactMatches?: number;
-    boostStartsWith?: number;
-    maxResults?: number;
-    minScore?: number;
-}
+// Реэкспорт типов движка — дублировать их здесь нельзя, разойдутся
+export type { SearchResult, MatchDetails, MatchType, SearchOptions } from "./sticker-search/types";
 
 // Singleton экземпляр движка поиска
 let searchEngine: SearchEngine | null = null;
 
 /**
  * Умный поиск стикеров (главная функция)
+ *
+ * @param limit сколько стикеров нужно показать. Ранжирование всегда полное,
+ *              лимит задаёт только длину выдачи — увеличивайте его при
+ *              подгрузке следующей порции.
  */
 export function smartStickerSearch(
     stickers: PhotoSticker[],
-    userMessage: string
+    userMessage: string,
+    limit?: number
 ): PhotoSticker[] {
     if (!searchEngine) {
         Logger.error('smartStickerSearch: search engine not initialized');
@@ -41,7 +26,7 @@ export function smartStickerSearch(
     }
 
     try {
-        return searchEngine.search(stickers, userMessage);
+        return searchEngine.search(stickers, userMessage, limit);
     } catch (error) {
         Logger.error('smartStickerSearch: error during search', error);
         return [];

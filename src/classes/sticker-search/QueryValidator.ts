@@ -72,13 +72,11 @@ export class QueryValidator {
       return { isValid: false, reason: 'Only digits' };
     }
 
-    // Количество слов
-    const words = normalizedQuery.split(/\s+/);
-    if (words.length > this.rules.maxWords) {
-      return { isValid: false, reason: 'Too many words' };
-    }
+    // Количество слов не ограничиваем: движок сам отберёт значимые слова,
+    // иначе обычное предложение из четырёх слов не показывало бы ни одного стикера
 
     // Одна буква (не применяется к эмодзи)
+    const words = normalizedQuery.split(/\s+/);
     if (!this.rules.allowSingleLetter && words.length === 1 && words[0].length === 1) {
       return { isValid: false, reason: 'Single letter query' };
     }

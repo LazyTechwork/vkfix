@@ -26,7 +26,7 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
   var require_index_001 = __commonJS({
-    "index-UC6zjsEE.js"(exports$1, module) {
+    "index-BgRamHGd.js"(exports$1, module) {
       const DEFAULT_VALUES = {
         fixImagesZooming: false,
         pvExpand: false,
@@ -7549,10 +7549,116 @@ el._isVueCE && (/[A-Z]/.test(key) || !isString(nextValue))
       };
       const isClient = typeof window !== "undefined" && typeof document !== "undefined";
       typeof WorkerGlobalScope !== "undefined" && globalThis instanceof WorkerGlobalScope;
+      const notNullish = (val) => val != null;
       const toString$1 = Object.prototype.toString;
       const isObject$1 = (val) => toString$1.call(val) === "[object Object]";
       const noop = () => {
       };
+      function createFilterWrapper(filter, fn) {
+        function wrapper(...args) {
+          return new Promise((resolve, reject) => {
+            Promise.resolve(filter(() => fn.apply(this, args), { fn, thisArg: this, args })).then(resolve).catch(reject);
+          });
+        }
+        return wrapper;
+      }
+      function debounceFilter(ms, options = {}) {
+        let timer;
+        let maxTimer;
+        let lastRejector = noop;
+        const _clearTimeout = (timer2) => {
+          clearTimeout(timer2);
+          lastRejector();
+          lastRejector = noop;
+        };
+        let lastInvoker;
+        const filter = (invoke) => {
+          const duration2 = toValue(ms);
+          const maxDuration = toValue(options.maxWait);
+          if (timer)
+            _clearTimeout(timer);
+          if (duration2 <= 0 || maxDuration !== void 0 && maxDuration <= 0) {
+            if (maxTimer) {
+              _clearTimeout(maxTimer);
+              maxTimer = null;
+            }
+            return Promise.resolve(invoke());
+          }
+          return new Promise((resolve, reject) => {
+            lastRejector = options.rejectOnCancel ? reject : resolve;
+            lastInvoker = invoke;
+            if (maxDuration && !maxTimer) {
+              maxTimer = setTimeout(() => {
+                if (timer)
+                  _clearTimeout(timer);
+                maxTimer = null;
+                resolve(lastInvoker());
+              }, maxDuration);
+            }
+            timer = setTimeout(() => {
+              if (maxTimer)
+                _clearTimeout(maxTimer);
+              maxTimer = null;
+              resolve(invoke());
+            }, duration2);
+          });
+        };
+        return filter;
+      }
+      function throttleFilter(...args) {
+        let lastExec = 0;
+        let timer;
+        let isLeading = true;
+        let lastRejector = noop;
+        let lastValue;
+        let ms;
+        let trailing;
+        let leading;
+        let rejectOnCancel;
+        if (!isRef$1(args[0]) && typeof args[0] === "object")
+          ({ delay: ms, trailing = true, leading = true, rejectOnCancel = false } = args[0]);
+        else
+          [ms, trailing = true, leading = true, rejectOnCancel = false] = args;
+        const clear = () => {
+          if (timer) {
+            clearTimeout(timer);
+            timer = void 0;
+            lastRejector();
+            lastRejector = noop;
+          }
+        };
+        const filter = (_invoke) => {
+          const duration2 = toValue(ms);
+          const elapsed = Date.now() - lastExec;
+          const invoke = () => {
+            return lastValue = _invoke();
+          };
+          clear();
+          if (duration2 <= 0) {
+            lastExec = Date.now();
+            return invoke();
+          }
+          if (elapsed > duration2 && (leading || !isLeading)) {
+            lastExec = Date.now();
+            invoke();
+          } else if (trailing) {
+            lastValue = new Promise((resolve, reject) => {
+              lastRejector = rejectOnCancel ? reject : resolve;
+              timer = setTimeout(() => {
+                lastExec = Date.now();
+                isLeading = true;
+                resolve(invoke());
+                clear();
+              }, Math.max(0, duration2 - elapsed));
+            });
+          }
+          if (!leading && !timer)
+            timer = setTimeout(() => isLeading = true, duration2);
+          isLeading = false;
+          return lastValue;
+        };
+        return filter;
+      }
       function pxValue(px) {
         return px.endsWith("rem") ? Number.parseFloat(px) * 16 : Number.parseFloat(px);
       }
@@ -7561,6 +7667,18 @@ el._isVueCE && (/[A-Z]/.test(key) || !isString(nextValue))
       }
       function getLifeCycleTarget(target) {
         return getCurrentInstance();
+      }
+      function useDebounceFn(fn, ms = 200, options = {}) {
+        return createFilterWrapper(
+          debounceFilter(ms, options),
+          fn
+        );
+      }
+      function useThrottleFn(fn, ms = 200, trailing = false, leading = true, rejectOnCancel = false) {
+        return createFilterWrapper(
+          throttleFilter(ms, trailing, leading, rejectOnCancel),
+          fn
+        );
       }
       function tryOnMounted(fn, sync = true, target) {
         const instance = getLifeCycleTarget();
@@ -7571,6 +7689,11 @@ el._isVueCE && (/[A-Z]/.test(key) || !isString(nextValue))
         else
           nextTick(fn);
       }
+      function tryOnUnmounted(fn, target) {
+        const instance = getLifeCycleTarget();
+        if (instance)
+          onUnmounted(fn, target);
+      }
       function watchImmediate(source, cb, options) {
         return watch(
           source,
@@ -7578,6 +7701,16 @@ el._isVueCE && (/[A-Z]/.test(key) || !isString(nextValue))
           {
             ...options,
             immediate: true
+          }
+        );
+      }
+      function watchOnce(source, cb, options) {
+        return watch(
+          source,
+          cb,
+          {
+            ...options,
+            once: true
           }
         );
       }
@@ -7798,6 +7931,325 @@ toValue(firstParamTargets.value ? args[3] : args[2])
           width,
           height,
           stop
+        };
+      }
+      function useIntersectionObserver(target, callback, options = {}) {
+        const {
+          root: root2,
+          rootMargin = "0px",
+          threshold = 0,
+          window: window2 = defaultWindow,
+          immediate = true
+        } = options;
+        const isSupported = useSupported(() => window2 && "IntersectionObserver" in window2);
+        const targets = computed(() => {
+          const _target = toValue(target);
+          return toArray$1(_target).map(unrefElement).filter(notNullish);
+        });
+        let cleanup = noop;
+        const isActive = shallowRef(immediate);
+        const stopWatch = isSupported.value ? watch(
+          () => [targets.value, unrefElement(root2), isActive.value],
+          ([targets2, root22]) => {
+            cleanup();
+            if (!isActive.value)
+              return;
+            if (!targets2.length)
+              return;
+            const observer2 = new IntersectionObserver(
+              callback,
+              {
+                root: unrefElement(root22),
+                rootMargin,
+                threshold
+              }
+            );
+            targets2.forEach((el) => el && observer2.observe(el));
+            cleanup = () => {
+              observer2.disconnect();
+              cleanup = noop;
+            };
+          },
+          { immediate, flush: "post" }
+        ) : noop;
+        const stop = () => {
+          cleanup();
+          stopWatch();
+          isActive.value = false;
+        };
+        tryOnScopeDispose(stop);
+        return {
+          isSupported,
+          isActive,
+          pause() {
+            cleanup();
+            isActive.value = false;
+          },
+          resume() {
+            isActive.value = true;
+          },
+          stop
+        };
+      }
+      function useElementVisibility(element, options = {}) {
+        const {
+          window: window2 = defaultWindow,
+          scrollTarget,
+          threshold = 0,
+          rootMargin,
+          once = false
+        } = options;
+        const elementIsVisible = shallowRef(false);
+        const { stop } = useIntersectionObserver(
+          element,
+          (intersectionObserverEntries) => {
+            let isIntersecting = elementIsVisible.value;
+            let latestTime = 0;
+            for (const entry of intersectionObserverEntries) {
+              if (entry.time >= latestTime) {
+                latestTime = entry.time;
+                isIntersecting = entry.isIntersecting;
+              }
+            }
+            elementIsVisible.value = isIntersecting;
+            if (once) {
+              watchOnce(elementIsVisible, () => {
+                stop();
+              });
+            }
+          },
+          {
+            root: scrollTarget,
+            window: window2,
+            threshold,
+            rootMargin: toValue(rootMargin)
+          }
+        );
+        return elementIsVisible;
+      }
+      function resolveElement(el) {
+        if (typeof Window !== "undefined" && el instanceof Window)
+          return el.document.documentElement;
+        if (typeof Document !== "undefined" && el instanceof Document)
+          return el.documentElement;
+        return el;
+      }
+      const ARRIVED_STATE_THRESHOLD_PIXELS = 1;
+      function useScroll(element, options = {}) {
+        const {
+          throttle = 0,
+          idle = 200,
+          onStop = noop,
+          onScroll = noop,
+          offset = {
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0
+          },
+          eventListenerOptions = {
+            capture: false,
+            passive: true
+          },
+          behavior = "auto",
+          window: window2 = defaultWindow,
+          onError = (e) => {
+            console.error(e);
+          }
+        } = options;
+        const internalX = shallowRef(0);
+        const internalY = shallowRef(0);
+        const x = computed({
+          get() {
+            return internalX.value;
+          },
+          set(x2) {
+            scrollTo(x2, void 0);
+          }
+        });
+        const y = computed({
+          get() {
+            return internalY.value;
+          },
+          set(y2) {
+            scrollTo(void 0, y2);
+          }
+        });
+        function scrollTo(_x, _y) {
+          var _a, _b, _c, _d;
+          if (!window2)
+            return;
+          const _element = toValue(element);
+          if (!_element)
+            return;
+          (_c = _element instanceof Document ? window2.document.body : _element) == null ? void 0 : _c.scrollTo({
+            top: (_a = toValue(_y)) != null ? _a : y.value,
+            left: (_b = toValue(_x)) != null ? _b : x.value,
+            behavior: toValue(behavior)
+          });
+          const scrollContainer = ((_d = _element == null ? void 0 : _element.document) == null ? void 0 : _d.documentElement) || (_element == null ? void 0 : _element.documentElement) || _element;
+          if (x != null)
+            internalX.value = scrollContainer.scrollLeft;
+          if (y != null)
+            internalY.value = scrollContainer.scrollTop;
+        }
+        const isScrolling = shallowRef(false);
+        const arrivedState = reactive({
+          left: true,
+          right: false,
+          top: true,
+          bottom: false
+        });
+        const directions = reactive({
+          left: false,
+          right: false,
+          top: false,
+          bottom: false
+        });
+        const onScrollEnd = (e) => {
+          if (!isScrolling.value)
+            return;
+          isScrolling.value = false;
+          directions.left = false;
+          directions.right = false;
+          directions.top = false;
+          directions.bottom = false;
+          onStop(e);
+        };
+        const onScrollEndDebounced = useDebounceFn(onScrollEnd, throttle + idle);
+        const setArrivedState = (target) => {
+          var _a;
+          if (!window2)
+            return;
+          const el = ((_a = target == null ? void 0 : target.document) == null ? void 0 : _a.documentElement) || (target == null ? void 0 : target.documentElement) || unrefElement(target);
+          const { display, flexDirection, direction } = getComputedStyle(el);
+          const directionMultipler = direction === "rtl" ? -1 : 1;
+          const scrollLeft = el.scrollLeft;
+          directions.left = scrollLeft < internalX.value;
+          directions.right = scrollLeft > internalX.value;
+          const left = Math.abs(scrollLeft * directionMultipler) <= (offset.left || 0);
+          const right = Math.abs(scrollLeft * directionMultipler) + el.clientWidth >= el.scrollWidth - (offset.right || 0) - ARRIVED_STATE_THRESHOLD_PIXELS;
+          if (display === "flex" && flexDirection === "row-reverse") {
+            arrivedState.left = right;
+            arrivedState.right = left;
+          } else {
+            arrivedState.left = left;
+            arrivedState.right = right;
+          }
+          internalX.value = scrollLeft;
+          let scrollTop = el.scrollTop;
+          if (target === window2.document && !scrollTop)
+            scrollTop = window2.document.body.scrollTop;
+          directions.top = scrollTop < internalY.value;
+          directions.bottom = scrollTop > internalY.value;
+          const top = Math.abs(scrollTop) <= (offset.top || 0);
+          const bottom = Math.abs(scrollTop) + el.clientHeight >= el.scrollHeight - (offset.bottom || 0) - ARRIVED_STATE_THRESHOLD_PIXELS;
+          if (display === "flex" && flexDirection === "column-reverse") {
+            arrivedState.top = bottom;
+            arrivedState.bottom = top;
+          } else {
+            arrivedState.top = top;
+            arrivedState.bottom = bottom;
+          }
+          internalY.value = scrollTop;
+        };
+        const onScrollHandler = (e) => {
+          var _a;
+          if (!window2)
+            return;
+          const eventTarget = (_a = e.target.documentElement) != null ? _a : e.target;
+          setArrivedState(eventTarget);
+          isScrolling.value = true;
+          onScrollEndDebounced(e);
+          onScroll(e);
+        };
+        useEventListener(
+          element,
+          "scroll",
+          throttle ? useThrottleFn(onScrollHandler, throttle, true, false) : onScrollHandler,
+          eventListenerOptions
+        );
+        tryOnMounted(() => {
+          try {
+            const _element = toValue(element);
+            if (!_element)
+              return;
+            setArrivedState(_element);
+          } catch (e) {
+            onError(e);
+          }
+        });
+        useEventListener(
+          element,
+          "scrollend",
+          onScrollEnd,
+          eventListenerOptions
+        );
+        return {
+          x,
+          y,
+          isScrolling,
+          arrivedState,
+          directions,
+          measure() {
+            const _element = toValue(element);
+            if (window2 && _element)
+              setArrivedState(_element);
+          }
+        };
+      }
+      function useInfiniteScroll(element, onLoadMore, options = {}) {
+        var _a;
+        const {
+          direction = "bottom",
+          interval = 100,
+          canLoadMore = () => true
+        } = options;
+        const state = reactive(useScroll(
+          element,
+          {
+            ...options,
+            offset: {
+              [direction]: (_a = options.distance) != null ? _a : 0,
+              ...options.offset
+            }
+          }
+        ));
+        const promise = ref();
+        const isLoading = computed(() => !!promise.value);
+        const observedElement = computed(() => {
+          return resolveElement(toValue(element));
+        });
+        const isElementVisible = useElementVisibility(observedElement);
+        function checkAndLoad() {
+          state.measure();
+          if (!observedElement.value || !isElementVisible.value || !canLoadMore(observedElement.value))
+            return;
+          const { scrollHeight, clientHeight, scrollWidth, clientWidth } = observedElement.value;
+          const isNarrower = direction === "bottom" || direction === "top" ? scrollHeight <= clientHeight : scrollWidth <= clientWidth;
+          if (state.arrivedState[direction] || isNarrower) {
+            if (!promise.value) {
+              promise.value = Promise.all([
+                onLoadMore(state),
+                new Promise((resolve) => setTimeout(resolve, interval))
+              ]).finally(() => {
+                promise.value = null;
+                nextTick(() => checkAndLoad());
+              });
+            }
+          }
+        }
+        const stop = watch(
+          () => [state.arrivedState[direction], isElementVisible.value],
+          checkAndLoad,
+          { immediate: true }
+        );
+        tryOnUnmounted(stop);
+        return {
+          isLoading,
+          reset() {
+            nextTick(() => checkAndLoad());
+          }
         };
       }
       const DefaultMagicKeysAliasMap = {
@@ -8655,6 +9107,8 @@ toValue(firstParamTargets.value ? args[3] : args[2])
         scoring: {
           exactMatch: 2.5,
           prefixMatch: 1.8,
+          stemMatch: 1.5,
+          commonPrefixMatch: 1,
           semanticMatch: 0.7,
           fuzzyMatch: 0.5,
           baseWeight: 0.25,
@@ -8664,8 +9118,11 @@ matchRatioWeight: 0.75
           maxResults: 50,
           minScore: 0.3,
 maxQueryWords: 5,
-          minPrefixLength: 2,
-          maxPrefixLength: 6
+          minPrefixLength: 3,
+minCommonPrefixLength: 3,
+          minMatchRatio: 0.5,
+minWeakCoverage: 0.25,
+          minStopWordCoverage: 0.5
         },
         features: {
           enableSemantic: true,
@@ -8676,7 +9133,6 @@ maxQueryWords: 5,
         validation: {
           minQueryLength: 1,
           maxQueryLength: 50,
-          maxWords: 3,
           allowSingleLetter: false
         }
       };
@@ -8704,7 +9160,6 @@ maxQueryWords: 5,
         "уже",
         "только"
       ]);
-      const SIGNIFICANT_PREFIX_LENGTHS = [3, 4, 5];
       class SemanticMap {
         static instance = null;
         semanticMap = null;
@@ -8830,18 +9285,401 @@ buildSemanticMap() {
           return semanticMap;
         }
       }
+      class PrefixIndex {
+        sortedTerms;
+        constructor(terms) {
+          this.sortedTerms = [...new Set(terms)].sort();
+        }
+get terms() {
+          return this.sortedTerms;
+        }
+findByPrefix(prefix2) {
+          const result = [];
+          for (let i = this.lowerBound(prefix2); i < this.sortedTerms.length; i++) {
+            if (!this.sortedTerms[i].startsWith(prefix2)) {
+              break;
+            }
+            result.push(this.sortedTerms[i]);
+          }
+          return result;
+        }
+findByCommonPrefix(word, minLength) {
+          const insertAt = this.lowerBound(word);
+          const result = [];
+          for (let i = insertAt - 1; i >= 0; i--) {
+            const length = commonPrefixLength(word, this.sortedTerms[i]);
+            if (length < minLength) {
+              break;
+            }
+            result.push({ term: this.sortedTerms[i], length });
+          }
+          for (let i = insertAt; i < this.sortedTerms.length; i++) {
+            const length = commonPrefixLength(word, this.sortedTerms[i]);
+            if (length < minLength) {
+              break;
+            }
+            result.push({ term: this.sortedTerms[i], length });
+          }
+          return result;
+        }
+lowerBound(word) {
+          let low = 0;
+          let high = this.sortedTerms.length;
+          while (low < high) {
+            const middle = low + high >>> 1;
+            if (this.sortedTerms[middle] < word) {
+              low = middle + 1;
+            } else {
+              high = middle;
+            }
+          }
+          return low;
+        }
+      }
+      function commonPrefixLength(a, b) {
+        const max = Math.min(a.length, b.length);
+        let length = 0;
+        while (length < max && a[length] === b[length]) {
+          length++;
+        }
+        return length;
+      }
+      const MIN_STEM_LENGTH = 3;
+      const MIN_WORD_LENGTH = 4;
+      const CYRILLIC_WORD = /^[а-яё]+$/;
+      const VOWEL = /[аеёиоуыэюя]/;
+      const GERUND_GROUP_1 = ["вшись", "вши", "в"];
+      const GERUND_GROUP_2 = ["ившись", "ывшись", "ивши", "ывши", "ив", "ыв"];
+      const REFLEXIVE = ["ся", "сь"];
+      const ADJECTIVE = [
+        "ыми",
+        "ими",
+        "его",
+        "ому",
+        "ого",
+        "ему",
+        "ее",
+        "ие",
+        "ые",
+        "ое",
+        "ей",
+        "ий",
+        "ый",
+        "ой",
+        "ем",
+        "им",
+        "ым",
+        "ом",
+        "их",
+        "ых",
+        "ую",
+        "юю",
+        "ая",
+        "яя",
+        "ою",
+        "ею"
+      ];
+      const PARTICIPLE_GROUP_1 = ["ющ", "нн", "вш", "ем", "щ"];
+      const PARTICIPLE_GROUP_2 = ["ивш", "ывш", "ующ"];
+      const VERB_GROUP_1 = [
+        "нно",
+        "ете",
+        "йте",
+        "ешь",
+        "ла",
+        "на",
+        "ли",
+        "ем",
+        "ло",
+        "но",
+        "ет",
+        "ют",
+        "ны",
+        "ть",
+        "й",
+        "л",
+        "н"
+      ];
+      const VERB_GROUP_2 = [
+        "ейте",
+        "уйте",
+        "ила",
+        "ыла",
+        "ена",
+        "ите",
+        "или",
+        "ыли",
+        "ило",
+        "ыло",
+        "ено",
+        "ует",
+        "уют",
+        "ить",
+        "ыть",
+        "ишь",
+        "ены",
+        "ей",
+        "уй",
+        "ил",
+        "ыл",
+        "им",
+        "ым",
+        "ен",
+        "ят",
+        "ит",
+        "ыт",
+        "ую",
+        "ю"
+      ];
+      const NOUN = [
+        "иями",
+        "ями",
+        "ами",
+        "ией",
+        "иям",
+        "ием",
+        "иях",
+        "ев",
+        "ов",
+        "ие",
+        "ье",
+        "еи",
+        "ии",
+        "ей",
+        "ой",
+        "ий",
+        "ям",
+        "ем",
+        "ам",
+        "ом",
+        "ах",
+        "ях",
+        "ию",
+        "ью",
+        "ия",
+        "ья",
+        "а",
+        "е",
+        "и",
+        "й",
+        "о",
+        "у",
+        "ы",
+        "ь",
+        "ю",
+        "я"
+      ];
+      function stemWord(word) {
+        if (word.length < MIN_WORD_LENGTH || !CYRILLIC_WORD.test(word)) {
+          return word;
+        }
+        const normalized = word.replaceAll("ё", "е");
+        const gerund = cutEnding(normalized, GERUND_GROUP_2) ?? cutGroupOne(normalized, GERUND_GROUP_1);
+        if (gerund !== null) {
+          return gerund;
+        }
+        const base2 = cutEnding(normalized, REFLEXIVE) ?? normalized;
+        const stem = cutAdjectival(base2) ?? cutEnding(base2, VERB_GROUP_2) ?? cutGroupOne(base2, VERB_GROUP_1) ?? cutEnding(base2, NOUN) ?? base2;
+        return cutTrailingVowel(stem);
+      }
+      function cutTrailingVowel(stem) {
+        if (stem.length - 1 < MIN_STEM_LENGTH || !VOWEL.test(stem.at(-1))) {
+          return stem;
+        }
+        return stem.slice(0, -1);
+      }
+      function cutAdjectival(word) {
+        const withoutAdjective = cutEnding(word, ADJECTIVE);
+        if (withoutAdjective === null) {
+          return null;
+        }
+        return cutEnding(withoutAdjective, PARTICIPLE_GROUP_2) ?? cutGroupOne(withoutAdjective, PARTICIPLE_GROUP_1) ?? withoutAdjective;
+      }
+      function cutEnding(word, endings) {
+        let longest = null;
+        for (const ending of endings) {
+          if (!word.endsWith(ending) || word.length - ending.length < MIN_STEM_LENGTH) {
+            continue;
+          }
+          if (longest === null || ending.length > longest.length) {
+            longest = ending;
+          }
+        }
+        return longest === null ? null : word.slice(0, -longest.length);
+      }
+      function cutGroupOne(word, endings) {
+        for (const ending of [...endings].sort((a, b) => b.length - a.length)) {
+          if (!word.endsWith(ending)) {
+            continue;
+          }
+          const stem = word.slice(0, -ending.length);
+          if (stem.length >= MIN_STEM_LENGTH && (stem.endsWith("а") || stem.endsWith("я"))) {
+            return stem;
+          }
+        }
+        return null;
+      }
+      function uniq(arr) {
+        return Array.from(new Set(arr));
+      }
+      function debounce(func, debounceMs, { signal, edges } = {}) {
+        let pendingThis = void 0;
+        let pendingArgs = null;
+        const leading = edges != null && edges.includes("leading");
+        const trailing = edges == null || edges.includes("trailing");
+        const invoke = () => {
+          if (pendingArgs !== null) {
+            func.apply(pendingThis, pendingArgs);
+            pendingThis = void 0;
+            pendingArgs = null;
+          }
+        };
+        const onTimerEnd = () => {
+          if (trailing) {
+            invoke();
+          }
+          cancel();
+        };
+        let timeoutId = null;
+        const schedule = () => {
+          if (timeoutId != null) {
+            clearTimeout(timeoutId);
+          }
+          timeoutId = setTimeout(() => {
+            timeoutId = null;
+            onTimerEnd();
+          }, debounceMs);
+        };
+        const cancelTimer = () => {
+          if (timeoutId !== null) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+        };
+        const cancel = () => {
+          cancelTimer();
+          pendingThis = void 0;
+          pendingArgs = null;
+        };
+        const flush = () => {
+          cancelTimer();
+          invoke();
+        };
+        const debounced = function(...args) {
+          if (signal?.aborted) {
+            return;
+          }
+          pendingThis = this;
+          pendingArgs = args;
+          const isFirstCall = timeoutId == null;
+          schedule();
+          if (leading && isFirstCall) {
+            invoke();
+          }
+        };
+        debounced.schedule = schedule;
+        debounced.cancel = cancel;
+        debounced.flush = flush;
+        signal?.addEventListener("abort", cancel, { once: true });
+        return debounced;
+      }
+      function normalizeLetters(text) {
+        return text.toLowerCase().replaceAll("ё", "е");
+      }
+      function normalizeText(text) {
+        const trimmed = text.trim();
+        const emojiOnly = trimmed.replace(/[\s\u200D]/g, "");
+        if (emojiOnly.length > 0 && /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u.test(emojiOnly)) {
+          return trimmed;
+        }
+        return normalizeLetters(text).trim().replace(/\s+/g, " ").replace(/[^\w\s\u0400-\u04FF\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "");
+      }
+      class TextNormalizer {
+normalizeQuery(query) {
+          return normalizeText(query);
+        }
+selectQueryWords(words, maxWords) {
+          const unique = uniq(words);
+          const meaningful = unique.filter((word) => !this.isStopWord(word));
+          const selected = meaningful.length > 0 ? meaningful : unique;
+          if (selected.length <= maxWords) {
+            return selected;
+          }
+          const significant = new Set(
+            [...selected].sort((a, b) => b.length - a.length).slice(0, maxWords)
+          );
+          return selected.filter((word) => significant.has(word));
+        }
+isStopWordsOnly(words) {
+          return words.length > 0 && words.every((word) => this.isStopWord(word));
+        }
+extractWords(text) {
+          const tokens = text.split(/\s+/).filter((token) => token.length > 0);
+          return tokens.flatMap((token) => {
+            const emojiMatches = token.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu);
+            const letters = token.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim();
+            const result = [];
+            if (letters) {
+              result.push(letters);
+            }
+            if (emojiMatches) {
+              result.push(...emojiMatches);
+            }
+            return result;
+          });
+        }
+extractSearchKeywords(message) {
+          const trimmedMessage = message.trim();
+          const emojiOnlyQuery = trimmedMessage.replace(/[\s\u200D]/g, "");
+          if (emojiOnlyQuery.length > 0 && /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u.test(emojiOnlyQuery)) {
+            return trimmedMessage;
+          }
+          const cleaned = message.replace(/[^\w\s\u0400-\u04FF\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, " ").replace(/\s+/g, " ").trim();
+          if (!cleaned) {
+            return message.trim();
+          }
+          const words = cleaned.split(" ").filter((word) => word.length > 0);
+          const meaningfulWords = words.filter((word) => !this.isStopWord(word));
+          return meaningfulWords.length === 0 ? cleaned : meaningfulWords.join(" ");
+        }
+isStopWord(word) {
+          return STOP_WORDS.has(word.toLowerCase());
+        }
+getWords(str) {
+          const tokens = str.toLowerCase().split(/[\s]+/).filter((x) => x.length > 0);
+          const result = [];
+          for (const token of tokens) {
+            const letterMatches = token.match(/[а-яёa-z0-9]+/g);
+            if (letterMatches) {
+              result.push(...letterMatches);
+            }
+            const emojiMatches = token.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu);
+            if (emojiMatches) {
+              result.push(...emojiMatches);
+            }
+          }
+          return result;
+        }
+      }
       const EMOJI_REGEX$2 = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu;
       class IndexBuilder {
 buildIndex(stickers) {
-          const exactWords = this.buildExactWordIndex(stickers);
-          const exactSuggestions = this.buildExactSuggestionIndex(stickers);
-          const partialWords = this.buildPrefixIndex(stickers);
-          const semanticMap = SemanticMap.getInstance().getMap();
+          const exactWords = new Map();
+          const exactSuggestions = new Map();
+          const stemWords = new Map();
+          const minSuggestionWords = new Map();
+          for (const sticker of stickers) {
+            minSuggestionWords.set(sticker, countShortestSuggestion(sticker));
+            this.indexWords(sticker, exactWords, stemWords);
+            this.indexSuggestions(sticker, exactSuggestions);
+          }
           return {
             exactWords,
             exactSuggestions,
-            partialWords,
-            semanticMap
+            stemWords,
+            prefixIndex: new PrefixIndex(exactWords.keys()),
+            minSuggestionWords,
+            semanticMap: SemanticMap.getInstance().getMap()
           };
         }
 async loadSemanticMapFromJSON(jsonPath) {
@@ -8853,110 +9691,61 @@ async loadSemanticMapFromJSON(jsonPath) {
             console.warn("Failed to load semantic map from JSON, using default:", error);
           }
         }
-buildExactWordIndex(stickers) {
-          const index = new Map();
-          for (const sticker of stickers) {
-            for (const word of sticker.lowerWords) {
-              if (!index.has(word)) {
-                index.set(word, []);
-              }
-              index.get(word).push(sticker);
-              const emojiMatches = word.match(EMOJI_REGEX$2);
-              if (emojiMatches) {
-                for (const emoji of emojiMatches) {
-                  if (!index.has(emoji)) {
-                    index.set(emoji, []);
-                  }
-                  index.get(emoji).push(sticker);
-                }
-              }
-              if (emojiMatches && emojiMatches.length > 0) {
-                for (const emojiBlock of emojiMatches) {
-                  const individualEmojis = emojiBlock.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
-                  if (individualEmojis && individualEmojis.length > 1) {
-                    for (const emoji of individualEmojis) {
-                      if (!index.has(emoji)) {
-                        index.set(emoji, []);
-                      }
-                      index.get(emoji).push(sticker);
-                    }
-                  }
-                }
-              }
+indexWords(sticker, exactWords, stemWords) {
+          for (const word of sticker.lowerWords) {
+            const normalized = normalizeLetters(word);
+            addToIndex(exactWords, normalized, sticker);
+            for (const emoji of extractEmojis(word)) {
+              addToIndex(exactWords, emoji, sticker);
+            }
+            const stem = stemWord(normalized);
+            if (stem !== normalized) {
+              addToIndex(stemWords, stem, sticker);
             }
           }
-          return index;
         }
-buildExactSuggestionIndex(stickers) {
-          const index = new Map();
-          for (const sticker of stickers) {
-            for (const suggestion of sticker.lowerSuggestions) {
-              if (!index.has(suggestion)) {
-                index.set(suggestion, []);
-              }
-              index.get(suggestion).push(sticker);
-              const emojiMatches = suggestion.match(EMOJI_REGEX$2);
-              if (emojiMatches) {
-                for (const emoji of emojiMatches) {
-                  if (!index.has(emoji)) {
-                    index.set(emoji, []);
-                  }
-                  index.get(emoji).push(sticker);
-                }
-              }
-              if (emojiMatches && emojiMatches.length > 0) {
-                for (const emojiBlock of emojiMatches) {
-                  const individualEmojis = emojiBlock.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
-                  if (individualEmojis && individualEmojis.length > 1) {
-                    for (const emoji of individualEmojis) {
-                      if (!index.has(emoji)) {
-                        index.set(emoji, []);
-                      }
-                      index.get(emoji).push(sticker);
-                    }
-                  }
-                }
-              }
+indexSuggestions(sticker, exactSuggestions) {
+          for (const suggestion of sticker.lowerSuggestions) {
+            addToIndex(exactSuggestions, normalizeText(suggestion), sticker);
+            for (const emoji of extractEmojis(suggestion)) {
+              addToIndex(exactSuggestions, emoji, sticker);
             }
           }
-          return index;
         }
-buildPrefixIndex(stickers) {
-          const index = new Map();
-          for (const sticker of stickers) {
-            for (const word of sticker.lowerWords) {
-              this.addPrefixes(index, word, sticker);
-            }
-            for (const suggestion of sticker.lowerSuggestions) {
-              this.addPrefixes(index, suggestion, sticker);
-            }
+      }
+      function countShortestSuggestion(sticker) {
+        let shortest = sticker.lowerWords.length || 1;
+        for (const suggestion of sticker.lowerSuggestions) {
+          const words = suggestion.split(/\s+/).filter((word) => word.length > 0).length;
+          if (words > 0 && words < shortest) {
+            shortest = words;
           }
-          return index;
         }
-addPrefixes(index, text, sticker) {
-          const isEmoji = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+$/u.test(text);
-          if (isEmoji) {
-            if (!index.has(text)) {
-              index.set(text, []);
-            }
-            const stickers = index.get(text);
-            if (!stickers.includes(sticker)) {
-              stickers.push(sticker);
-            }
-            return;
+        return shortest;
+      }
+      function extractEmojis(text) {
+        const blocks = text.match(EMOJI_REGEX$2);
+        if (!blocks) {
+          return [];
+        }
+        const result = [];
+        for (const block of blocks) {
+          result.push(block);
+          const individual = block.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
+          if (individual && individual.length > 1) {
+            result.push(...individual);
           }
-          for (const length of SIGNIFICANT_PREFIX_LENGTHS) {
-            if (text.length >= length) {
-              const prefix2 = text.substring(0, length);
-              if (!index.has(prefix2)) {
-                index.set(prefix2, []);
-              }
-              const stickers = index.get(prefix2);
-              if (!stickers.includes(sticker)) {
-                stickers.push(sticker);
-              }
-            }
-          }
+        }
+        return result;
+      }
+      function addToIndex(index, key, sticker) {
+        const stickers = index.get(key);
+        if (!stickers) {
+          index.set(key, [sticker]);
+          return;
+        }
+        if (!stickers.includes(sticker)) {
+          stickers.push(sticker);
         }
       }
       const EMOJI_REGEX$1 = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u;
@@ -8996,70 +9785,10 @@ validate(query) {
             return { isValid: false, reason: "Only digits" };
           }
           const words = normalizedQuery.split(/\s+/);
-          if (words.length > this.rules.maxWords) {
-            return { isValid: false, reason: "Too many words" };
-          }
           if (!this.rules.allowSingleLetter && words.length === 1 && words[0].length === 1) {
             return { isValid: false, reason: "Single letter query" };
           }
           return { isValid: true };
-        }
-      }
-      class TextNormalizer {
-normalizeQuery(query) {
-          const trimmedQuery = query.trim();
-          const emojiOnlyQuery = trimmedQuery.replace(/[\s\u200D]/g, "");
-          if (emojiOnlyQuery.length > 0 && /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u.test(emojiOnlyQuery)) {
-            return trimmedQuery;
-          }
-          return query.toLowerCase().trim().replace(/\s+/g, " ").replace(/[^\w\s\u0400-\u04FF\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "");
-        }
-extractWords(text) {
-          const tokens = text.split(/\s+/).filter((token) => token.length > 0);
-          return tokens.flatMap((token) => {
-            const emojiMatches = token.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu);
-            const letters = token.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim();
-            const result = [];
-            if (letters) {
-              result.push(letters);
-            }
-            if (emojiMatches) {
-              result.push(...emojiMatches);
-            }
-            return result;
-          }).filter((word) => !this.isStopWord(word));
-        }
-extractSearchKeywords(message) {
-          const trimmedMessage = message.trim();
-          const emojiOnlyQuery = trimmedMessage.replace(/[\s\u200D]/g, "");
-          if (emojiOnlyQuery.length > 0 && /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u.test(emojiOnlyQuery)) {
-            return trimmedMessage;
-          }
-          const cleaned = message.replace(/[^\w\s\u0400-\u04FF\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, " ").replace(/\s+/g, " ").trim();
-          if (!cleaned) {
-            return message.trim();
-          }
-          const words = cleaned.split(" ").filter((word) => word.length > 0);
-          const meaningfulWords = words.filter((word) => !this.isStopWord(word));
-          return meaningfulWords.length === 0 ? cleaned : meaningfulWords.join(" ");
-        }
-isStopWord(word) {
-          return STOP_WORDS.has(word.toLowerCase());
-        }
-getWords(str) {
-          const tokens = str.toLowerCase().split(/[\s]+/).filter((x) => x.length > 0);
-          const result = [];
-          for (const token of tokens) {
-            const letterMatches = token.match(/[а-яa-z0-9]+/g);
-            if (letterMatches) {
-              result.push(...letterMatches);
-            }
-            const emojiMatches = token.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu);
-            if (emojiMatches) {
-              result.push(...emojiMatches);
-            }
-          }
-          return result;
         }
       }
       class FuzzyMatcher {
@@ -9277,12 +10006,20 @@ calculateFuzzyScore(distance, wordLength) {
         }).join("");
       }
       const EMOJI_REGEX = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u;
+      const MATCH_WEIGHT = {
+        exact: 1,
+        prefix: 1,
+        stem: 0.9,
+        semantic: 0.8,
+        common: 0.7,
+        fuzzy: 0.6
+      };
       function isEmojiOnly(str) {
         return EMOJI_REGEX.test(str);
       }
       class SearchEngine {
         index = null;
-        isIndexBuilt = false;
+indexedStickers = null;
         indexBuilder;
         validator;
         normalizer;
@@ -9296,267 +10033,333 @@ calculateFuzzyScore(distance, wordLength) {
           this.fuzzyMatcher = new FuzzyMatcher();
         }
 buildIndex(stickers) {
-          if (this.isIndexBuilt) return;
-          this.index = this.indexBuilder.buildIndex(stickers);
-          this.isIndexBuilt = true;
-        }
-search(stickers, query) {
-          if (!this.isIndexBuilt) {
-            this.buildIndex(stickers);
+          if (this.indexedStickers === stickers) {
+            return;
           }
+          this.index = this.indexBuilder.buildIndex(stickers);
+          this.indexedStickers = stickers;
+          Logger.info("SearchEngine: индекс построен", {
+            stickers: stickers.length,
+            words: this.index.exactWords.size,
+            stems: this.index.stemWords.size,
+            suggestions: this.index.exactSuggestions.size
+          });
+        }
+search(stickers, query, limit = this.config.limits.maxResults) {
+          this.buildIndex(stickers);
           const validation = this.validator.validate(query);
           if (!validation.isValid) {
+            Logger.info("SearchEngine: запрос отклонён", { query, reason: validation.reason });
             return [];
           }
           const normalizedQuery = this.normalizer.normalizeQuery(query);
           const emojiQuery = normalizedQuery.replace(/[\s\u200D]/g, "");
-          const isEmojiSearch = emojiQuery.length > 0 && isEmojiOnly(emojiQuery);
-          if (isEmojiSearch) {
-            return this.searchEmoji(stickers, normalizedQuery);
+          if (emojiQuery.length > 0 && isEmojiOnly(emojiQuery)) {
+            return this.searchEmoji(normalizedQuery, limit);
           }
-          const queryWords = this.normalizer.extractWords(normalizedQuery);
+          const queryWords = this.normalizer.selectQueryWords(
+            this.normalizer.extractWords(normalizedQuery),
+            this.config.limits.maxQueryWords
+          );
           if (queryWords.length === 0) {
             return [];
           }
-          const isSingleLetterQuery = queryWords.length === 1 && queryWords[0].length === 1;
-          if (isSingleLetterQuery) {
+          if (queryWords.length === 1 && queryWords[0].length === 1) {
             return [];
           }
-          let results = this.performSearch(stickers, normalizedQuery, queryWords);
+          let results = this.performSearch(normalizedQuery, queryWords, limit);
           if (results.length === 0 && this.config.features.enableLayoutSwitch) {
             const switchedQuery = switchKeyboardLayout(normalizedQuery);
             if (switchedQuery !== normalizedQuery) {
-              const switchedWords = this.normalizer.extractWords(switchedQuery);
-              results = this.performSearch(stickers, switchedQuery, switchedWords);
+              const switchedWords = this.normalizer.selectQueryWords(
+                this.normalizer.extractWords(switchedQuery),
+                this.config.limits.maxQueryWords
+              );
+              results = this.performSearch(switchedQuery, switchedWords, limit);
             }
           }
+          Logger.info("SearchEngine: поиск завершён", {
+            query,
+            queryWords,
+            limit,
+            found: results.length,
+            top: results.slice(0, 5).map((r) => ({ text: r.sticker.suggestions[0], score: r.score }))
+          });
           return results.map((r) => r.sticker);
         }
-searchEmoji(stickers, emojiQuery) {
-          if (!this.index) return [];
+searchEmoji(emojiQuery, limit) {
+          if (!this.index) {
+            return [];
+          }
+          const matches = new Map();
+          for (const emoji of extractEmojiChars(emojiQuery)) {
+            this.addStickers(matches, this.index.exactWords.get(emoji), {
+              type: "exact",
+              field: "word",
+              value: emoji,
+              queryWord: emoji,
+              score: 3
+            });
+            this.addStickers(matches, this.index.exactSuggestions.get(emoji), {
+              type: "exact",
+              field: "suggestion",
+              value: emoji,
+              queryWord: emoji,
+              score: 2.5
+            });
+          }
           const results = [];
-          const emojiBlocks = emojiQuery.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu) || [];
-          const emojiChars = [];
-          for (const emojiBlock of emojiBlocks) {
-            const individualEmojis = emojiBlock.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
-            if (individualEmojis) {
-              emojiChars.push(...individualEmojis);
-            } else {
-              emojiChars.push(emojiBlock);
-            }
+          for (const [sticker, stickerMatches] of matches) {
+            const details = [...stickerMatches.values()];
+            results.push({
+              sticker,
+              score: details.reduce((sum, match2) => sum + match2.score, 0),
+              matches: details
+            });
           }
-          for (const emoji of emojiChars) {
-            const exactWordMatches = this.index.exactWords.get(emoji) || [];
-            for (const sticker of exactWordMatches) {
-              const existingResult = results.find((r) => r.sticker === sticker);
-              if (existingResult) {
-                existingResult.score += 3;
-                existingResult.matches.push({
-                  type: "exact",
-                  field: "word",
-                  value: emoji,
-                  score: 3
-                });
-              } else {
-                results.push({
-                  sticker,
-                  score: 3,
-                  matches: [{
-                    type: "exact",
-                    field: "word",
-                    value: emoji,
-                    score: 3
-                  }]
-                });
-              }
-            }
-            const exactSuggestionMatches = this.index.exactSuggestions.get(emoji) || [];
-            for (const sticker of exactSuggestionMatches) {
-              const existingResult = results.find((r) => r.sticker === sticker);
-              if (existingResult) {
-                existingResult.score += 2.5;
-                existingResult.matches.push({
-                  type: "exact",
-                  field: "suggestion",
-                  value: emoji,
-                  score: 2.5
-                });
-              } else {
-                results.push({
-                  sticker,
-                  score: 2.5,
-                  matches: [{
-                    type: "exact",
-                    field: "suggestion",
-                    value: emoji,
-                    score: 2.5
-                  }]
-                });
-              }
-            }
-          }
-          return results.sort((a, b) => b.score - a.score).slice(0, this.config.limits.maxResults).map((r) => r.sticker);
+          Logger.info("SearchEngine: поиск по эмодзи", { emojiQuery, found: results.length });
+          return this.sortAndLimitResults(results, limit).map((r) => r.sticker);
         }
-performSearch(stickers, query, queryWords) {
-          const candidateStickers = new Set();
-          const stickerScores = new Map();
-          this.searchExactMatches(queryWords, candidateStickers, stickerScores);
-          if (candidateStickers.size < this.config.limits.maxResults * 2) {
-            this.searchPartialMatches(queryWords, candidateStickers, stickerScores);
+performSearch(query, queryWords, limit) {
+          if (!this.index || queryWords.length === 0) {
+            return [];
           }
+          const matches = new Map();
+          this.matchWholeQuery(query, queryWords, matches);
+          this.matchExact(queryWords, matches);
+          this.matchPrefix(queryWords, matches);
+          this.matchStem(queryWords, matches);
+          this.matchCommonPrefix(queryWords, matches);
           if (this.config.features.enableSemantic) {
-            this.searchSemanticMatches(queryWords, candidateStickers, stickerScores);
+            this.matchSemantic(queryWords, matches);
           }
-          if (this.config.features.enableFuzzy) {
-            this.searchFuzzyMatches(queryWords, candidateStickers, stickerScores);
+          const results = this.buildResults(matches, queryWords, limit);
+          if (!this.config.features.enableFuzzy || this.isPageFinal(results, queryWords, limit)) {
+            return results;
           }
-          return this.buildResults(stickerScores, queryWords);
+          this.matchFuzzy(queryWords, matches);
+          return this.buildResults(matches, queryWords, limit);
         }
-searchExactMatches(queryWords, candidateStickers, stickerScores) {
+matchWholeQuery(query, queryWords, matches) {
+          const stickers = this.index.exactSuggestions.get(query);
           for (const word of queryWords) {
-            const exactWordMatches = this.index.exactWords.get(word) || [];
-            for (const sticker of exactWordMatches) {
-              candidateStickers.add(sticker);
-              this.addMatch(stickerScores, sticker, {
-                type: "exact",
-                field: "word",
-                value: word,
-                score: 1 * this.config.scoring.exactMatch
-              });
-            }
-            const exactSuggestionMatches = this.index.exactSuggestions.get(word) || [];
-            for (const sticker of exactSuggestionMatches) {
-              candidateStickers.add(sticker);
-              this.addMatch(stickerScores, sticker, {
-                type: "exact",
-                field: "suggestion",
-                value: word,
-                score: 1 * this.config.scoring.exactMatch
-              });
-            }
+            this.addStickers(matches, stickers, {
+              type: "exact",
+              field: "suggestion",
+              value: query,
+              queryWord: word,
+              score: this.config.scoring.exactMatch
+            });
           }
         }
-searchPartialMatches(queryWords, candidateStickers, stickerScores) {
+matchExact(queryWords, matches) {
           for (const word of queryWords) {
-            if (word.length >= this.config.limits.minPrefixLength) {
-              for (let i = this.config.limits.minPrefixLength; i <= Math.min(word.length, this.config.limits.maxPrefixLength); i++) {
-                const prefix2 = word.substring(0, i);
-                const partialMatches = this.index.partialWords.get(prefix2) || [];
-                for (const sticker of partialMatches) {
-                  if (!candidateStickers.has(sticker)) {
-                    candidateStickers.add(sticker);
-                    this.addMatch(stickerScores, sticker, {
-                      type: "partial",
-                      field: "word",
-                      value: prefix2,
-                      score: 0.6 * (i / word.length)
-                    });
-                  }
-                }
-              }
-            }
+            this.addStickers(matches, this.index.exactWords.get(word), {
+              type: "exact",
+              field: "word",
+              value: word,
+              queryWord: word,
+              score: this.config.scoring.exactMatch
+            });
+            this.addStickers(matches, this.index.exactSuggestions.get(word), {
+              type: "exact",
+              field: "suggestion",
+              value: word,
+              queryWord: word,
+              score: this.config.scoring.exactMatch
+            });
           }
         }
-searchSemanticMatches(queryWords, candidateStickers, stickerScores) {
+matchPrefix(queryWords, matches) {
           for (const word of queryWords) {
-            const synonyms = this.index.semanticMap.get(word) || new Set();
-            for (const synonym of synonyms) {
-              if (synonym === word) continue;
-              const semanticMatches = this.index.exactWords.get(synonym) || [];
-              for (const sticker of semanticMatches) {
-                candidateStickers.add(sticker);
-                this.addMatch(stickerScores, sticker, {
-                  type: "semantic",
-                  field: "word",
-                  value: synonym,
-                  score: this.config.scoring.semanticMatch
-                });
-              }
-            }
-          }
-        }
-searchFuzzyMatches(queryWords, candidateStickers, stickerScores) {
-          const dictionary = Array.from(this.index.exactWords.keys());
-          for (const queryWord of queryWords) {
-            const maxDistance = this.fuzzyMatcher.getMaxDistance(queryWord.length);
-            if (maxDistance === 0) continue;
-            const similarWords = this.fuzzyMatcher.findSimilarWords(
-              queryWord,
-              dictionary,
-              maxDistance
-            );
-            for (const { word, distance } of similarWords) {
-              if (distance === 0) continue;
-              const fuzzyMatches = this.index.exactWords.get(word) || [];
-              for (const sticker of fuzzyMatches) {
-                if (!candidateStickers.has(sticker)) {
-                  candidateStickers.add(sticker);
-                  const fuzzyScore = this.fuzzyMatcher.calculateFuzzyScore(distance, queryWord.length);
-                  this.addMatch(stickerScores, sticker, {
-                    type: "fuzzy",
-                    field: "word",
-                    value: word,
-                    score: fuzzyScore * this.config.scoring.fuzzyMatch
-                  });
-                }
-              }
-            }
-          }
-        }
-addMatch(stickerScores, sticker, match2) {
-          if (!stickerScores.has(sticker)) {
-            stickerScores.set(sticker, { score: 0, matches: [] });
-          }
-          const data = stickerScores.get(sticker);
-          data.score += match2.score;
-          data.matches.push(match2);
-        }
-buildResults(stickerScores, queryWords) {
-          const results = [];
-          const queryWordsSet = new Set(queryWords);
-          for (const [sticker, stickerData] of stickerScores.entries()) {
-            const matchedQueryWords = new Set(
-              stickerData.matches.map((m) => m.value.toLowerCase())
-            );
-            const matchRatio = this.calculateMatchRatio(matchedQueryWords, queryWordsSet);
-            const finalScore = stickerData.score * (this.config.scoring.baseWeight + matchRatio * this.config.scoring.matchRatioWeight);
-            if (finalScore >= this.config.limits.minScore) {
-              results.push({
-                sticker,
-                score: Math.min(finalScore, 10),
-                matches: stickerData.matches.sort((a, b) => b.score - a.score)
-              });
-            }
-          }
-          return this.sortAndLimitResults(results);
-        }
-calculateMatchRatio(matchedWords, queryWords) {
-          if (queryWords.size === 0) return 0;
-          let matches = 0;
-          for (const queryWord of queryWords) {
-            if (matchedWords.has(queryWord)) {
-              matches++;
+            if (word.length < this.config.limits.minPrefixLength) {
               continue;
             }
-            const synonyms = this.index.semanticMap.get(queryWord) || new Set();
-            for (const matchedWord of matchedWords) {
-              if (synonyms.has(matchedWord)) {
-                matches += 0.9;
-                break;
+            for (const term of this.index.prefixIndex.findByPrefix(word)) {
+              if (term === word) {
+                continue;
               }
-            }
-            if (matches === 0 || matches % 1 !== 0) {
-              for (const matchedWord of matchedWords) {
-                if (matchedWord.includes(queryWord) || queryWord.includes(matchedWord)) {
-                  matches += 0.7;
-                  break;
-                }
-              }
+              this.addStickers(matches, this.index.exactWords.get(term), {
+                type: "prefix",
+                field: "word",
+                value: term,
+                queryWord: word,
+                score: this.config.scoring.prefixMatch * (word.length / term.length)
+              });
             }
           }
-          return Math.min(matches / queryWords.size, 1);
         }
-sortAndLimitResults(results) {
+matchStem(queryWords, matches) {
+          for (const word of queryWords) {
+            const stem = stemWord(word);
+            this.addStickers(matches, this.index.stemWords.get(stem), {
+              type: "stem",
+              field: "word",
+              value: stem,
+              queryWord: word,
+              score: this.config.scoring.stemMatch
+            });
+            if (stem === word || stem.length < this.config.limits.minPrefixLength) {
+              continue;
+            }
+            this.addStickers(matches, this.index.exactWords.get(stem), {
+              type: "stem",
+              field: "word",
+              value: stem,
+              queryWord: word,
+              score: this.config.scoring.stemMatch
+            });
+            for (const term of this.index.prefixIndex.findByPrefix(stem)) {
+              this.addStickers(matches, this.index.exactWords.get(term), {
+                type: "stem",
+                field: "word",
+                value: term,
+                queryWord: word,
+                score: this.config.scoring.stemMatch * (stem.length / term.length)
+              });
+            }
+          }
+        }
+matchCommonPrefix(queryWords, matches) {
+          for (const word of queryWords) {
+            if (word.length < this.config.limits.minCommonPrefixLength) {
+              continue;
+            }
+            const found = this.index.prefixIndex.findByCommonPrefix(
+              word,
+              this.config.limits.minCommonPrefixLength
+            );
+            for (const { term, length } of found) {
+              if (term.startsWith(word)) {
+                continue;
+              }
+              this.addStickers(matches, this.index.exactWords.get(term), {
+                type: "common",
+                field: "word",
+                value: term,
+                queryWord: word,
+                score: this.config.scoring.commonPrefixMatch * (length / Math.max(word.length, term.length))
+              });
+            }
+          }
+        }
+matchSemantic(queryWords, matches) {
+          for (const word of queryWords) {
+            for (const synonym of this.index.semanticMap.get(word) ?? []) {
+              if (synonym === word) {
+                continue;
+              }
+              this.addStickers(matches, this.index.exactWords.get(synonym), {
+                type: "semantic",
+                field: "word",
+                value: synonym,
+                queryWord: word,
+                score: this.config.scoring.semanticMatch
+              });
+            }
+          }
+        }
+matchFuzzy(queryWords, matches) {
+          const dictionary = this.index.prefixIndex.terms;
+          for (const word of queryWords) {
+            const maxDistance = this.fuzzyMatcher.getMaxDistance(word.length);
+            if (maxDistance === 0) {
+              continue;
+            }
+            const similarWords = this.fuzzyMatcher.findSimilarWords(word, dictionary, maxDistance);
+            for (const { word: term, distance } of similarWords) {
+              if (distance === 0) {
+                continue;
+              }
+              const fuzzyScore = this.fuzzyMatcher.calculateFuzzyScore(distance, word.length);
+              this.addStickers(matches, this.index.exactWords.get(term), {
+                type: "fuzzy",
+                field: "word",
+                value: term,
+                queryWord: word,
+                score: fuzzyScore * this.config.scoring.fuzzyMatch
+              });
+            }
+          }
+        }
+addStickers(matches, stickers, match2) {
+          for (const sticker of stickers ?? []) {
+            this.addMatch(matches, sticker, match2);
+          }
+        }
+addMatch(matches, sticker, match2) {
+          let stickerMatches = matches.get(sticker);
+          if (!stickerMatches) {
+            stickerMatches = new Map();
+            matches.set(sticker, stickerMatches);
+          }
+          const current = stickerMatches.get(match2.queryWord);
+          if (!current || match2.score > current.score) {
+            stickerMatches.set(match2.queryWord, match2);
+          }
+        }
+buildResults(matches, queryWords, limit) {
+          const results = [];
+          const stopWordsOnly = this.normalizer.isStopWordsOnly(queryWords);
+          for (const [sticker, stickerMatches] of matches) {
+            const score = this.evaluate(sticker, stickerMatches, queryWords);
+            if (!this.isRelevant(score, stopWordsOnly)) {
+              continue;
+            }
+            results.push({
+              sticker,
+              score: Math.min(score.final, 10),
+              matches: [...stickerMatches.values()].sort((a, b) => b.score - a.score)
+            });
+          }
+          return this.sortAndLimitResults(results, limit);
+        }
+evaluate(sticker, stickerMatches, queryWords) {
+          let raw = 0;
+          let weight = 0;
+          let hasExact = false;
+          for (const match2 of stickerMatches.values()) {
+            raw += match2.score;
+            weight += MATCH_WEIGHT[match2.type];
+            hasExact ||= match2.type === "exact";
+          }
+          const ratio = Math.min(weight / queryWords.length, 1);
+          const suggestionWords = this.index.minSuggestionWords.get(sticker) ?? 1;
+          const { baseWeight, matchRatioWeight } = this.config.scoring;
+          return {
+            ratio,
+            coverage: Math.min(stickerMatches.size / suggestionWords, 1),
+            hasExact,
+            final: raw * (baseWeight + ratio * matchRatioWeight)
+          };
+        }
+isRelevant(score, stopWordsOnly) {
+          const { minScore, minMatchRatio, minWeakCoverage, minStopWordCoverage } = this.config.limits;
+          if (score.ratio < minMatchRatio) {
+            return false;
+          }
+          if (stopWordsOnly && score.coverage < minStopWordCoverage) {
+            return false;
+          }
+          if (!score.hasExact && score.coverage < minWeakCoverage) {
+            return false;
+          }
+          return score.final >= minScore;
+        }
+isPageFinal(results, queryWords, limit) {
+          if (results.length < limit) {
+            return false;
+          }
+          const allWordsMatched = results.every((result) => result.matches.length === queryWords.length);
+          return allWordsMatched && results.at(-1).score >= this.maxFuzzyScore(queryWords.length);
+        }
+maxFuzzyScore(wordCount) {
+          const { exactMatch, fuzzyMatch, baseWeight, matchRatioWeight } = this.config.scoring;
+          const raw = exactMatch * (wordCount - 1) + fuzzyMatch;
+          const ratio = (wordCount - 1 + MATCH_WEIGHT.fuzzy) / wordCount;
+          return raw * (baseWeight + ratio * matchRatioWeight);
+        }
+sortAndLimitResults(results, limit) {
           return results.sort((a, b) => {
             if (Math.abs(a.score - b.score) > 0.01) {
               return b.score - a.score;
@@ -9567,17 +10370,26 @@ sortAndLimitResults(results) {
             const aDate = a.sticker.photo.date || 0;
             const bDate = b.sticker.photo.date || 0;
             return bDate - aDate;
-          }).slice(0, this.config.limits.maxResults);
+          }).slice(0, limit);
         }
       }
+      function extractEmojiChars(emojiQuery) {
+        const blocks = emojiQuery.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu) ?? [];
+        const result = [];
+        for (const block of blocks) {
+          const individual = block.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
+          result.push(...individual ?? [block]);
+        }
+        return result;
+      }
       let searchEngine = null;
-      function smartStickerSearch(stickers, userMessage) {
+      function smartStickerSearch(stickers, userMessage, limit) {
         if (!searchEngine) {
           Logger.error("smartStickerSearch: search engine not initialized");
           return [];
         }
         try {
-          return searchEngine.search(stickers, userMessage);
+          return searchEngine.search(stickers, userMessage, limit);
         } catch (error) {
           Logger.error("smartStickerSearch: error during search", error);
           return [];
@@ -9593,14 +10405,14 @@ sortAndLimitResults(results) {
       const _hoisted_2$1 = { class: "v-photo-stickers-gallery__header" };
       const _hoisted_3$1 = ["value"];
       const _hoisted_4$1 = { class: "v-photo-stickers-gallery__count" };
-      const _hoisted_5$1 = { class: "v-photo-stickers-gallery__grid" };
-      const _hoisted_6 = ["href", "onClick"];
-      const _hoisted_7 = ["src", "alt"];
-      const _hoisted_8 = { class: "v-photo-stickers-gallery__label" };
-      const _hoisted_9 = {
+      const _hoisted_5$1 = ["href", "onClick"];
+      const _hoisted_6 = ["src", "alt"];
+      const _hoisted_7 = { class: "v-photo-stickers-gallery__label" };
+      const _hoisted_8 = {
         key: 0,
         class: "v-photo-stickers-gallery__empty"
       };
+      const PAGE_SIZE = 60;
       const _sfc_main$3 = defineComponent({
         __name: "VPhotoStickersGallery",
         props: {
@@ -9612,20 +10424,36 @@ sortAndLimitResults(results) {
           const props = __props;
           const emit2 = __emit;
           const searchQuery = ref("");
-          const searchInputEl = ref(null);
+          const visibleLimit = ref(PAGE_SIZE);
+          const searchInputEl = useTemplateRef("searchInputEl");
+          const gridEl = useTemplateRef("gridEl");
           const filteredStickers = computed(() => {
-            if (!searchQuery.value.trim()) {
-              return [...props.photos].reverse();
+            const query = searchQuery.value.trim();
+            if (!query) {
+              return [...props.photos].reverse().slice(0, visibleLimit.value);
             }
-            return smartStickerSearch(props.photos, searchQuery.value.trim());
+            return smartStickerSearch(props.photos, query, visibleLimit.value);
+          });
+          const hasMore = computed(() => filteredStickers.value.length >= visibleLimit.value);
+          useInfiniteScroll(gridEl, showMore, {
+            distance: 200,
+            canLoadMore: () => hasMore.value
+          });
+          watch(searchQuery, () => {
+            visibleLimit.value = PAGE_SIZE;
+            gridEl.value?.scrollTo({ top: 0 });
           });
           watch(() => props.visible, async (v) => {
             if (v) {
               searchQuery.value = "";
+              visibleLimit.value = PAGE_SIZE;
               await nextTick();
               searchInputEl.value?.focus();
             }
           });
+          function showMore() {
+            visibleLimit.value += PAGE_SIZE;
+          }
           function onSend(sticker) {
             emit2("sendSticker", sticker);
             emit2("close");
@@ -9653,9 +10481,13 @@ sortAndLimitResults(results) {
                         }, ["stop"]))
                       ]
                     }, null, 40, _hoisted_3$1),
-                    createBaseVNode("span", _hoisted_4$1, toDisplayString(filteredStickers.value.length), 1)
+                    createBaseVNode("span", _hoisted_4$1, toDisplayString(filteredStickers.value.length) + toDisplayString(hasMore.value ? "+" : ""), 1)
                   ]),
-                  createBaseVNode("div", _hoisted_5$1, [
+                  createBaseVNode("div", {
+                    ref_key: "gridEl",
+                    ref: gridEl,
+                    class: "v-photo-stickers-gallery__grid"
+                  }, [
                     (openBlock(true), createElementBlock(Fragment, null, renderList(filteredStickers.value, (sticker) => {
                       return openBlock(), createElementBlock("a", {
                         key: sticker.photo.id,
@@ -9670,79 +10502,18 @@ sortAndLimitResults(results) {
                           loading: "lazy",
                           onDragstart: _cache[3] || (_cache[3] = withModifiers(() => {
                           }, ["prevent"]))
-                        }, null, 40, _hoisted_7),
-                        createBaseVNode("div", _hoisted_8, toDisplayString(sticker.suggestions[0]), 1)
-                      ], 8, _hoisted_6);
+                        }, null, 40, _hoisted_6),
+                        createBaseVNode("div", _hoisted_7, toDisplayString(sticker.suggestions[0]), 1)
+                      ], 8, _hoisted_5$1);
                     }), 128)),
-                    filteredStickers.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_9, " Нет стикеров ")) : createCommentVNode("", true)
-                  ])
+                    filteredStickers.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_8, " Нет стикеров ")) : createCommentVNode("", true)
+                  ], 512)
                 ])
               ], 32)) : createCommentVNode("", true)
             ]);
           };
         }
       });
-      function debounce(func, debounceMs, { signal, edges } = {}) {
-        let pendingThis = void 0;
-        let pendingArgs = null;
-        const leading = edges != null && edges.includes("leading");
-        const trailing = edges == null || edges.includes("trailing");
-        const invoke = () => {
-          if (pendingArgs !== null) {
-            func.apply(pendingThis, pendingArgs);
-            pendingThis = void 0;
-            pendingArgs = null;
-          }
-        };
-        const onTimerEnd = () => {
-          if (trailing) {
-            invoke();
-          }
-          cancel();
-        };
-        let timeoutId = null;
-        const schedule = () => {
-          if (timeoutId != null) {
-            clearTimeout(timeoutId);
-          }
-          timeoutId = setTimeout(() => {
-            timeoutId = null;
-            onTimerEnd();
-          }, debounceMs);
-        };
-        const cancelTimer = () => {
-          if (timeoutId !== null) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-          }
-        };
-        const cancel = () => {
-          cancelTimer();
-          pendingThis = void 0;
-          pendingArgs = null;
-        };
-        const flush = () => {
-          cancelTimer();
-          invoke();
-        };
-        const debounced = function(...args) {
-          if (signal?.aborted) {
-            return;
-          }
-          pendingThis = this;
-          pendingArgs = args;
-          const isFirstCall = timeoutId == null;
-          schedule();
-          if (leading && isFirstCall) {
-            invoke();
-          }
-        };
-        debounced.schedule = schedule;
-        debounced.cancel = cancel;
-        debounced.flush = flush;
-        signal?.addEventListener("abort", cancel, { once: true });
-        return debounced;
-      }
       const DB_NAME = "vkfix_photo_cache";
       const STORE_NAME = "photos";
       const DB_VERSION = 1;
@@ -9833,6 +10604,7 @@ sortAndLimitResults(results) {
           });
         }
       }
+      const STICKERS_POPUP_LIMIT = 30;
       const isEnabledPhotoStickers = GlobalConfig.Config.get("messenger.photo-stickers");
       const photoStickersAlbumIds = GlobalConfig.Config.get("messenger.photo-stickers.albums");
       let _initPhotoStickers = ref(false);
@@ -10042,7 +10814,7 @@ sortAndLimitResults(results) {
         const tokens = str.toLowerCase().split(/[\s]+/).filter((x) => x.length > 0);
         const result = [];
         for (const token of tokens) {
-          const letterMatches = token.match(/[а-яa-z0-9]+/g);
+          const letterMatches = token.match(/[а-яёa-z0-9]+/g);
           if (letterMatches) {
             result.push(...letterMatches);
           }
@@ -10185,7 +10957,7 @@ sortAndLimitResults(results) {
         const textLower = text.toLocaleLowerCase();
         const words = getWords(textLower);
         Logger.info(`messenger words`, words);
-        stickersStore.stickers = smartStickerSearch(stickersStore.photos, textLower);
+        stickersStore.stickers = smartStickerSearch(stickersStore.photos, textLower, STICKERS_POPUP_LIMIT);
         if (getComposerText(composerInputInput.value) !== text) {
           stickersStore.stickers = [];
         }

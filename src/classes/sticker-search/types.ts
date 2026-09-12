@@ -1,9 +1,15 @@
 import { PhotoSticker } from '../../modules/messenger/types';
+import { PrefixIndex } from './PrefixIndex';
 
 /**
  * Тип совпадения
+ *
+ * Порядок отражает качество: exact — слово совпало целиком, prefix — запрос
+ * является началом слова, stem — слова совпали основами, common — у слов общее
+ * начало, но ни одно не является префиксом другого, semantic — синоним,
+ * fuzzy — совпадение с опечаткой.
  */
-export type MatchType = 'exact' | 'partial' | 'fuzzy' | 'semantic';
+export type MatchType = 'exact' | 'prefix' | 'stem' | 'common' | 'semantic' | 'fuzzy';
 
 /**
  * Поле для поиска
@@ -16,7 +22,10 @@ export type SearchField = 'word' | 'suggestion';
 export interface MatchDetails {
   type: MatchType;
   field: SearchField;
+  /** Слово индекса, с которым совпал запрос */
   value: string;
+  /** Слово запроса, породившее совпадение — по нему считается доля совпавших слов */
+  queryWord: string;
   score: number;
   position?: number;
 }
@@ -36,10 +45,14 @@ export interface SearchResult {
 export interface SearchIndex {
   /** Точные совпадения слов */
   exactWords: Map<string, PhotoSticker[]>;
-  /** Точные совпадения подсказок */
+  /** Точные совпадения подсказок целиком */
   exactSuggestions: Map<string, PhotoSticker[]>;
-  /** Частичные совпадения (префиксы) */
-  partialWords: Map<string, PhotoSticker[]>;
+  /** Совпадения по основе слова */
+  stemWords: Map<string, PhotoSticker[]>;
+  /** Словарь слов для префиксного поиска */
+  prefixIndex: PrefixIndex;
+  /** Длина самой короткой подсказки стикера в словах — по ней считается покрытие */
+  minSuggestionWords: Map<PhotoSticker, number>;
   /** Семантические связи */
   semanticMap: Map<string, Set<string>>;
 }

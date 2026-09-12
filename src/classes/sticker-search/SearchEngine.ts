@@ -1,10 +1,11 @@
 import { PhotoSticker } from '../../modules/messenger/types';
-import { SearchResult, SearchIndex, MatchDetails } from './types';
+import { SearchResult, SearchIndex, MatchDetails, MatchType } from './types';
 import { StickerSearchConfig, DEFAULT_SEARCH_CONFIG } from './config';
 import { IndexBuilder } from './IndexBuilder';
 import { QueryValidator } from './QueryValidator';
 import { TextNormalizer } from './TextNormalizer';
 import { FuzzyMatcher } from './FuzzyMatcher';
+import { stemWord } from './Stemmer';
 import { switchKeyboardLayout } from '../../common/helpers/switchKeyboardLayout';
 import { Logger } from '../Logger';
 
@@ -12,6 +13,39 @@ import { Logger } from '../Logger';
  * Регулярное выражение для поиска эмодзи
  */
 const EMOJI_REGEX = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u200D]+$/u;
+
+/**
+ * Насколько каждый тип совпадения закрывает слово запроса.
+ * Используется при подсчёте доли совпавших слов.
+ */
+const MATCH_WEIGHT: Record<MatchType, number> = {
+  exact: 1,
+  prefix: 1,
+  stem: 0.9,
+  semantic: 0.8,
+  common: 0.7,
+  fuzzy: 0.6
+};
+
+/**
+ * Лучшее совпадение стикера по каждому слову запроса.
+ * Слово запроса засчитывается один раз — по самому качественному совпадению.
+ */
+type StickerMatches = Map<string, MatchDetails>;
+
+/**
+ * Оценка стикера относительно запроса
+ */
+interface StickerScore {
+  /** Доля совпавших слов запроса */
+  ratio: number;
+  /** Какую часть самой короткой подсказки стикера закрыл запрос */
+  coverage: number;
+  /** Есть ли хоть одно точное совпадение слова */
+  hasExact: boolean;
+  /** Итоговый балл */
+  final: number;
+}
 
 /**
  * Проверяет, состоит ли строка только из эмодзи
@@ -25,7 +59,8 @@ function isEmojiOnly(str: string): boolean {
  */
 export class SearchEngine {
   private index: SearchIndex | null = null;
-  private isIndexBuilt = false;
+  /** Массив, по которому построен индекс — сравнением ловим подгрузку новых фото */
+  private indexedStickers: PhotoSticker[] | null = null;
   private indexBuilder: IndexBuilder;
   private validator: QueryValidator;
   private normalizer: TextNormalizer;
@@ -41,64 +76,89 @@ export class SearchEngine {
   }
 
   /**
-   * Построить индекс для стикеров
+   * Построить индекс для стикеров.
+   * Перестраивается, когда пришёл другой массив стикеров — иначе фото,
+   * догруженные после старта из кэша, никогда бы не попали в поиск.
    */
   buildIndex(stickers: PhotoSticker[]): void {
-    if (this.isIndexBuilt) return;
+    if (this.indexedStickers === stickers) {
+      return;
+    }
 
     this.index = this.indexBuilder.buildIndex(stickers);
-    this.isIndexBuilt = true;
+    this.indexedStickers = stickers;
+
+    Logger.info('SearchEngine: индекс построен', {
+      stickers: stickers.length,
+      words: this.index.exactWords.size,
+      stems: this.index.stemWords.size,
+      suggestions: this.index.exactSuggestions.size
+    });
   }
 
   /**
    * Основная функция поиска
+   *
+   * @param limit сколько результатов нужно вызывающей стороне.
+   *              Ранжирование всегда полное, лимит влияет только на длину
+   *              выдачи и на то, можно ли пропустить дорогой fuzzy-поиск.
    */
-  search(stickers: PhotoSticker[], query: string): PhotoSticker[] {
-    // Строим индекс если его нет
-    if (!this.isIndexBuilt) {
-      this.buildIndex(stickers);
-    }
+  search(
+    stickers: PhotoSticker[],
+    query: string,
+    limit: number = this.config.limits.maxResults
+  ): PhotoSticker[] {
+    this.buildIndex(stickers);
 
-    // Валидация запроса
     const validation = this.validator.validate(query);
     if (!validation.isValid) {
+      Logger.info('SearchEngine: запрос отклонён', { query, reason: validation.reason });
       return [];
     }
 
     const normalizedQuery = this.normalizer.normalizeQuery(query);
-    
+
     // Проверяем, является ли запрос чистым эмодзи
     const emojiQuery = normalizedQuery.replace(/[\s\u200D]/g, '');
-    const isEmojiSearch = emojiQuery.length > 0 && isEmojiOnly(emojiQuery);
-    
-    // Для эмодзи-запросов используем упрощенную логику
-    if (isEmojiSearch) {
-      return this.searchEmoji(stickers, normalizedQuery);
+    if (emojiQuery.length > 0 && isEmojiOnly(emojiQuery)) {
+      return this.searchEmoji(normalizedQuery, limit);
     }
 
-    const queryWords = this.normalizer.extractWords(normalizedQuery);
+    const queryWords = this.normalizer.selectQueryWords(
+      this.normalizer.extractWords(normalizedQuery),
+      this.config.limits.maxQueryWords
+    );
 
     if (queryWords.length === 0) {
       return [];
     }
 
-    // Проверяем, является ли запрос одной буквой
-    const isSingleLetterQuery = queryWords.length === 1 && queryWords[0].length === 1;
-    if (isSingleLetterQuery) {
+    // Одна буква — совпадений слишком много, они бессмысленны
+    if (queryWords.length === 1 && queryWords[0].length === 1) {
       return [];
     }
 
-    // Пробуем поиск с оригинальным запросом
-    let results = this.performSearch(stickers, normalizedQuery, queryWords);
+    let results = this.performSearch(normalizedQuery, queryWords, limit);
 
     // Если ничего не нашли и включено переключение раскладки, пробуем переключить
     if (results.length === 0 && this.config.features.enableLayoutSwitch) {
       const switchedQuery = switchKeyboardLayout(normalizedQuery);
       if (switchedQuery !== normalizedQuery) {
-        const switchedWords = this.normalizer.extractWords(switchedQuery);
-        results = this.performSearch(stickers, switchedQuery, switchedWords);
+        const switchedWords = this.normalizer.selectQueryWords(
+          this.normalizer.extractWords(switchedQuery),
+          this.config.limits.maxQueryWords
+        );
+        results = this.performSearch(switchedQuery, switchedWords, limit);
       }
     }
+
+    Logger.info('SearchEngine: поиск завершён', {
+      query,
+      queryWords,
+      limit,
+      found: results.length,
+      top: results.slice(0, 5).map(r => ({ text: r.sticker.suggestions[0], score: r.score }))
+    });
 
     return results.map(r => r.sticker);
   }
@@ -106,352 +166,400 @@ export class SearchEngine {
   /**
    * Поиск стикеров по эмодзи
    */
-  private searchEmoji(stickers: PhotoSticker[], emojiQuery: string): PhotoSticker[] {
-    if (!this.index) return [];
+  private searchEmoji(emojiQuery: string, limit: number): PhotoSticker[] {
+    if (!this.index) {
+      return [];
+    }
+
+    const matches = new Map<PhotoSticker, StickerMatches>();
+
+    for (const emoji of extractEmojiChars(emojiQuery)) {
+      this.addStickers(matches, this.index.exactWords.get(emoji), {
+        type: 'exact', field: 'word', value: emoji, queryWord: emoji, score: 3.0
+      });
+
+      this.addStickers(matches, this.index.exactSuggestions.get(emoji), {
+        type: 'exact', field: 'suggestion', value: emoji, queryWord: emoji, score: 2.5
+      });
+    }
 
     const results: SearchResult[] = [];
 
-    // Извлекаем все эмодзи из запроса, разбивая последовательности на отдельные символы
-    const emojiBlocks = emojiQuery.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu) || [];
-    const emojiChars: string[] = [];
+    for (const [sticker, stickerMatches] of matches) {
+      const details = [...stickerMatches.values()];
 
-    for (const emojiBlock of emojiBlocks) {
-      // Разбиваем каждый блок на отдельные эмодзи
-      const individualEmojis = emojiBlock.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
-      if (individualEmojis) {
-        emojiChars.push(...individualEmojis);
-      } else {
-        emojiChars.push(emojiBlock);
-      }
+      results.push({
+        sticker,
+        score: details.reduce((sum, match) => sum + match.score, 0),
+        matches: details
+      });
     }
 
-    for (const emoji of emojiChars) {
-      // Ищем точные совпадения по эмодзи в словах
-      const exactWordMatches = this.index.exactWords.get(emoji) || [];
-      for (const sticker of exactWordMatches) {
-        const existingResult = results.find(r => r.sticker === sticker);
-        if (existingResult) {
-          existingResult.score += 3.0; // Высокий балл за точное совпадение эмодзи
-          existingResult.matches.push({
-            type: 'exact',
-            field: 'word',
-            value: emoji,
-            score: 3.0
-          });
-        } else {
-          results.push({
-            sticker,
-            score: 3.0,
-            matches: [{
-              type: 'exact',
-              field: 'word',
-              value: emoji,
-              score: 3.0
-            }]
-          });
-        }
-      }
+    Logger.info('SearchEngine: поиск по эмодзи', { emojiQuery, found: results.length });
 
-      // Ищем точные совпадения по эмодзи в подсказках
-      const exactSuggestionMatches = this.index.exactSuggestions.get(emoji) || [];
-      for (const sticker of exactSuggestionMatches) {
-        const existingResult = results.find(r => r.sticker === sticker);
-        if (existingResult) {
-          existingResult.score += 2.5; // Чуть меньший балл за совпадение в подсказках
-          existingResult.matches.push({
-            type: 'exact',
-            field: 'suggestion',
-            value: emoji,
-            score: 2.5
-          });
-        } else {
-          results.push({
-            sticker,
-            score: 2.5,
-            matches: [{
-              type: 'exact',
-              field: 'suggestion',
-              value: emoji,
-              score: 2.5
-            }]
-          });
-        }
-      }
-    }
-
-    // Сортируем и возвращаем результаты
-    return results
-      .sort((a, b) => b.score - a.score)
-      .slice(0, this.config.limits.maxResults)
-      .map(r => r.sticker);
+    return this.sortAndLimitResults(results, limit).map(r => r.sticker);
   }
 
   /**
-   * Выполнить поиск
+   * Выполнить поиск по словам запроса
    */
-  private performSearch(
-    stickers: PhotoSticker[],
-    query: string,
-    queryWords: string[]
-  ): SearchResult[] {
-    const candidateStickers = new Set<PhotoSticker>();
-    const stickerScores = new Map<PhotoSticker, { score: number; matches: MatchDetails[] }>();
-
-    // 1. Точные совпадения
-    this.searchExactMatches(queryWords, candidateStickers, stickerScores);
-
-    // 2. Частичные совпадения (префиксы)
-    if (candidateStickers.size < this.config.limits.maxResults * 2) {
-      this.searchPartialMatches(queryWords, candidateStickers, stickerScores);
+  private performSearch(query: string, queryWords: string[], limit: number): SearchResult[] {
+    if (!this.index || queryWords.length === 0) {
+      return [];
     }
 
-    // 3. Семантический поиск
+    const matches = new Map<PhotoSticker, StickerMatches>();
+
+    this.matchWholeQuery(query, queryWords, matches);
+    this.matchExact(queryWords, matches);
+    this.matchPrefix(queryWords, matches);
+    this.matchStem(queryWords, matches);
+    this.matchCommonPrefix(queryWords, matches);
+
     if (this.config.features.enableSemantic) {
-      this.searchSemanticMatches(queryWords, candidateStickers, stickerScores);
+      this.matchSemantic(queryWords, matches);
     }
 
-    // 4. Fuzzy поиск (если включен)
-    if (this.config.features.enableFuzzy) {
-      this.searchFuzzyMatches(queryWords, candidateStickers, stickerScores);
+    const results = this.buildResults(matches, queryWords, limit);
+
+    // Fuzzy — единственная дорогая стадия (расстояние Левенштейна по всему
+    // словарю). Пропускаем её только когда выдача от неё измениться не может.
+    if (!this.config.features.enableFuzzy || this.isPageFinal(results, queryWords, limit)) {
+      return results;
     }
 
-    // 5. Формирование результатов
-    return this.buildResults(stickerScores, queryWords);
+    this.matchFuzzy(queryWords, matches);
+
+    return this.buildResults(matches, queryWords, limit);
   }
 
   /**
-   * Поиск точных совпадений
+   * Запрос целиком совпал с подсказкой стикера — самый сильный сигнал.
+   * Совпадение записывается на каждое слово запроса, поэтому запрос считается
+   * покрытым полностью.
    */
-  private searchExactMatches(
+  private matchWholeQuery(
+    query: string,
     queryWords: string[],
-    candidateStickers: Set<PhotoSticker>,
-    stickerScores: Map<PhotoSticker, { score: number; matches: MatchDetails[] }>
+    matches: Map<PhotoSticker, StickerMatches>
   ): void {
+    const stickers = this.index!.exactSuggestions.get(query);
+
     for (const word of queryWords) {
-      // Точные совпадения в словах
-      const exactWordMatches = this.index!.exactWords.get(word) || [];
-      for (const sticker of exactWordMatches) {
-        candidateStickers.add(sticker);
-        this.addMatch(stickerScores, sticker, {
-          type: 'exact',
-          field: 'word',
-          value: word,
-          score: 1.0 * this.config.scoring.exactMatch
-        });
-      }
-
-      // Точные совпадения в подсказках
-      const exactSuggestionMatches = this.index!.exactSuggestions.get(word) || [];
-      for (const sticker of exactSuggestionMatches) {
-        candidateStickers.add(sticker);
-        this.addMatch(stickerScores, sticker, {
-          type: 'exact',
-          field: 'suggestion',
-          value: word,
-          score: 1.0 * this.config.scoring.exactMatch
-        });
-      }
+      this.addStickers(matches, stickers, {
+        type: 'exact',
+        field: 'suggestion',
+        value: query,
+        queryWord: word,
+        score: this.config.scoring.exactMatch
+      });
     }
   }
 
   /**
-   * Поиск частичных совпадений (префиксы)
+   * Точные совпадения слов и односложных подсказок
    */
-  private searchPartialMatches(
-    queryWords: string[],
-    candidateStickers: Set<PhotoSticker>,
-    stickerScores: Map<PhotoSticker, { score: number; matches: MatchDetails[] }>
-  ): void {
+  private matchExact(queryWords: string[], matches: Map<PhotoSticker, StickerMatches>): void {
     for (const word of queryWords) {
-      if (word.length >= this.config.limits.minPrefixLength) {
-        for (
-          let i = this.config.limits.minPrefixLength;
-          i <= Math.min(word.length, this.config.limits.maxPrefixLength);
-          i++
-        ) {
-          const prefix = word.substring(0, i);
-          const partialMatches = this.index!.partialWords.get(prefix) || [];
-          for (const sticker of partialMatches) {
-            if (!candidateStickers.has(sticker)) {
-              candidateStickers.add(sticker);
-              this.addMatch(stickerScores, sticker, {
-                type: 'partial',
-                field: 'word',
-                value: prefix,
-                score: 0.6 * (i / word.length)
-              });
-            }
-          }
-        }
-      }
+      this.addStickers(matches, this.index!.exactWords.get(word), {
+        type: 'exact', field: 'word', value: word, queryWord: word,
+        score: this.config.scoring.exactMatch
+      });
+
+      this.addStickers(matches, this.index!.exactSuggestions.get(word), {
+        type: 'exact', field: 'suggestion', value: word, queryWord: word,
+        score: this.config.scoring.exactMatch
+      });
     }
   }
 
   /**
-   * Поиск семантических совпадений
+   * Слово запроса является началом слова стикера: «привет» → «приветствие».
+   * Чем большую часть найденного слова закрывает запрос, тем выше балл.
    */
-  private searchSemanticMatches(
-    queryWords: string[],
-    candidateStickers: Set<PhotoSticker>,
-    stickerScores: Map<PhotoSticker, { score: number; matches: MatchDetails[] }>
-  ): void {
+  private matchPrefix(queryWords: string[], matches: Map<PhotoSticker, StickerMatches>): void {
     for (const word of queryWords) {
-      const synonyms = this.index!.semanticMap.get(word) || new Set();
-      
-      for (const synonym of synonyms) {
-        if (synonym === word) continue; // Пропускаем само слово
-        
-        const semanticMatches = this.index!.exactWords.get(synonym) || [];
-        
-        for (const sticker of semanticMatches) {
-          candidateStickers.add(sticker);
-          this.addMatch(stickerScores, sticker, {
-            type: 'semantic',
-            field: 'word',
-            value: synonym,
-            score: this.config.scoring.semanticMatch
-          });
-        }
-      }
-    }
-  }
-
-  /**
-   * Поиск с учетом опечаток (Fuzzy Matching)
-   */
-  private searchFuzzyMatches(
-    queryWords: string[],
-    candidateStickers: Set<PhotoSticker>,
-    stickerScores: Map<PhotoSticker, { score: number; matches: MatchDetails[] }>
-  ): void {
-    // Получаем словарь всех слов из индекса
-    const dictionary = Array.from(this.index!.exactWords.keys());
-
-    for (const queryWord of queryWords) {
-      const maxDistance = this.fuzzyMatcher.getMaxDistance(queryWord.length);
-      
-      // Пропускаем слишком короткие слова
-      if (maxDistance === 0) continue;
-
-      const similarWords = this.fuzzyMatcher.findSimilarWords(
-        queryWord,
-        dictionary,
-        maxDistance
-      );
-
-      for (const { word, distance } of similarWords) {
-        // Пропускаем точные совпадения (они уже найдены)
-        if (distance === 0) continue;
-
-        const fuzzyMatches = this.index!.exactWords.get(word) || [];
-        for (const sticker of fuzzyMatches) {
-          if (!candidateStickers.has(sticker)) {
-            candidateStickers.add(sticker);
-            
-            const fuzzyScore = this.fuzzyMatcher.calculateFuzzyScore(distance, queryWord.length);
-            this.addMatch(stickerScores, sticker, {
-              type: 'fuzzy',
-              field: 'word',
-              value: word,
-              score: fuzzyScore * this.config.scoring.fuzzyMatch
-            });
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Добавить совпадение к стикеру
-   */
-  private addMatch(
-    stickerScores: Map<PhotoSticker, { score: number; matches: MatchDetails[] }>,
-    sticker: PhotoSticker,
-    match: MatchDetails
-  ): void {
-    if (!stickerScores.has(sticker)) {
-      stickerScores.set(sticker, { score: 0, matches: [] });
-    }
-
-    const data = stickerScores.get(sticker)!;
-    data.score += match.score;
-    data.matches.push(match);
-  }
-
-  /**
-   * Построить финальные результаты
-   */
-  private buildResults(
-    stickerScores: Map<PhotoSticker, { score: number; matches: MatchDetails[] }>,
-    queryWords: string[]
-  ): SearchResult[] {
-    const results: SearchResult[] = [];
-    const queryWordsSet = new Set(queryWords);
-
-    for (const [sticker, stickerData] of stickerScores.entries()) {
-      // Бонус за количество совпавших слов запроса
-      const matchedQueryWords = new Set(
-        stickerData.matches.map(m => m.value.toLowerCase())
-      );
-      const matchRatio = this.calculateMatchRatio(matchedQueryWords, queryWordsSet);
-      
-      const finalScore =
-        stickerData.score *
-        (this.config.scoring.baseWeight + matchRatio * this.config.scoring.matchRatioWeight);
-
-      if (finalScore >= this.config.limits.minScore) {
-        results.push({
-          sticker,
-          score: Math.min(finalScore, 10),
-          matches: stickerData.matches.sort((a, b) => b.score - a.score)
-        });
-      }
-    }
-
-    return this.sortAndLimitResults(results);
-  }
-
-  /**
-   * Вычислить коэффициент совпадения слов запроса
-   */
-  private calculateMatchRatio(matchedWords: Set<string>, queryWords: Set<string>): number {
-    if (queryWords.size === 0) return 0;
-
-    let matches = 0;
-    for (const queryWord of queryWords) {
-      // Проверяем точные совпадения
-      if (matchedWords.has(queryWord)) {
-        matches++;
+      if (word.length < this.config.limits.minPrefixLength) {
         continue;
       }
 
-      // Проверяем семантические совпадения
-      const synonyms = this.index!.semanticMap.get(queryWord) || new Set();
-      for (const matchedWord of matchedWords) {
-        if (synonyms.has(matchedWord)) {
-          matches += 0.9; // Семантическое совпадение почти как точное
-          break;
+      for (const term of this.index!.prefixIndex.findByPrefix(word)) {
+        if (term === word) {
+          continue; // Точное совпадение уже учтено
         }
-      }
 
-      // Проверяем частичные совпадения
-      if (matches === 0 || matches % 1 !== 0) { // Если еще не нашли совпадение
-        for (const matchedWord of matchedWords) {
-          if (matchedWord.includes(queryWord) || queryWord.includes(matchedWord)) {
-            matches += 0.7; // Частичное совпадение
-            break;
-          }
-        }
+        this.addStickers(matches, this.index!.exactWords.get(term), {
+          type: 'prefix', field: 'word', value: term, queryWord: word,
+          score: this.config.scoring.prefixMatch * (word.length / term.length)
+        });
       }
     }
+  }
 
-    return Math.min(matches / queryWords.size, 1);
+  /**
+   * Совпадение по основе слова: «работе» → «работаю», «приветствую» → «приветствие»
+   */
+  private matchStem(queryWords: string[], matches: Map<PhotoSticker, StickerMatches>): void {
+    for (const word of queryWords) {
+      const stem = stemWord(word);
+
+      this.addStickers(matches, this.index!.stemWords.get(stem), {
+        type: 'stem', field: 'word', value: stem, queryWord: word,
+        score: this.config.scoring.stemMatch
+      });
+
+      if (stem === word || stem.length < this.config.limits.minPrefixLength) {
+        continue;
+      }
+
+      this.addStickers(matches, this.index!.exactWords.get(stem), {
+        type: 'stem', field: 'word', value: stem, queryWord: word,
+        score: this.config.scoring.stemMatch
+      });
+
+      // Основа запроса как начало слова стикера: «работ» → «работаю»
+      for (const term of this.index!.prefixIndex.findByPrefix(stem)) {
+        this.addStickers(matches, this.index!.exactWords.get(term), {
+          type: 'stem', field: 'word', value: term, queryWord: word,
+          score: this.config.scoring.stemMatch * (stem.length / term.length)
+        });
+      }
+    }
+  }
+
+  /**
+   * У слов общее начало, но ни одно не является префиксом другого:
+   * «приветик» и «приветствие» расходятся после «привет».
+   */
+  private matchCommonPrefix(
+    queryWords: string[],
+    matches: Map<PhotoSticker, StickerMatches>
+  ): void {
+    for (const word of queryWords) {
+      if (word.length < this.config.limits.minCommonPrefixLength) {
+        continue;
+      }
+
+      const found = this.index!.prefixIndex.findByCommonPrefix(
+        word,
+        this.config.limits.minCommonPrefixLength
+      );
+
+      for (const { term, length } of found) {
+        if (term.startsWith(word)) {
+          continue; // Префиксное совпадение уже учтено
+        }
+
+        this.addStickers(matches, this.index!.exactWords.get(term), {
+          type: 'common', field: 'word', value: term, queryWord: word,
+          score: this.config.scoring.commonPrefixMatch * (length / Math.max(word.length, term.length))
+        });
+      }
+    }
+  }
+
+  /**
+   * Поиск по синонимам
+   */
+  private matchSemantic(queryWords: string[], matches: Map<PhotoSticker, StickerMatches>): void {
+    for (const word of queryWords) {
+      for (const synonym of this.index!.semanticMap.get(word) ?? []) {
+        if (synonym === word) {
+          continue;
+        }
+
+        this.addStickers(matches, this.index!.exactWords.get(synonym), {
+          type: 'semantic', field: 'word', value: synonym, queryWord: word,
+          score: this.config.scoring.semanticMatch
+        });
+      }
+    }
+  }
+
+  /**
+   * Поиск с учётом опечаток
+   */
+  private matchFuzzy(queryWords: string[], matches: Map<PhotoSticker, StickerMatches>): void {
+    const dictionary = this.index!.prefixIndex.terms;
+
+    for (const word of queryWords) {
+      const maxDistance = this.fuzzyMatcher.getMaxDistance(word.length);
+      if (maxDistance === 0) {
+        continue;
+      }
+
+      const similarWords = this.fuzzyMatcher.findSimilarWords(word, dictionary, maxDistance);
+
+      for (const { word: term, distance } of similarWords) {
+        if (distance === 0) {
+          continue; // Точное совпадение уже учтено
+        }
+
+        const fuzzyScore = this.fuzzyMatcher.calculateFuzzyScore(distance, word.length);
+
+        this.addStickers(matches, this.index!.exactWords.get(term), {
+          type: 'fuzzy', field: 'word', value: term, queryWord: word,
+          score: fuzzyScore * this.config.scoring.fuzzyMatch
+        });
+      }
+    }
+  }
+
+  /**
+   * Добавляет совпадение сразу нескольким стикерам
+   */
+  private addStickers(
+    matches: Map<PhotoSticker, StickerMatches>,
+    stickers: PhotoSticker[] | undefined,
+    match: MatchDetails
+  ): void {
+    for (const sticker of stickers ?? []) {
+      this.addMatch(matches, sticker, match);
+    }
+  }
+
+  /**
+   * Сохраняет совпадение, если оно лучше уже найденного по этому слову запроса
+   */
+  private addMatch(
+    matches: Map<PhotoSticker, StickerMatches>,
+    sticker: PhotoSticker,
+    match: MatchDetails
+  ): void {
+    let stickerMatches = matches.get(sticker);
+
+    if (!stickerMatches) {
+      stickerMatches = new Map();
+      matches.set(sticker, stickerMatches);
+    }
+
+    const current = stickerMatches.get(match.queryWord);
+    if (!current || match.score > current.score) {
+      stickerMatches.set(match.queryWord, match);
+    }
+  }
+
+  /**
+   * Построить отсортированные результаты
+   */
+  private buildResults(
+    matches: Map<PhotoSticker, StickerMatches>,
+    queryWords: string[],
+    limit: number
+  ): SearchResult[] {
+    const results: SearchResult[] = [];
+    const stopWordsOnly = this.normalizer.isStopWordsOnly(queryWords);
+
+    for (const [sticker, stickerMatches] of matches) {
+      const score = this.evaluate(sticker, stickerMatches, queryWords);
+
+      if (!this.isRelevant(score, stopWordsOnly)) {
+        continue;
+      }
+
+      results.push({
+        sticker,
+        score: Math.min(score.final, 10),
+        matches: [...stickerMatches.values()].sort((a, b) => b.score - a.score)
+      });
+    }
+
+    return this.sortAndLimitResults(results, limit);
+  }
+
+  /**
+   * Считает баллы стикера по его лучшим совпадениям
+   */
+  private evaluate(
+    sticker: PhotoSticker,
+    stickerMatches: StickerMatches,
+    queryWords: string[]
+  ): StickerScore {
+    let raw = 0;
+    let weight = 0;
+    let hasExact = false;
+
+    for (const match of stickerMatches.values()) {
+      raw += match.score;
+      weight += MATCH_WEIGHT[match.type];
+      hasExact ||= match.type === 'exact';
+    }
+
+    const ratio = Math.min(weight / queryWords.length, 1);
+    const suggestionWords = this.index!.minSuggestionWords.get(sticker) ?? 1;
+    const { baseWeight, matchRatioWeight } = this.config.scoring;
+
+    return {
+      ratio,
+      coverage: Math.min(stickerMatches.size / suggestionWords, 1),
+      hasExact,
+      final: raw * (baseWeight + ratio * matchRatioWeight)
+    };
+  }
+
+  /**
+   * Отсекает нерелевантные совпадения
+   */
+  private isRelevant(score: StickerScore, stopWordsOnly: boolean): boolean {
+    const { minScore, minMatchRatio, minWeakCoverage, minStopWordCoverage } = this.config.limits;
+
+    // Совпасть должна хотя бы половина слов запроса, иначе это случайное пересечение
+    if (score.ratio < minMatchRatio) {
+      return false;
+    }
+
+    // Запрос из одних стоп-слов ищем только там, где стоп-слово — заметная
+    // часть подсказки: «это» уместно для «Это база», но не для длинной фразы
+    if (stopWordsOnly && score.coverage < minStopWordCoverage) {
+      return false;
+    }
+
+    // Без единого точного совпадения слова длинную подсказку не показываем:
+    // иначе «кот» вытаскивает длинную фразу из-за слова «которая»
+    if (!score.hasExact && score.coverage < minWeakCoverage) {
+      return false;
+    }
+
+    return score.final >= minScore;
+  }
+
+  /**
+   * Можно ли считать выдачу окончательной без fuzzy-поиска.
+   *
+   * Fuzzy закрывает слово запроса хуже любой другой стадии, поэтому его вклад
+   * ограничен сверху. Если страница уже заполнена стикерами, у которых совпали
+   * все слова запроса (добавить им fuzzy нечего), а балл последнего из них выше
+   * этого потолка, то ни один fuzzy-результат в страницу не попадёт и порядок
+   * внутри неё не изменится.
+   */
+  private isPageFinal(results: SearchResult[], queryWords: string[], limit: number): boolean {
+    if (results.length < limit) {
+      return false;
+    }
+
+    // В matches лежит по одному лучшему совпадению на слово запроса,
+    // поэтому их количество и есть число закрытых слов
+    const allWordsMatched = results.every(result => result.matches.length === queryWords.length);
+
+    return allWordsMatched && results.at(-1)!.score >= this.maxFuzzyScore(queryWords.length);
+  }
+
+  /**
+   * Верхняя граница балла результата, в котором хотя бы одно слово закрыто fuzzy
+   */
+  private maxFuzzyScore(wordCount: number): number {
+    const { exactMatch, fuzzyMatch, baseWeight, matchRatioWeight } = this.config.scoring;
+
+    const raw = exactMatch * (wordCount - 1) + fuzzyMatch;
+    const ratio = (wordCount - 1 + MATCH_WEIGHT.fuzzy) / wordCount;
+
+    return raw * (baseWeight + ratio * matchRatioWeight);
   }
 
   /**
    * Сортировка и ограничение результатов
    */
-  private sortAndLimitResults(results: SearchResult[]): SearchResult[] {
+  private sortAndLimitResults(results: SearchResult[], limit: number): SearchResult[] {
     return results
       .sort((a, b) => {
         // Сначала по релевантности
@@ -467,6 +575,21 @@ export class SearchEngine {
         const bDate = b.sticker.photo.date || 0;
         return bDate - aDate;
       })
-      .slice(0, this.config.limits.maxResults);
+      .slice(0, limit);
   }
+}
+
+/**
+ * Разбивает эмодзи-запрос на отдельные символы
+ */
+function extractEmojiChars(emojiQuery: string): string[] {
+  const blocks = emojiQuery.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]+/gu) ?? [];
+  const result: string[] = [];
+
+  for (const block of blocks) {
+    const individual = block.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
+    result.push(...(individual ?? [block]));
+  }
+
+  return result;
 }

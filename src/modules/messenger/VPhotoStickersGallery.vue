@@ -13,9 +13,9 @@
             @keydown.escape="emit('close')"
             @keydown.stop
           />
-          <span class="v-photo-stickers-gallery__count">{{ filteredStickers.length }}</span>
+          <span class="v-photo-stickers-gallery__count">{{ filteredStickers.length }}{{ hasMore ? '+' : '' }}</span>
         </div>
-        <div class="v-photo-stickers-gallery__grid">
+        <div ref="gridEl" class="v-photo-stickers-gallery__grid">
           <a
             v-for="sticker in filteredStickers"
             :key="sticker.photo.id"
@@ -41,10 +41,14 @@
   </teleport>
 </template>
 <script lang="ts" setup>
-import {computed, nextTick, ref, watch} from "vue";
+import {computed, nextTick, ref, useTemplateRef, watch} from "vue";
+import {useInfiniteScroll} from "@vueuse/core";
 import {PhotoSticker} from "./types";
 import {smartStickerSearch} from "../../classes/AdvancedStickerFilter";
 import {getPhotoStickerHref, getPhotoStickerUrl} from "./photoStickerUtils";
+
+/** Сколько стикеров добавляется за одну подгрузку при скролле */
+const PAGE_SIZE = 60;
 
 const props = defineProps<{
   visible: boolean;
@@ -57,23 +61,47 @@ const emit = defineEmits<{
 }>();
 
 const searchQuery = ref("");
-const searchInputEl = ref<HTMLInputElement | null>(null);
+const visibleLimit = ref(PAGE_SIZE);
+const searchInputEl = useTemplateRef("searchInputEl");
+const gridEl = useTemplateRef("gridEl");
 
+// Ранжирование всегда полное, лениво только отрисовываем: иначе на тысячах
+// стикеров создаётся столько же узлов DOM и запросов за картинками
 const filteredStickers = computed(() => {
-  if (!searchQuery.value.trim()) {
-    return [...props.photos].reverse();
+  const query = searchQuery.value.trim();
+
+  if (!query) {
+    return [...props.photos].reverse().slice(0, visibleLimit.value);
   }
 
-  return smartStickerSearch(props.photos, searchQuery.value.trim());
+  return smartStickerSearch(props.photos, query, visibleLimit.value);
+});
+
+// Выдача обрезана ровно по лимиту — значит, дальше может быть ещё
+const hasMore = computed(() => filteredStickers.value.length >= visibleLimit.value);
+
+useInfiniteScroll(gridEl, showMore, {
+  distance: 200,
+  canLoadMore: () => hasMore.value
+});
+
+watch(searchQuery, () => {
+  visibleLimit.value = PAGE_SIZE;
+  gridEl.value?.scrollTo({top: 0});
 });
 
 watch(() => props.visible, async (v) => {
   if (v) {
     searchQuery.value = "";
+    visibleLimit.value = PAGE_SIZE;
     await nextTick();
     searchInputEl.value?.focus();
   }
 });
+
+function showMore() {
+  visibleLimit.value += PAGE_SIZE;
+}
 
 function onSend(sticker: PhotoSticker) {
   emit("sendSticker", sticker);

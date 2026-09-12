@@ -69,7 +69,7 @@ export class FuzzyMatcher {
    */
   findSimilarWords(
     query: string,
-    dictionary: string[],
+    dictionary: readonly string[],
     maxDistance: number
   ): Array<{ word: string; distance: number }> {
     const results: Array<{ word: string; distance: number }> = [];

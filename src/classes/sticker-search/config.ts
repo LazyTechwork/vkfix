@@ -5,8 +5,12 @@
 export interface ScoringConfig {
   /** Множитель для точных совпадений */
   exactMatch: number;
-  /** Множитель для префиксных совпадений */
+  /** Множитель для префиксных совпадений (запрос — начало слова) */
   prefixMatch: number;
+  /** Множитель для совпадений по основе слова */
+  stemMatch: number;
+  /** Множитель для совпадений по общему началу слов */
+  commonPrefixMatch: number;
   /** Множитель для семантических совпадений */
   semanticMatch: number;
   /** Множитель для fuzzy совпадений */
@@ -18,16 +22,26 @@ export interface ScoringConfig {
 }
 
 export interface SearchLimits {
-  /** Максимальное количество результатов */
+  /** Размер выдачи по умолчанию */
   maxResults: number;
   /** Минимальный порог релевантности */
   minScore: number;
-  /** Максимальное количество слов в запросе */
+  /** Сколько значимых слов запроса участвует в поиске */
   maxQueryWords: number;
-  /** Минимальная длина префикса для поиска */
+  /** Минимальная длина слова, по которому имеет смысл искать префиксом */
   minPrefixLength: number;
-  /** Максимальная длина префикса для поиска */
-  maxPrefixLength: number;
+  /**
+   * Минимальная длина общего начала слов.
+   * Короткое общее начало у длинных слов отсеет сама формула балла:
+   * он считается как доля общего начала от более длинного слова.
+   */
+  minCommonPrefixLength: number;
+  /** Минимальная доля совпавших слов запроса */
+  minMatchRatio: number;
+  /** Минимальное покрытие подсказки, если точных совпадений слов нет */
+  minWeakCoverage: number;
+  /** Минимальное покрытие подсказки для запроса из одних стоп-слов */
+  minStopWordCoverage: number;
 }
 
 export interface SearchFeatures {
@@ -46,8 +60,6 @@ export interface ValidationRules {
   minQueryLength: number;
   /** Максимальная длина запроса */
   maxQueryLength: number;
-  /** Максимальное количество слов в запросе */
-  maxWords: number;
   /** Разрешить запросы из одной буквы */
   allowSingleLetter: boolean;
 }
@@ -66,6 +78,8 @@ export const DEFAULT_SEARCH_CONFIG: StickerSearchConfig = {
   scoring: {
     exactMatch: 2.5,
     prefixMatch: 1.8,
+    stemMatch: 1.5,
+    commonPrefixMatch: 1.0,
     semanticMatch: 0.7,
     fuzzyMatch: 0.5,
     baseWeight: 0.25,      // Баланс между base и matchRatio
@@ -75,8 +89,11 @@ export const DEFAULT_SEARCH_CONFIG: StickerSearchConfig = {
     maxResults: 50,
     minScore: 0.3,         // Понижен для точных совпадений
     maxQueryWords: 5,
-    minPrefixLength: 2,
-    maxPrefixLength: 6
+    minPrefixLength: 3,    // По двум буквам префиксный поиск даёт только шум
+    minCommonPrefixLength: 3,
+    minMatchRatio: 0.5,    // Половина слов запроса должна совпасть
+    minWeakCoverage: 0.25,
+    minStopWordCoverage: 0.5
   },
   features: {
     enableSemantic: true,
@@ -87,7 +104,6 @@ export const DEFAULT_SEARCH_CONFIG: StickerSearchConfig = {
   validation: {
     minQueryLength: 1,
     maxQueryLength: 50,
-    maxWords: 3,
     allowSingleLetter: false
   }
 } as const;

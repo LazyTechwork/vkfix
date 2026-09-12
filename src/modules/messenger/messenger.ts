@@ -14,6 +14,13 @@ import {useEventListener} from "@vueuse/core";
 import {PhotoCache} from "../../classes/PhotoCache";
 
 
+/**
+ * Сколько стикеров показываем в панели над полем ввода.
+ * Панель прокручивается по горизонтали, больше туда всё равно не смотрят,
+ * а лишние картинки грузились бы на каждое нажатие клавиши.
+ */
+const STICKERS_POPUP_LIMIT = 30;
+
 const isEnabledPhotoStickers = GlobalConfig.Config.get('messenger.photo-stickers') as boolean;
 const photoStickersAlbumIds = GlobalConfig.Config.get('messenger.photo-stickers.albums') as string;
 let _initPhotoStickers = ref<boolean | null>(false) // null - идёт инициализация
@@ -285,7 +292,7 @@ function getWords(str: string) {
     const result: string[] = [];
     for (const token of tokens) {
         // Извлекаем буквы/цифры
-        const letterMatches = token.match(/[а-яa-z0-9]+/g);
+        const letterMatches = token.match(/[а-яёa-z0-9]+/g);
         if (letterMatches) {
             result.push(...letterMatches);
         }
@@ -467,7 +474,7 @@ async function showStickers(text: string) {
     const textLower = text.toLocaleLowerCase()
     const words = getWords(textLower)
     Logger.info(`messenger words`, words)
-    stickersStore.stickers = smartStickerSearch(stickersStore.photos, textLower);
+    stickersStore.stickers = smartStickerSearch(stickersStore.photos, textLower, STICKERS_POPUP_LIMIT);
     // предотвращаем появление стикеров после отправки сообщения
     if (getComposerText(composerInputInput.value) !== text) {
         stickersStore.stickers = []

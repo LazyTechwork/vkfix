@@ -1,7 +1,9 @@
 import { PhotoSticker } from '../../modules/messenger/types';
 import { SearchIndex } from './types';
-import { SIGNIFICANT_PREFIX_LENGTHS } from './config';
 import { SemanticMap } from './SemanticMap';
+import { PrefixIndex } from './PrefixIndex';
+import { stemWord } from './Stemmer';
+import { normalizeLetters, normalizeText } from './TextNormalizer';
 
 /**
  * Регулярное выражение для поиска эмодзи
@@ -16,16 +18,24 @@ export class IndexBuilder {
    * Строит полный поисковый индекс
    */
   buildIndex(stickers: PhotoSticker[]): SearchIndex {
-    const exactWords = this.buildExactWordIndex(stickers);
-    const exactSuggestions = this.buildExactSuggestionIndex(stickers);
-    const partialWords = this.buildPrefixIndex(stickers);
-    const semanticMap = SemanticMap.getInstance().getMap();
+    const exactWords = new Map<string, PhotoSticker[]>();
+    const exactSuggestions = new Map<string, PhotoSticker[]>();
+    const stemWords = new Map<string, PhotoSticker[]>();
+    const minSuggestionWords = new Map<PhotoSticker, number>();
+
+    for (const sticker of stickers) {
+      minSuggestionWords.set(sticker, countShortestSuggestion(sticker));
+      this.indexWords(sticker, exactWords, stemWords);
+      this.indexSuggestions(sticker, exactSuggestions);
+    }
 
     return {
       exactWords,
       exactSuggestions,
-      partialWords,
-      semanticMap
+      stemWords,
+      prefixIndex: new PrefixIndex(exactWords.keys()),
+      minSuggestionWords,
+      semanticMap: SemanticMap.getInstance().getMap()
     };
   }
 
@@ -44,157 +54,106 @@ export class IndexBuilder {
   }
 
   /**
-   * Строит индекс точных совпадений слов
-   * Индексирует как обычные слова, так и эмодзи
+   * Индексирует слова стикера: само слово, его эмодзи и основу
    */
-  private buildExactWordIndex(stickers: PhotoSticker[]): Map<string, PhotoSticker[]> {
-    const index = new Map<string, PhotoSticker[]>();
-
-    for (const sticker of stickers) {
-      for (const word of sticker.lowerWords) {
-        // Индексируем обычные слова
-        if (!index.has(word)) {
-          index.set(word, []);
-        }
-        index.get(word)!.push(sticker);
-        
-        // Если слово содержит эмодзи, индексируем их отдельно
-        const emojiMatches = word.match(EMOJI_REGEX);
-        if (emojiMatches) {
-          for (const emoji of emojiMatches) {
-            if (!index.has(emoji)) {
-              index.set(emoji, []);
-            }
-            index.get(emoji)!.push(sticker);
-          }
-        }
-        
-        // Если слово содержит несколько эмодзи слитно, индексируем каждый отдельно
-        if (emojiMatches && emojiMatches.length > 0) {
-          // Разбиваем каждый найденный эмодзи-блок на отдельные эмодзи
-          for (const emojiBlock of emojiMatches) {
-            const individualEmojis = emojiBlock.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
-            if (individualEmojis && individualEmojis.length > 1) {
-              for (const emoji of individualEmojis) {
-                if (!index.has(emoji)) {
-                  index.set(emoji, []);
-                }
-                index.get(emoji)!.push(sticker);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return index;
-  }
-
-  /**
-   * Строит индекс точных совпадений подсказок
-   * Индексирует как обычные слова, так и эмодзи
-   */
-  private buildExactSuggestionIndex(stickers: PhotoSticker[]): Map<string, PhotoSticker[]> {
-    const index = new Map<string, PhotoSticker[]>();
-
-    for (const sticker of stickers) {
-      for (const suggestion of sticker.lowerSuggestions) {
-        // Индексируем обычные подсказки
-        if (!index.has(suggestion)) {
-          index.set(suggestion, []);
-        }
-        index.get(suggestion)!.push(sticker);
-        
-        // Если подсказка содержит эмодзи, индексируем их отдельно
-        const emojiMatches = suggestion.match(EMOJI_REGEX);
-        if (emojiMatches) {
-          for (const emoji of emojiMatches) {
-            if (!index.has(emoji)) {
-              index.set(emoji, []);
-            }
-            index.get(emoji)!.push(sticker);
-          }
-        }
-        
-        // Если подсказка содержит несколько эмодзи слитно, индексируем каждый отдельно
-        if (emojiMatches && emojiMatches.length > 0) {
-          for (const emojiBlock of emojiMatches) {
-            const individualEmojis = emojiBlock.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
-            if (individualEmojis && individualEmojis.length > 1) {
-              for (const emoji of individualEmojis) {
-                if (!index.has(emoji)) {
-                  index.set(emoji, []);
-                }
-                index.get(emoji)!.push(sticker);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return index;
-  }
-
-  /**
-   * Строит оптимизированный индекс префиксов
-   * Создает префиксы только для значимых длин (3, 4, 5)
-   * Для эмодзи создает записи без префиксов
-   */
-  private buildPrefixIndex(stickers: PhotoSticker[]): Map<string, PhotoSticker[]> {
-    const index = new Map<string, PhotoSticker[]>();
-
-    for (const sticker of stickers) {
-      // Индексируем слова
-      for (const word of sticker.lowerWords) {
-        this.addPrefixes(index, word, sticker);
-      }
-
-      // Индексируем подсказки
-      for (const suggestion of sticker.lowerSuggestions) {
-        this.addPrefixes(index, suggestion, sticker);
-      }
-    }
-
-    return index;
-  }
-
-  /**
-   * Добавляет префиксы для слова в индекс
-   * Для эмодзи добавляет запись без префиксов
-   */
-  private addPrefixes(
-    index: Map<string, PhotoSticker[]>,
-    text: string,
-    sticker: PhotoSticker
+  private indexWords(
+    sticker: PhotoSticker,
+    exactWords: Map<string, PhotoSticker[]>,
+    stemWords: Map<string, PhotoSticker[]>
   ): void {
-    // Проверяем, является ли текст эмодзи
-    const isEmoji = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}]+$/u.test(text);
-    
-    if (isEmoji) {
-      // Для эмодзи добавляем точную запись без префиксов
-      if (!index.has(text)) {
-        index.set(text, []);
-      }
-      const stickers = index.get(text)!;
-      if (!stickers.includes(sticker)) {
-        stickers.push(sticker);
-      }
-      return;
-    }
+    for (const word of sticker.lowerWords) {
+      const normalized = normalizeLetters(word);
+      addToIndex(exactWords, normalized, sticker);
 
-    // Для обычных слов добавляем префиксы
-    for (const length of SIGNIFICANT_PREFIX_LENGTHS) {
-      if (text.length >= length) {
-        const prefix = text.substring(0, length);
-        if (!index.has(prefix)) {
-          index.set(prefix, []);
-        }
-        const stickers = index.get(prefix)!;
-        if (!stickers.includes(sticker)) {
-          stickers.push(sticker);
-        }
+      for (const emoji of extractEmojis(word)) {
+        addToIndex(exactWords, emoji, sticker);
+      }
+
+      // Основу храним отдельно, только если она отличается от слова
+      const stem = stemWord(normalized);
+      if (stem !== normalized) {
+        addToIndex(stemWords, stem, sticker);
       }
     }
+  }
+
+  /**
+   * Индексирует подсказки стикера целиком и эмодзи внутри них
+   */
+  private indexSuggestions(
+    sticker: PhotoSticker,
+    exactSuggestions: Map<string, PhotoSticker[]>
+  ): void {
+    for (const suggestion of sticker.lowerSuggestions) {
+      addToIndex(exactSuggestions, normalizeText(suggestion), sticker);
+
+      for (const emoji of extractEmojis(suggestion)) {
+        addToIndex(exactSuggestions, emoji, sticker);
+      }
+    }
+  }
+}
+
+/**
+ * Длина самой короткой подсказки стикера в словах.
+ *
+ * Подсказки — взаимозаменяемые варианты одной и той же реплики, поэтому берём
+ * минимум: стикер с вариантом «Хахаха» остаётся коротким, даже если рядом
+ * лежит вариант из трёх слов.
+ */
+function countShortestSuggestion(sticker: PhotoSticker): number {
+  let shortest = sticker.lowerWords.length || 1;
+
+  for (const suggestion of sticker.lowerSuggestions) {
+    const words = suggestion.split(/\s+/).filter(word => word.length > 0).length;
+
+    if (words > 0 && words < shortest) {
+      shortest = words;
+    }
+  }
+
+  return shortest;
+}
+
+/**
+ * Извлекает эмодзи: и слитные последовательности, и каждый символ отдельно
+ */
+function extractEmojis(text: string): string[] {
+  const blocks = text.match(EMOJI_REGEX);
+  if (!blocks) {
+    return [];
+  }
+
+  const result: string[] = [];
+
+  for (const block of blocks) {
+    result.push(block);
+
+    const individual = block.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu);
+    if (individual && individual.length > 1) {
+      result.push(...individual);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Добавляет стикер в индекс без дублей
+ */
+function addToIndex(
+  index: Map<string, PhotoSticker[]>,
+  key: string,
+  sticker: PhotoSticker
+): void {
+  const stickers = index.get(key);
+
+  if (!stickers) {
+    index.set(key, [sticker]);
+    return;
+  }
+
+  if (!stickers.includes(sticker)) {
+    stickers.push(sticker);
   }
 }
